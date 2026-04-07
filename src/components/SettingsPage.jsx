@@ -4,7 +4,7 @@ import TextField from '@atlaskit/textfield';
 import Select from '@atlaskit/select';
 import { Checkbox } from '@atlaskit/checkbox';
 import DynamicTable from '@atlaskit/dynamic-table';
-import Modal, { ModalBody, ModalFooter, ModalHeader, ModalTitle, ModalTransition } from '@atlaskit/modal-dialog';
+import SlidePanel from './SlidePanel';
 import { token } from '@atlaskit/tokens';
 
 import TopNav from './TopNav';
@@ -134,7 +134,7 @@ function GeneralConfig() {
   );
 }
 
-function GlobalPermissions() {
+function GlobalPermissions({ onAdd, onEdit }) {
   const head = {
     cells: [
       { key: 'permission', content: 'Permission', isSortable: false },
@@ -143,10 +143,10 @@ function GlobalPermissions() {
     ],
   };
   const rows = [
-    { key: 'admin', cells: [{ content: <strong>Administer System</strong> }, { content: 'site-admins, system-administrators' }, { content: <a href="#" style={{color:'var(--ds-link)'}}>Edit</a> }] },
-    { key: 'create', cells: [{ content: <strong>Create Missions</strong> }, { content: 'coordinators, site-admins' }, { content: <a href="#" style={{color:'var(--ds-link)'}}>Edit</a> }] },
-    { key: 'manage', cells: [{ content: <strong>Manage Inventory</strong> }, { content: 'inventory-managers, site-admins' }, { content: <a href="#" style={{color:'var(--ds-link)'}}>Edit</a> }] },
-    { key: 'view', cells: [{ content: <strong>View Reports</strong> }, { content: 'site-admins, external-partners' }, { content: <a href="#" style={{color:'var(--ds-link)'}}>Edit</a> }] },
+    { key: 'admin', cells: [{ content: <strong>Administer System</strong> }, { content: 'site-admins, system-administrators' }, { content: <a href="#" onClick={(e) => { e.preventDefault(); onEdit({ id: 'admin', name: 'Administer System' }); }} style={{color:'var(--ds-link)'}}>Edit</a> }] },
+    { key: 'create', cells: [{ content: <strong>Create Missions</strong> }, { content: 'coordinators, site-admins' }, { content: <a href="#" onClick={(e) => { e.preventDefault(); onEdit({ id: 'create', name: 'Create Missions' }); }} style={{color:'var(--ds-link)'}}>Edit</a> }] },
+    { key: 'manage', cells: [{ content: <strong>Manage Inventory</strong> }, { content: 'inventory-managers, site-admins' }, { content: <a href="#" onClick={(e) => { e.preventDefault(); onEdit({ id: 'manage', name: 'Manage Inventory' }); }} style={{color:'var(--ds-link)'}}>Edit</a> }] },
+    { key: 'view', cells: [{ content: <strong>View Reports</strong> }, { content: 'site-admins, external-partners' }, { content: <a href="#" onClick={(e) => { e.preventDefault(); onEdit({ id: 'view', name: 'View Reports' }); }} style={{color:'var(--ds-link)'}}>Edit</a> }] },
   ];
 
   return (
@@ -155,7 +155,7 @@ function GlobalPermissions() {
         <p style={{ color: token('color.text.subtle', '#5E6C84'), fontSize: 14 }}>
           Global permissions apply to the entire system, regardless of mission scope.
         </p>
-        <PrimaryButton>Grant permission</PrimaryButton>
+        <PrimaryButton onClick={onAdd}>Grant permission</PrimaryButton>
       </div>
       <DynamicTable head={head} rows={rows} rowsPerPage={10} defaultPage={1} loadingSpinnerSize="large" />
     </>
@@ -187,7 +187,7 @@ function AuditLog() {
   );
 }
 
-function Users() {
+function Users({ onInvite }) {
   const head = {
     cells: [
       { key: 'name', content: 'Name', isSortable: true },
@@ -209,14 +209,14 @@ function Users() {
         <p style={{ color: token('color.text.subtle', '#5E6C84'), fontSize: 14 }}>
           Manage access and see everyone working in your workspace.
         </p>
-        <PrimaryButton>Invite users</PrimaryButton>
+        <PrimaryButton onClick={onInvite}>Invite users</PrimaryButton>
       </div>
       <DynamicTable head={head} rows={rows} rowsPerPage={10} defaultPage={1} />
     </>
   );
 }
 
-function Groups() {
+function Groups({ onCreate, onEdit }) {
   const head = {
     cells: [
       { key: 'group', content: 'Group name', isSortable: true },
@@ -226,9 +226,9 @@ function Groups() {
     ],
   };
   const rows = [
-    { key: '1', cells: [{ content: <strong>site-admins</strong> }, { content: '3 users' }, { content: 'System defined' }, { content: <a href="#" style={{color:'var(--ds-link)'}}>Edit</a> }] },
-    { key: '2', cells: [{ content: <strong>inventory-managers</strong> }, { content: '12 users' }, { content: 'Custom group' }, { content: <a href="#" style={{color:'var(--ds-link)'}}>Edit</a> }] },
-    { key: '3', cells: [{ content: <strong>external-partners</strong> }, { content: '45 users' }, { content: 'Custom group' }, { content: <a href="#" style={{color:'var(--ds-link)'}}>Edit</a> }] },
+    { key: '1', cells: [{ content: <strong>site-admins</strong> }, { content: '3 users' }, { content: 'System defined' }, { content: <a href="#" onClick={(e) => { e.preventDefault(); onEdit({ id: '1', name: 'site-admins' }); }} style={{color:'var(--ds-link)'}}>Edit</a> }] },
+    { key: '2', cells: [{ content: <strong>inventory-managers</strong> }, { content: '12 users' }, { content: 'Custom group' }, { content: <a href="#" onClick={(e) => { e.preventDefault(); onEdit({ id: '2', name: 'inventory-managers' }); }} style={{color:'var(--ds-link)'}}>Edit</a> }] },
+    { key: '3', cells: [{ content: <strong>external-partners</strong> }, { content: '45 users' }, { content: 'Custom group' }, { content: <a href="#" onClick={(e) => { e.preventDefault(); onEdit({ id: '3', name: 'external-partners' }); }} style={{color:'var(--ds-link)'}}>Edit</a> }] },
   ];
 
   return (
@@ -237,7 +237,7 @@ function Groups() {
         <p style={{ color: token('color.text.subtle', '#5E6C84'), fontSize: 14 }}>
           Groups let you assign access and permissions to multiple users at once.
         </p>
-        <PrimaryButton>Create group</PrimaryButton>
+        <PrimaryButton onClick={onCreate}>Create group</PrimaryButton>
       </div>
       <DynamicTable head={head} rows={rows} rowsPerPage={10} defaultPage={1} />
     </>
@@ -395,10 +395,10 @@ export default function SettingsPage({ onNavigate }) {
   const renderContent = () => {
     switch (activeTab) {
       case 'General configuration': return <GeneralConfig />;
-      case 'Global permissions':    return <GlobalPermissions />;
+      case 'Global permissions':    return <GlobalPermissions onAdd={() => setModalOpen('permission')} onEdit={(item) => { setEditingItem(item); setModalOpen('permission'); }} />;
       case 'Audit log':             return <AuditLog />;
-      case 'Users':                 return <Users />;
-      case 'Groups':                return <Groups />;
+      case 'Users':                 return <Users onInvite={() => setModalOpen('invite')} />;
+      case 'Groups':                return <Groups onCreate={() => setModalOpen('group')} onEdit={(item) => { setEditingItem(item); setModalOpen('group'); }} />;
       case 'Authentication':        return <Authentication />;
       case 'Categories & Tags':     return <CategoriesTags onAdd={() => setModalOpen('category')} onEdit={(item) => { setEditingItem(item); setModalOpen('category'); }} />;
       case 'Locations':             return <Locations onAdd={() => setModalOpen('location')} onEdit={(item) => { setEditingItem(item); setModalOpen('location'); }} />;
@@ -497,14 +497,22 @@ export default function SettingsPage({ onNavigate }) {
         </Main>
       </Content>
 
-      <ModalTransition>
-        {isModalOpen === 'category' && (
-          <Modal onClose={closeModal}>
-            <ModalHeader>
-              <ModalTitle>{editingItem ? 'Edit Category' : 'Add Category'}</ModalTitle>
-            </ModalHeader>
-            <ModalBody>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 20, paddingBottom: 20 }}>
+      <SlidePanel isOpen={!!isModalOpen} onClose={closeModal} width={540}>
+        <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+          <div style={{ padding: '32px 32px 16px', borderBottom: '1px solid #DFE1E6' }}>
+            <h2 style={{ margin: 0, fontSize: 24, fontWeight: 600, color: '#172B4D' }}>
+              {isModalOpen === 'category' && (editingItem ? 'Edit Category' : 'Add Category')}
+              {isModalOpen === 'location' && (editingItem ? 'Edit Location' : 'Add Location')}
+              {isModalOpen === 'automation' && 'Create automation rule'}
+              {isModalOpen === 'permission' && (editingItem ? 'Edit Permission' : 'Grant Permission')}
+              {isModalOpen === 'invite' && 'Invite Users'}
+              {isModalOpen === 'group' && (editingItem ? 'Edit Group' : 'Create Group')}
+            </h2>
+          </div>
+
+          <div style={{ padding: 32, flex: 1, overflowY: 'auto' }}>
+            {isModalOpen === 'category' && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
                 <div>
                   <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#5E6C84', marginBottom: 6 }}>Category Name</label>
                   <TextField defaultValue={editingItem?.name || ''} placeholder="e.g. Surgical Supplies" />
@@ -514,21 +522,10 @@ export default function SettingsPage({ onNavigate }) {
                   <Select options={[{label: 'Blue', value: 'blue'}, {label: 'Pink', value: 'pink'}, {label: 'Green', value: 'green'}, {label: 'Orange', value: 'orange'}]} defaultValue={{label: 'Blue', value: 'blue'}} />
                 </div>
               </div>
-            </ModalBody>
-            <ModalFooter>
-              <SubtleButton onClick={closeModal}>Cancel</SubtleButton>
-              <PrimaryButton onClick={closeModal}>{editingItem ? 'Save' : 'Add'}</PrimaryButton>
-            </ModalFooter>
-          </Modal>
-        )}
+            )}
 
-        {isModalOpen === 'location' && (
-          <Modal onClose={closeModal}>
-            <ModalHeader>
-              <ModalTitle>{editingItem ? 'Edit Location' : 'Add Location'}</ModalTitle>
-            </ModalHeader>
-            <ModalBody>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 20, paddingBottom: 20 }}>
+            {isModalOpen === 'location' && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
                 <div>
                   <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#5E6C84', marginBottom: 6 }}>Location Name</label>
                   <TextField defaultValue={editingItem?.name || ''} placeholder="e.g. Warehouse B - Shelf 4" />
@@ -538,42 +535,74 @@ export default function SettingsPage({ onNavigate }) {
                   <Select options={[{label: 'Facility', value: 'facility'}, {label: 'Sub-location', value: 'sub'}]} defaultValue={editingItem ? {label: editingItem.type, value: editingItem.type.toLowerCase()} : {label: 'Facility', value: 'facility'}} />
                 </div>
               </div>
-            </ModalBody>
-            <ModalFooter>
-              <SubtleButton onClick={closeModal}>Cancel</SubtleButton>
-              <PrimaryButton onClick={closeModal}>{editingItem ? 'Save' : 'Add'}</PrimaryButton>
-            </ModalFooter>
-          </Modal>
-        )}
+            )}
 
-        {isModalOpen === 'automation' && (
-          <Modal onClose={closeModal} width="medium">
-            <ModalHeader>
-              <ModalTitle>Create automation rule</ModalTitle>
-            </ModalHeader>
-            <ModalBody>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 24, paddingBottom: 20 }}>
+            {isModalOpen === 'automation' && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
                 <div>
-                  <h4 style={{ margin: '0 0 16px', fontSize: 14 }}>Trigger</h4>
+                  <h4 style={{ margin: '0 0 12px', fontSize: 14 }}>Trigger</h4>
                   <Select placeholder="When..." options={[{label: 'Item quantity drops', value: 'qty'}, {label: 'Mission is completed', value: 'mission'}, {label: 'Item expires', value: 'expiry'}]} />
                 </div>
                 <div>
-                  <h4 style={{ margin: '0 0 16px', fontSize: 14 }}>Condition</h4>
+                  <h4 style={{ margin: '0 0 12px', fontSize: 14 }}>Condition</h4>
                   <Select placeholder="If..." options={[{label: 'Quantity is less than', value: 'lt'}, {label: 'Location is', value: 'loc'}]} />
                 </div>
                 <div>
-                  <h4 style={{ margin: '0 0 16px', fontSize: 14 }}>Action</h4>
+                  <h4 style={{ margin: '0 0 12px', fontSize: 14 }}>Action</h4>
                   <Select placeholder="Then..." options={[{label: 'Send notification to', value: 'notify'}, {label: 'Assign task to', value: 'task'}, {label: 'Flag as low stock', value: 'flag'}]} />
                 </div>
               </div>
-            </ModalBody>
-            <ModalFooter>
-              <SubtleButton onClick={closeModal}>Cancel</SubtleButton>
-              <PrimaryButton onClick={closeModal}>Create rule</PrimaryButton>
-            </ModalFooter>
-          </Modal>
-        )}
-      </ModalTransition>
+            )}
+
+            {isModalOpen === 'permission' && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#5E6C84', marginBottom: 6 }}>Permission</label>
+                  <Select isDisabled={!!editingItem} defaultValue={editingItem ? {label: editingItem.name, value: editingItem.id} : null} placeholder="Select permission..." options={[{label: 'Administer System', value: 'admin'}, {label: 'Create Missions', value: 'create'}]} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#5E6C84', marginBottom: 6 }}>Grant to Groups</label>
+                  <Select isMulti placeholder="Select groups..." options={[{label: 'site-admins', value: 'sa'}, {label: 'inventory-managers', value: 'im'}]} />
+                </div>
+              </div>
+            )}
+
+            {isModalOpen === 'invite' && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#5E6C84', marginBottom: 6 }}>Email Addresses</label>
+                  <TextField placeholder="e.g. john@mendingkids.org, sarah@mendingkids.org" />
+                  <span style={{ fontSize: 12, color: '#626F86', marginTop: 4, display: 'block' }}>Comma separated list of emails.</span>
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#5E6C84', marginBottom: 6 }}>Assign to Groups</label>
+                  <Select isMulti options={[{label: 'site-admins', value: 'sa'}, {label: 'inventory-managers', value: 'im'}]} />
+                </div>
+              </div>
+            )}
+
+            {isModalOpen === 'group' && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#5E6C84', marginBottom: 6 }}>Group Name</label>
+                  <TextField defaultValue={editingItem?.name || ''} placeholder="e.g. mission-coordinators" />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#5E6C84', marginBottom: 6 }}>Description</label>
+                  <TextField placeholder="Who is in this group?" />
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div style={{ padding: '24px 32px', borderTop: '1px solid #DFE1E6', display: 'flex', gap: 12 }}>
+            <PrimaryButton onClick={closeModal}>
+              {isModalOpen === 'automation' ? 'Create rule' : (editingItem ? 'Save changes' : 'Submit')}
+            </PrimaryButton>
+            <SubtleButton onClick={closeModal}>Cancel</SubtleButton>
+          </div>
+        </div>
+      </SlidePanel>
     </PageLayout>
   );
 }
