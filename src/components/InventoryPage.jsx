@@ -127,6 +127,28 @@ function MissionBadge({ mission }) {
 
 // ── Filter Dropdown ────────────────────────────────────────────────────────
 
+function FilterOption({ label, isSelected, onClick }) {
+  const [hover, setHover] = useState(false);
+  return (
+    <button
+      onClick={onClick}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+      style={{
+        display: 'block', width: '100%', padding: '8px 12px',
+        border: 'none', 
+        background: isSelected ? '#F3F0FF' : hover ? '#FAFBFC' : 'transparent',
+        cursor: 'pointer', fontSize: 13, fontFamily: 'inherit',
+        color: token('color.text', '#172B4D'), textAlign: 'left',
+        fontWeight: isSelected ? 600 : 400,
+        transition: 'background-color 0.1s',
+      }}
+    >
+      {label}
+    </button>
+  );
+}
+
 function FilterDropdown({ label, hasIcon, options, selected, onSelect }) {
   const [open, setOpen] = useState(false);
   const dropRef = useRef(null);
@@ -179,33 +201,18 @@ function FilterDropdown({ label, hasIcon, options, selected, onSelect }) {
           boxShadow: '0 4px 16px rgba(9,30,66,0.16), 0 0 1px rgba(9,30,66,0.12)',
           zIndex: 100,
         }}>
-          {/* Clear filter option */}
-          <button
-            onClick={() => { onSelect(''); setOpen(false); }}
-            style={{
-              display: 'block', width: '100%', padding: '8px 12px',
-              border: 'none', background: !selected ? '#F3F0FF' : 'transparent',
-              cursor: 'pointer', fontSize: 13, fontFamily: 'inherit',
-              color: token('color.text', '#172B4D'), textAlign: 'left',
-              fontWeight: !selected ? 600 : 400,
-            }}
-          >
-            All
-          </button>
+          <FilterOption 
+            label="All" 
+            isSelected={!selected} 
+            onClick={() => { onSelect(''); setOpen(false); }} 
+          />
           {options.map((opt) => (
-            <button
+            <FilterOption 
               key={opt}
-              onClick={() => { onSelect(opt); setOpen(false); }}
-              style={{
-                display: 'block', width: '100%', padding: '8px 12px',
-                border: 'none', background: selected === opt ? '#F3F0FF' : 'transparent',
-                cursor: 'pointer', fontSize: 13, fontFamily: 'inherit',
-                color: token('color.text', '#172B4D'), textAlign: 'left',
-                fontWeight: selected === opt ? 600 : 400,
-              }}
-            >
-              {opt}
-            </button>
+              label={opt} 
+              isSelected={selected === opt} 
+              onClick={() => { onSelect(opt); setOpen(false); }} 
+            />
           ))}
         </div>
       )}
