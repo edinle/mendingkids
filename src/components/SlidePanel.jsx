@@ -28,6 +28,25 @@ export default function SlidePanel({ isOpen, onClose, children, width = 480 }) {
           transition: 'transform 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
         }}
       >
+        <button
+          onClick={onClose}
+          style={{
+            position: 'absolute', top: 16, right: 16,
+            width: 32, height: 32, borderRadius: '50%',
+            backgroundColor: 'transparent', border: 'none',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            cursor: 'pointer', color: '#44546F',
+            transition: 'background-color 0.2s', zIndex: 10,
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(9,30,66,0.08)'}
+          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+          aria-label="Close panel"
+        >
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
         {children}
       </div>
     </>

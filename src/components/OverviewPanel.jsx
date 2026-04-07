@@ -254,20 +254,28 @@ function OverviewTab({ totalQuantity }) {
 
       {/* Action buttons */}
       <div style={{ display: 'flex', gap: 8, marginBottom: 24 }}>
-        <button style={{
+        <button
+          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#331D58'}
+          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#422670'}
+          style={{
           flex: 1, height: 48, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-          backgroundColor: '#251343', color: '#fff', border: 'none', borderRadius: 4,
+          backgroundColor: '#422670', color: '#fff', border: 'none', borderRadius: 4,
           fontSize: 14, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit',
+          transition: 'background-color 0.2s',
         }}>
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
             <path d="M8 3v10M3 8h10" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" />
           </svg>
           Add Items
         </button>
-        <button style={{
+        <button
+          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#331D58'}
+          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#422670'}
+          style={{
           flex: 1, height: 48, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-          backgroundColor: '#A12654', color: '#fff', border: 'none', borderRadius: 4,
+          backgroundColor: '#422670', color: '#fff', border: 'none', borderRadius: 4,
           fontSize: 14, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit',
+          transition: 'background-color 0.2s',
         }}>
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
             <circle cx="8" cy="8" r="5.5" stroke="#fff" strokeWidth="1.3" />
@@ -892,18 +900,34 @@ export default function OverviewPanel({ isOpen, onClose, item, onEdit }) {
             paddingTop: 12, marginBottom: 8,
           }}>
             <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-              <Lozenge appearance="inprogress" isBold>In Storage</Lozenge>
               <span style={{
-                display: 'inline-flex', alignItems: 'center',
-                padding: '2px 8px', borderRadius: 3,
+                display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                height: 22, padding: '0 8px', borderRadius: 3,
+                backgroundColor: '#E9F2FF', color: '#0C66E4',
+                border: '1px solid transparent',
+                fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.03em',
+              }}>
+                In Storage
+              </span>
+              <span style={{
+                display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                height: 22, padding: '0 8px', borderRadius: 3,
+                backgroundColor: 'transparent', color: '#AE2E24',
                 border: '1px solid #AE2E24',
-                fontSize: 11, fontWeight: 700, color: '#AE2E24',
-                textTransform: 'uppercase', letterSpacing: '0.03em',
+                fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.03em',
               }}>
                 {expDate}
               </span>
             </div>
-            <Lozenge appearance="default" isBold>{totalQuantity} Units</Lozenge>
+            <span style={{
+              display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+              height: 22, padding: '0 8px', borderRadius: 3,
+              backgroundColor: '#DFE1E6', color: '#44546F',
+              border: '1px solid transparent',
+              fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.03em',
+            }}>
+              {totalQuantity} Units
+            </span>
           </div>
 
           {/* Title */}
@@ -947,9 +971,21 @@ export default function OverviewPanel({ isOpen, onClose, item, onEdit }) {
           borderTop: `1px solid ${token('color.border', 'rgba(9,30,66,0.14)')}`,
         }}>
           <Button appearance="default" onClick={handleClose}>Cancel</Button>
-          <Button appearance="primary" onClick={handleEditItem}>
+          <button
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#331D58'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#422670'}
+            style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              height: 32, padding: '0 12px',
+              backgroundColor: '#422670', color: '#fff',
+              border: 'none', borderRadius: 3,
+              fontSize: 14, fontWeight: 500, fontFamily: 'inherit',
+              cursor: 'pointer', transition: 'background-color 0.2s',
+            }}
+            onClick={handleEditItem}
+          >
             {isFullEdit ? '✏ Save Changes' : '✏ Edit Item'}
-          </Button>
+          </button>
         </div>
       </div>
     </SlidePanel>

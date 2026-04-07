@@ -139,19 +139,24 @@ function FilterDropdown({ label, hasIcon, options, selected, onSelect }) {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  const [isHovered, setIsHovered] = useState(false);
+
   return (
     <div ref={dropRef} style={{ position: 'relative' }}>
       <button
         onClick={() => setOpen(!open)}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
         style={{
           display: 'flex', alignItems: 'center', gap: 6,
           height: 32, padding: '0 10px',
-          border: `1px solid ${selected ? '#422670' : token('color.border', 'rgba(9,30,66,0.14)')}`,
+          border: `1px solid ${(selected || isHovered) ? '#422670' : token('color.border', 'rgba(9,30,66,0.14)')}`,
           borderRadius: 4,
-          background: selected ? '#F3F0FF' : token('elevation.surface', '#fff'),
+          background: selected ? '#F3F0FF' : isHovered ? '#FAFBFC' : token('elevation.surface', '#fff'),
           cursor: 'pointer', fontSize: 14,
-          color: selected ? '#422670' : token('color.text', '#172B4D'),
+          color: (selected || isHovered) ? '#422670' : token('color.text', '#172B4D'),
           fontFamily: 'inherit', fontWeight: selected ? 500 : 400,
+          transition: 'all 0.2s',
         }}
       >
         {hasIcon && (
@@ -372,9 +377,21 @@ export default function InventoryPage() {
                 Inventory
               </h1>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <Button appearance="primary" iconBefore={AddIcon} onClick={openAdd}>
-                  Add Item
-                </Button>
+                <button
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#331D58'}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#422670'}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 6,
+                    height: 32, padding: '0 12px',
+                    backgroundColor: '#422670', color: '#fff',
+                    border: 'none', borderRadius: 3,
+                    fontSize: 14, fontWeight: 500, fontFamily: 'inherit',
+                    cursor: 'pointer', transition: 'background-color 0.2s',
+                  }}
+                  onClick={openAdd}
+                >
+                  <AddIcon label="" size="small" /> Add Item
+                </button>
                 <IconButton
                   icon={ShowMoreHorizontalIcon}
                   label="More options"
