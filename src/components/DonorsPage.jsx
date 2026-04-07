@@ -9,6 +9,8 @@ import { token } from '@atlaskit/tokens';
 
 import TopNav from './TopNav';
 import SideNav from './SideNav';
+import UserFormPanel from './UserFormPanel';
+import UserDetailPanel from './UserDetailPanel';
 
 const INITIAL_DONORS = [
   { id: 1, name: 'John Doe', email: 'john@example.com', role: 'Donor', organization: 'Individual', status: 'Active', lastActive: '2 days ago' },
@@ -42,16 +44,47 @@ function StatusBadge({ status }) {
 
 export default function DonorsPage({ onNavigate }) {
   const [search, setSearch] = useState('');
+  const [users, setUsers] = useState(INITIAL_DONORS);
   
-  const filtered = INITIAL_DONORS.filter(d => 
+  const [formOpen, setFormOpen] = useState(false);
+  const [detailOpen, setDetailOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
+
+  const handleAddUserClick = () => {
+    setSelectedUser(null);
+    setFormOpen(true);
+  };
+
+  const handleEditClick = (user, e) => {
+    if (e) e.stopPropagation();
+    setSelectedUser(user);
+    setDetailOpen(false);
+    setFormOpen(true);
+  };
+
+  const handleRowClick = (user) => {
+    setSelectedUser(user);
+    setDetailOpen(true);
+  };
+
+  const handleSaveUser = (userData) => {
+    setUsers((prev) => {
+      const exists = prev.find(u => u.id === userData.id);
+      if (exists) return prev.map(u => u.id === userData.id ? userData : u);
+      return [...prev, userData];
+    });
+  };
+  
+  const filtered = users.filter(d => 
     d.name.toLowerCase().includes(search.toLowerCase()) || 
     d.email.toLowerCase().includes(search.toLowerCase())
   );
 
   const rows = filtered.map(row => ({
     key: String(row.id),
+    onClick: () => handleRowClick(row),
     cells: [
-      { key: 'name', content: <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+      { key: 'name', content: <div style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' }}>
           <div style={{ width: 28, height: 28, backgroundColor: '#0052CC', color: '#fff', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 'bold' }}>
             {row.name.charAt(0)}
           </div>
@@ -63,8 +96,8 @@ export default function DonorsPage({ onNavigate }) {
       { key: 'status', content: <StatusBadge status={row.status} /> },
       { key: 'lastActive', content: <span style={{ color: '#626F86', fontSize: 13 }}>{row.lastActive}</span> },
       { key: 'actions', content: (
-          <span style={{ display: 'flex', gap: 4 }}>
-            <IconButton icon={EditIcon} label="Edit" appearance="subtle" spacing="compact" />
+          <span style={{ display: 'flex', gap: 4 }} onClick={e => e.stopPropagation()}>
+            <IconButton icon={EditIcon} label="Edit" appearance="subtle" spacing="compact" onClick={(e) => handleEditClick(row, e)} />
             <IconButton icon={ShowMoreHorizontalIcon} label="More" appearance="subtle" spacing="compact" />
           </span>
         ) 
@@ -81,7 +114,7 @@ export default function DonorsPage({ onNavigate }) {
           <div style={{ padding: '24px 32px 32px', maxWidth: 1200, margin: '0 auto' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
               <h1 style={{ margin: 0, fontSize: 24, fontWeight: 600, color: token('color.text', '#172B4D') }}>Donors & Partners</h1>
-              <button style={{ height: 32, padding: '0 16px', backgroundColor: '#422670', color: '#fff', border: 'none', borderRadius: 4, fontSize: 14, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit' }}>
+              <button onClick={handleAddUserClick} style={{ height: 32, padding: '0 16px', backgroundColor: '#422670', color: '#fff', border: 'none', borderRadius: 4, fontSize: 14, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit' }}>
                 Add User
               </button>
             </div>
@@ -105,6 +138,8 @@ export default function DonorsPage({ onNavigate }) {
           </div>
         </Main>
       </Content>
+      <UserFormPanel isOpen={formOpen} onClose={() => setFormOpen(false)} user={selectedUser} onSave={handleSaveUser} />
+      <UserDetailPanel isOpen={detailOpen} onClose={() => setDetailOpen(false)} user={selectedUser} onEdit={handleEditClick} />
     </PageLayout>
   );
 }
