@@ -1,0 +1,110 @@
+import { useState } from 'react';
+import { PageLayout, TopNavigation, LeftSidebarWithoutResize, Content, Main } from '@atlaskit/page-layout';
+import DynamicTable from '@atlaskit/dynamic-table';
+import { IconButton } from '@atlaskit/button/new';
+import EditIcon from '@atlaskit/icon/core/edit';
+import ShowMoreHorizontalIcon from '@atlaskit/icon/core/show-more-horizontal';
+import SearchIcon from '@atlaskit/icon/core/search';
+import { token } from '@atlaskit/tokens';
+
+import TopNav from './TopNav';
+import SideNav from './SideNav';
+
+const INITIAL_DONORS = [
+  { id: 1, name: 'John Doe', email: 'john@example.com', role: 'Donor', organization: 'Individual', status: 'Active', lastActive: '2 days ago' },
+  { id: 2, name: 'Jane Smith', email: 'jane@medsupplies.com', role: 'Partner', organization: 'MedSupplies Inc.', status: 'Active', lastActive: '1 week ago' },
+  { id: 3, name: 'Dr. Adams', email: 'adams@hospital.org', role: 'Partner', organization: 'City Hospital', status: 'Inactive', lastActive: '4 months ago' },
+  { id: 4, name: 'Acme Corp', email: 'contact@acmecorp.com', role: 'Corporate', organization: 'Acme Corp', status: 'Active', lastActive: '1 hour ago' },
+  { id: 5, name: 'Mary Johnson', email: 'mjohnson@example.org', role: 'Donor', organization: 'Individual', status: 'Active', lastActive: '5 days ago' },
+];
+
+const HEAD = {
+  cells: [
+    { key: 'name', content: 'Name', isSortable: true, width: 22 },
+    { key: 'email', content: 'Email', isSortable: true, width: 20 },
+    { key: 'role', content: 'Role', isSortable: true, width: 12 },
+    { key: 'organization', content: 'Organization', isSortable: true, width: 18 },
+    { key: 'status', content: 'Status', isSortable: true, width: 10 },
+    { key: 'lastActive', content: 'Last Active', isSortable: true, width: 13 },
+    { key: 'actions', content: 'Actions', width: 5 },
+  ],
+};
+
+function StatusBadge({ status }) {
+  const bg = status === 'Active' ? '#E3FCEF' : '#FFEBE6';
+  const text = status === 'Active' ? '#006644' : '#BF2600';
+  return (
+    <span style={{ backgroundColor: bg, color: text, padding: '2px 6px', borderRadius: 3, fontSize: 12, fontWeight: 600 }}>
+      {status}
+    </span>
+  );
+}
+
+export default function DonorsPage({ onNavigate }) {
+  const [search, setSearch] = useState('');
+  
+  const filtered = INITIAL_DONORS.filter(d => 
+    d.name.toLowerCase().includes(search.toLowerCase()) || 
+    d.email.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const rows = filtered.map(row => ({
+    key: String(row.id),
+    cells: [
+      { key: 'name', content: <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div style={{ width: 28, height: 28, backgroundColor: '#0052CC', color: '#fff', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 'bold' }}>
+            {row.name.charAt(0)}
+          </div>
+          <span style={{ fontWeight: 500, color: '#172B4D' }}>{row.name}</span>
+        </div> },
+      { key: 'email', content: <span style={{ color: '#44546F' }}>{row.email}</span> },
+      { key: 'role', content: row.role },
+      { key: 'organization', content: row.organization },
+      { key: 'status', content: <StatusBadge status={row.status} /> },
+      { key: 'lastActive', content: <span style={{ color: '#626F86', fontSize: 13 }}>{row.lastActive}</span> },
+      { key: 'actions', content: (
+          <span style={{ display: 'flex', gap: 4 }}>
+            <IconButton icon={EditIcon} label="Edit" appearance="subtle" spacing="compact" />
+            <IconButton icon={ShowMoreHorizontalIcon} label="More" appearance="subtle" spacing="compact" />
+          </span>
+        ) 
+      },
+    ]
+  }));
+
+  return (
+    <PageLayout>
+      <TopNavigation isFixed><TopNav /></TopNavigation>
+      <Content>
+        <LeftSidebarWithoutResize width={240}><SideNav active="donors" onNavigate={onNavigate} /></LeftSidebarWithoutResize>
+        <Main>
+          <div style={{ padding: '24px 32px 32px', maxWidth: 1200, margin: '0 auto' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
+              <h1 style={{ margin: 0, fontSize: 24, fontWeight: 600, color: token('color.text', '#172B4D') }}>Donors & Partners</h1>
+              <button style={{ height: 32, padding: '0 16px', backgroundColor: '#422670', color: '#fff', border: 'none', borderRadius: 4, fontSize: 14, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit' }}>
+                Add User
+              </button>
+            </div>
+            
+            <div style={{ paddingBottom: 16, borderBottom: `2px solid ${token('color.border', 'rgba(9,30,66,0.14)')}`, marginBottom: 20 }}>
+              <div style={{ position: 'relative', display: 'inline-flex', alignItems: 'center' }}>
+                <span style={{ position: 'absolute', left: 10, color: token('color.text.subtlest', '#626F86') }}>
+                  <SearchIcon label="" />
+                </span>
+                <input
+                  type="text"
+                  placeholder="Search users by name or email"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  style={{ height: 34, width: 260, paddingLeft: 36, paddingRight: 10, border: `1px solid ${token('color.border', 'rgba(9,30,66,0.14)')}`, borderRadius: 4, fontSize: 14, color: token('color.text', '#172B4D'), outline: 'none', fontFamily: 'inherit' }}
+                />
+              </div>
+            </div>
+
+            <DynamicTable head={HEAD} rows={rows} rowsPerPage={10} defaultPage={1} isFixedSize />
+          </div>
+        </Main>
+      </Content>
+    </PageLayout>
+  );
+}

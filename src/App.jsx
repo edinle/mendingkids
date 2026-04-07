@@ -4,6 +4,8 @@ import MissionsPage      from './components/MissionsPage';
 import MissionDetailPage from './components/MissionDetailPage';
 import AddItemsPage      from './components/AddItemsPage';
 import DashboardPage     from './components/DashboardPage';
+import DonorsPage        from './components/DonorsPage';
+import ItemRequestsPage  from './components/ItemRequestsPage';
 
 import { PageLayout, Content, Main, LeftSidebarWithoutResize, TopNavigation } from '@atlaskit/page-layout';
 import TopNav  from './components/TopNav';
@@ -46,8 +48,8 @@ export default function App() {
       {nav.page === 'missions'       && <MissionsPage       onNavigate={onNavigate} />}
       {nav.page === 'mission-detail' && <MissionDetailPage  mission={nav.params}  onNavigate={onNavigate} />}
       {nav.page === 'add-items'      && <AddItemsPage       mission={nav.params}  onNavigate={onNavigate} />}
-      {nav.page === 'donors'         && <PlaceholderPage title="Donors & Partners" onNavigate={onNavigate} id="donors"     />}
-      {nav.page === 'requests'       && <PlaceholderPage title="Item Requests"     onNavigate={onNavigate} id="requests"   />}
+      {nav.page === 'donors'         && <DonorsPage         onNavigate={onNavigate} />}
+      {nav.page === 'requests'       && <ItemRequestsPage   onNavigate={onNavigate} />}
       {nav.page === 'volunteers'     && <PlaceholderPage title="Volunteers"        onNavigate={onNavigate} id="volunteers" />}
       {nav.page === 'reports'        && <PlaceholderPage title="Reports"           onNavigate={onNavigate} id="reports"    />}
     </>
