@@ -26,7 +26,14 @@ const NAV_ITEMS = [
 
 export default function SideNav({ active = 'inventory', onNavigate }) {
   return (
-    <SideNavigation label="Main Navigation" testId="side-navigation">
+    <div style={{
+      '--ds-background-selected': '#F3F0FF', 
+      '--ds-text-selected': '#422670', 
+      '--ds-icon-selected': '#422670',
+      '--ds-background-neutral-hovered': 'rgba(66, 38, 112, 0.08)',
+      height: '100%',
+    }}>
+      <SideNavigation label="Main Navigation" testId="side-navigation">
       <NavigationContent>
         <Header 
           iconBefore={<div style={{ width: 32, height: 32, backgroundColor: '#422670', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 4 }}><FolderIcon label="Logo" size="medium" /></div>}
@@ -50,7 +57,8 @@ export default function SideNav({ active = 'inventory', onNavigate }) {
           })}
         </Section>
       </NavigationContent>
-    </SideNavigation>
+      </SideNavigation>
+    </div>
   );
 }
 

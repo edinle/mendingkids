@@ -132,7 +132,7 @@ export default function AddItemsPage({ mission, onNavigate }) {
   const [search,         setSearch]   = useState('');
   const [selectedIds,    setSelected] = useState(new Set(SELECTED_PRELOADED.map(i => i.id)));
 
-  const missionName = mission?.name || 'Mission Name';
+  const handleScanOpen = () => alert('Scan functionality not implemented');
 
   const toggleId = id => setSelected(s => {
     const next = new Set(s);
@@ -154,31 +154,30 @@ export default function AddItemsPage({ mission, onNavigate }) {
   return (
     <PageLayout>
       <TopNavigation isFixed>
-        <TopNav />
+        <TopNav onNavigate={onNavigate} />
       </TopNavigation>
       <Content>
         <LeftSidebar width={240}>
           <SideNav active="missions" onNavigate={onNavigate} />
         </LeftSidebar>
         <Main>
-          <div style={{
-            padding: '24px 32px',
-            fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-            minHeight: '100vh', backgroundColor: '#fff',
-          }}>
-            {/* Back link */}
-            <button
-              onClick={() => onNavigate('mission-detail', mission)}
-              style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, color: '#44546F', marginBottom: 16, padding: 0 }}
-            >
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                <path d="M9 3L5 7l4 4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
-              </svg>
-              Back to {missionName}
-            </button>
-
-            {/* Page heading */}
-            <h1 style={{ margin: '0 0 20px', fontSize: 26, fontWeight: 700, color: '#000' }}>Add Items</h1>
+          <div style={{ padding: '32px 40px', maxWidth: 1200, margin: '0 auto', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
+            {/* Header */}
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 24 }}>
+              <div>
+                <button 
+                  onClick={() => onNavigate('mission-detail', mission)}
+                  style={{ background: 'none', border: 'none', color: '#0052CC', cursor: 'pointer', padding: 0, marginBottom: 8, fontSize: 14, fontWeight: 500 }}>
+                  ← Back to Mission
+                </button>
+                <h1 style={{ margin: 0, fontSize: 24, fontWeight: 600, color: '#172B4D' }}>Add Items {mission ? `to ${mission.name}` : ''}</h1>
+              </div>
+              <button 
+                onClick={handleScanOpen}
+                style={{ height: 32, padding: '0 16px', backgroundColor: '#422670', color: '#fff', border: 'none', borderRadius: 4, fontSize: 14, fontWeight: 500, cursor: 'pointer', marginTop: 16, fontFamily: 'inherit' }}>
+                Scan Barcode
+              </button>
+            </div>
 
             {/* Filter bar */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>

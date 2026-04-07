@@ -249,32 +249,21 @@ export default function MissionsPage({ onNavigate }) {
   return (
     <PageLayout>
       <TopNavigation isFixed>
-        <TopNav />
+        <TopNav onNavigate={onNavigate} />
       </TopNavigation>
       <Content>
         <LeftSidebar width={240}>
           <SideNav active="missions" onNavigate={onNavigate} />
         </LeftSidebar>
         <Main>
-          <div style={{
-            padding: '28px 32px',
-            fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-            minHeight: '100vh', backgroundColor: '#fff',
-          }}>
+          <div style={{ padding: '32px 40px', maxWidth: 1200, margin: '0 auto', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif', minHeight: '100vh', backgroundColor: '#fff' }}>
             {/* Header */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-              <h1 style={{ margin: 0, fontSize: 24, fontWeight: 600, color: '#000' }}>Missions</h1>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+              <h1 style={{ margin: 0, fontSize: 24, fontWeight: 600, color: '#172B4D' }}>Missions Tracking</h1>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <button
                   onClick={() => setCreateOpen(true)}
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: 6,
-                    height: 36, padding: '0 16px',
-                    backgroundColor: '#422670', color: '#fff',
-                    border: 'none', borderRadius: 4,
-                    fontSize: 14, fontWeight: 500, fontFamily: 'inherit',
-                    cursor: 'pointer',
-                  }}
+                  style={{ height: 32, padding: '0 16px', backgroundColor: '#422670', color: '#fff', border: 'none', borderRadius: 4, fontSize: 14, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit' }}
                 >
                   Create Mission
                 </button>

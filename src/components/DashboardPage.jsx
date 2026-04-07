@@ -542,7 +542,7 @@ export default function DashboardPage({ onNavigate }) {
   return (
     <PageLayout>
       <TopNavigation isFixed>
-        <TopNav />
+        <TopNav onNavigate={onNavigate} />
       </TopNavigation>
 
       <Content>
@@ -552,14 +552,21 @@ export default function DashboardPage({ onNavigate }) {
 
         <Main>
           <div style={{
-            padding: '24px 32px 40px',
+            padding: '32px 40px', maxWidth: 1200, margin: '0 auto',
             backgroundColor: '#fff',
             minHeight: '100vh',
             fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
           }}>
-            <h1 style={{ margin: '0 0 24px', fontSize: 24, fontWeight: 600, lineHeight: '32px', color: '#000' }}>
-              Dashboard
-            </h1>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
+              <h1 style={{ margin: 0, fontSize: 24, fontWeight: 600, color: '#172B4D' }}>
+                Dashboard
+              </h1>
+              <button 
+                onClick={() => onNavigate('inventory')}
+                style={{ height: 32, padding: '0 16px', backgroundColor: '#422670', color: '#fff', border: 'none', borderRadius: 4, fontSize: 14, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit' }}>
+                Go to Inventory
+              </button>
+            </div>
 
             {/* Top row: Missions + Expiration Alerts */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 0.65fr', gap: 16, marginBottom: 16 }}>

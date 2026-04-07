@@ -30,7 +30,7 @@ export default function ReportsPage({ onNavigate }) {
       <Content>
         <LeftSidebar width={240} id="reports-sidebar" isFixed><SideNav active="reports" onNavigate={onNavigate} /></LeftSidebar>
         <Main>
-          <div style={{ padding: '24px 32px 32px', maxWidth: 1200, margin: '0 auto' }}>
+          <div style={{ padding: '32px 40px', maxWidth: 1200, margin: '0 auto' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
               <h1 style={{ margin: 0, fontSize: 24, fontWeight: 600, color: token('color.text', '#172B4D') }}>Reports & Analytics</h1>
               <button style={{ height: 32, padding: '0 16px', backgroundColor: '#422670', color: '#fff', border: 'none', borderRadius: 4, fontSize: 14, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit' }}>

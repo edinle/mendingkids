@@ -357,7 +357,7 @@ export default function InventoryPage({ onNavigate }) {
   return (
     <PageLayout>
       <TopNavigation isFixed id="top-navigation" skipLinkTitle="Top Navigation">
-        <TopNav />
+        <TopNav onNavigate={onNavigate} />
       </TopNavigation>
 
       <Content>
@@ -370,15 +370,15 @@ export default function InventoryPage({ onNavigate }) {
         </LeftSidebar>
 
         <Main id="main-content" skipLinkTitle="Main Content">
-          <div style={{ padding: '24px 24px 32px' }}>
+          <div style={{ padding: '32px 40px', maxWidth: 1200, margin: '0 auto' }}>
 
             {/* Page Header */}
             <div style={{
               display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-              marginBottom: 16,
+              marginBottom: 24,
             }}>
               <h1 style={{
-                margin: 0, fontSize: 24, fontWeight: 600, lineHeight: '28px',
+                margin: 0, fontSize: 24, fontWeight: 600,
                 color: token('color.text', '#172B4D'),
               }}>
                 Inventory

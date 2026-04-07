@@ -193,41 +193,37 @@ export default function MissionDetailPage({ mission, onNavigate }) {
   return (
     <PageLayout>
       <TopNavigation isFixed>
-        <TopNav />
+        <TopNav onNavigate={onNavigate} />
       </TopNavigation>
       <Content>
         <LeftSidebar width={240}>
           <SideNav active="missions" onNavigate={onNavigate} />
         </LeftSidebar>
         <Main>
-          <div style={{
-            display: 'flex', height: '100%',
-            fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-          }}>
+          <div style={{ padding: '32px 40px', maxWidth: 1200, margin: '0 auto', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
             {/* Main content */}
-            <div style={{ flex: 1, padding: '24px 28px', overflowY: 'auto', backgroundColor: '#fff' }}>
-              {/* Back link */}
-              <button
-                onClick={() => onNavigate('missions')}
-                style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, color: '#44546F', marginBottom: 16, padding: 0 }}
-              >
-                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                  <path d="M9 3L5 7l4 4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-                Back to Missions
-              </button>
-
-              {/* Mission header */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 4 }}>
-                <h1 style={{ margin: 0, fontSize: 26, fontWeight: 700, color: '#000' }}>{m.name}</h1>
-                <span style={{ display: 'inline-flex', alignItems: 'center', padding: '3px 12px', borderRadius: 999, backgroundColor: sc.bg, color: sc.text, fontSize: 12, fontWeight: 500 }}>
-                  {m.specialty || 'Status Tag'}
-                </span>
+            <div style={{ flex: 1, overflowY: 'auto', backgroundColor: '#fff' }}>
+              {/* Back link and Header */}
+              <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 24 }}>
+                <div>
+                  <button
+                    onClick={() => onNavigate('missions')}
+                    style={{ background: 'none', border: 'none', color: '#0052CC', cursor: 'pointer', padding: 0, marginBottom: 8, fontSize: 14, fontWeight: 500 }}>
+                    ← Back to Missions
+                  </button>
+                  <h1 style={{ margin: 0, fontSize: 24, fontWeight: 600, color: '#172B4D' }}>{m.name}</h1>
+                </div>
+                <button 
+                  onClick={() => setAddPanel(p => !p)}
+                  style={{ height: 32, padding: '0 16px', backgroundColor: '#422670', color: '#fff', border: 'none', borderRadius: 4, fontSize: 14, fontWeight: 500, cursor: 'pointer', marginTop: 16, fontFamily: 'inherit' }}>
+                  Add Items
+                </button>
               </div>
+
               <p style={{ margin: '0 0 2px', fontSize: 14, color: '#44546F' }}>{m.location || 'Location Name'}</p>
               <p style={{ margin: '0 0 20px', fontSize: 13, color: '#626F86' }}>{m.timeAway || '4 months away'}</p>
 
-              {/* Items count + Add button */}
+              {/* Items count */}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
                 <span style={{ fontSize: 13, color: '#626F86', fontWeight: 500 }}>{m.items || 30} items</span>
                 <button
