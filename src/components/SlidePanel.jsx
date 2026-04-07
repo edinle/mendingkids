@@ -31,14 +31,14 @@ export default function SlidePanel({ isOpen, onClose, children, width = 480 }) {
         <button
           onClick={onClose}
           style={{
-            position: 'absolute', top: 16, right: 16,
+            position: 'absolute', top: 16, left: -48,
             width: 32, height: 32, borderRadius: '50%',
             backgroundColor: 'transparent', border: 'none',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            cursor: 'pointer', color: '#44546F',
+            cursor: 'pointer', color: '#fff',
             transition: 'background-color 0.2s', zIndex: 10,
           }}
-          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(9,30,66,0.08)'}
+          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.2)'}
           onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
           aria-label="Close panel"
         >

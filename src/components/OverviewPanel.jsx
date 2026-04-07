@@ -269,11 +269,11 @@ function OverviewTab({ totalQuantity }) {
           Add Items
         </button>
         <button
-          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#331D58'}
-          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#422670'}
+          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#821E42'}
+          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#A12654'}
           style={{
           flex: 1, height: 48, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-          backgroundColor: '#422670', color: '#fff', border: 'none', borderRadius: 4,
+          backgroundColor: '#A12654', color: '#fff', border: 'none', borderRadius: 4,
           fontSize: 14, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit',
           transition: 'background-color 0.2s',
         }}>
@@ -970,7 +970,6 @@ export default function OverviewPanel({ isOpen, onClose, item, onEdit }) {
           backgroundColor: token('elevation.surface', '#fff'),
           borderTop: `1px solid ${token('color.border', 'rgba(9,30,66,0.14)')}`,
         }}>
-          <Button appearance="default" onClick={handleClose}>Cancel</Button>
           <button
             onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#331D58'}
             onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#422670'}

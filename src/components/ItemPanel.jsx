@@ -689,18 +689,11 @@ export default function ItemPanel({ isOpen, onClose, onSave }) {
       {/* ── Footer ────────────────────────────────────────────────── */}
       <div style={{
         flexShrink: 0,
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        display: 'flex', alignItems: 'center', justifyContent: 'flex-end',
         padding: '12px 24px',
         borderTop: `1px solid ${token('color.border', 'rgba(9,30,66,0.14)')}`,
         backgroundColor: token('elevation.surface', '#fff'),
       }}>
-        <button
-          onClick={handleClose}
-          style={footerBtnStyle(false)}
-        >
-          Cancel
-        </button>
-
         <div style={{ display: 'flex', gap: 8 }}>
           <button
             onClick={handleBack}
