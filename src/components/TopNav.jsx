@@ -9,9 +9,9 @@ import {
 } from '@atlaskit/atlassian-navigation';
 import NotificationIcon from '@atlaskit/icon/core/notification';
 import SearchIcon from '@atlaskit/icon/core/search';
-import CheckCircleIcon from '@atlaskit/icon/glyph/check-circle';
-import ErrorIcon from '@atlaskit/icon/glyph/error';
-import InfoIcon from '@atlaskit/icon/glyph/info';
+import CheckCircleIcon from '@atlaskit/icon/core/check-circle';
+import ErrorIcon from '@atlaskit/icon/core/error';
+import InfoIcon from '@atlaskit/icon/core/information';
 
 // Inline SVG data URLs for logo (purple box with "MK" text)
 const LOGO_URL =
