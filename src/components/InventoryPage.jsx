@@ -249,7 +249,7 @@ const TABS = [
   { key: 'in-use',    label: 'In Use' },
 ];
 
-export default function InventoryPage() {
+export default function InventoryPage({ onNavigate }) {
   const [search, setSearch] = useState('');
   const [rows, setRows] = useState(INITIAL_ROWS);
   const [activeTab, setActiveTab] = useState('available');
@@ -366,7 +366,7 @@ export default function InventoryPage() {
           skipLinkTitle="Project Navigation"
           width={240}
         >
-          <SideNav active="inventory" />
+          <SideNav active="inventory" onNavigate={onNavigate} />
         </LeftSidebarWithoutResize>
 
         <Main id="main-content" skipLinkTitle="Main Content">

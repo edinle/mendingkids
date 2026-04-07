@@ -4,6 +4,7 @@ import Button from '@atlaskit/button/new';
 import Lozenge from '@atlaskit/lozenge';
 import { token } from '@atlaskit/tokens';
 import SlidePanel from './SlidePanel';
+import ItemStatusModal from './ItemStatusModal';
 
 // ─── Static sample data ────────────────────────────────────────────────────
 
@@ -853,6 +854,8 @@ function iconBtnSt(color) {
 export default function OverviewPanel({ isOpen, onClose, item, onEdit }) {
   const [tab, setTab]             = useState('Overview');
   const [isFullEdit, setIsFullEdit] = useState(false);
+  const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
+  const [status, setStatus]       = useState('in-use');
 
   if (!item) return null;
 
@@ -900,15 +903,25 @@ export default function OverviewPanel({ isOpen, onClose, item, onEdit }) {
             paddingTop: 12, marginBottom: 8,
           }}>
             <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-              <span style={{
-                display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                height: 22, padding: '0 8px', borderRadius: 3,
-                backgroundColor: '#E9F2FF', color: '#0C66E4',
-                border: '1px solid transparent',
-                fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.03em',
-              }}>
-                In Storage
-              </span>
+              <button
+                onClick={() => setIsStatusModalOpen(true)}
+                style={{
+                  display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 4,
+                  height: 22, padding: '0 8px', borderRadius: 3,
+                  backgroundColor: status === 'available' ? '#E3FCEF' : '#E9F2FF',
+                  color: status === 'available' ? '#006644' : '#0C66E4',
+                  border: '1px solid transparent', cursor: 'pointer',
+                  fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.03em',
+                  fontFamily: 'inherit', transition: 'background-color 0.2s',
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = status === 'available' ? '#D3F1E7' : '#DEEBFF'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = status === 'available' ? '#E3FCEF' : '#E9F2FF'}
+              >
+                {status.replace('-', ' ')}
+                <svg width="10" height="10" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                  <path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </button>
               <span style={{
                 display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
                 height: 22, padding: '0 8px', borderRadius: 3,
@@ -987,6 +1000,16 @@ export default function OverviewPanel({ isOpen, onClose, item, onEdit }) {
           </button>
         </div>
       </div>
+      <ItemStatusModal
+        isOpen={isStatusModalOpen}
+        onClose={() => setIsStatusModalOpen(false)}
+        itemName={itemName}
+        currentStatus={status}
+        onSave={(newStatus, _reason) => {
+          setStatus(newStatus);
+          setIsStatusModalOpen(false);
+        }}
+      />
     </SlidePanel>
   );
 }

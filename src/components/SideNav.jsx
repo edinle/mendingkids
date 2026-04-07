@@ -26,22 +26,40 @@ const NAV_ITEMS = [
 
 export default function SideNav({ active = 'inventory', onNavigate }) {
   return (
-    <SideNavigation label="project">
-      <NavigationContent>
-        <Section>
-          {NAV_ITEMS.map(({ id, label, Icon }) => (
-            <ButtonItem
-              key={id}
-              iconBefore={<Icon label={label} />}
-              isSelected={active === id}
-              onClick={() => onNavigate?.(id)}
-            >
-              {label}
-            </ButtonItem>
-          ))}
-        </Section>
-      </NavigationContent>
-    </SideNavigation>
+    <div style={{ padding: '16px 12px', display: 'flex', flexDirection: 'column', gap: 4 }}>
+      {NAV_ITEMS.map(({ id, label, Icon }) => {
+        const isActive = active === id;
+        return (
+          <button
+            key={id}
+            onClick={() => onNavigate?.(id)}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 12,
+              width: '100%', padding: '10px 12px',
+              border: isActive ? 'none' : 'none',
+              borderRadius: 4,
+              backgroundColor: isActive ? '#F3F0FF' : 'transparent',
+              color: isActive ? '#422670' : '#44546F',
+              cursor: 'pointer', textAlign: 'left',
+              fontSize: 14, fontWeight: isActive ? 600 : 500,
+              fontFamily: 'inherit',
+              transition: 'background-color 0.2s',
+            }}
+            onMouseEnter={(e) => {
+              if (!isActive) e.currentTarget.style.backgroundColor = 'rgba(9,30,66,0.04)';
+            }}
+            onMouseLeave={(e) => {
+              if (!isActive) e.currentTarget.style.backgroundColor = 'transparent';
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', color: isActive ? '#422670' : '#44546F' }}>
+              {id === 'inventory' ? <InventoryIcon /> : <Icon label={label} size="medium" />}
+            </div>
+            {label}
+          </button>
+        );
+      })}
+    </div>
   );
 }
 
