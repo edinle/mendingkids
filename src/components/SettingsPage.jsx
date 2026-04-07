@@ -4,6 +4,7 @@ import TextField from '@atlaskit/textfield';
 import Select from '@atlaskit/select';
 import { Checkbox } from '@atlaskit/checkbox';
 import DynamicTable from '@atlaskit/dynamic-table';
+import Modal, { ModalBody, ModalFooter, ModalHeader, ModalTitle, ModalTransition } from '@atlaskit/modal-dialog';
 import { token } from '@atlaskit/tokens';
 
 import TopNav from './TopNav';
@@ -284,7 +285,7 @@ function Authentication() {
   );
 }
 
-function CategoriesTags() {
+function CategoriesTags({ onAdd, onEdit }) {
   const head = {
     cells: [
       { key: 'name', content: 'Category name', isSortable: true },
@@ -294,10 +295,10 @@ function CategoriesTags() {
     ],
   };
   const rows = [
-    { key: '1', cells: [{ content: <strong>Cardiac</strong> }, { content: <span style={{display: 'flex', gap: 8}}><div style={{width: 16, height: 16, backgroundColor: '#1561cc', borderRadius: '50%'}}></div> Blue</span> }, { content: '124 items' }, { content: <a href="#" style={{color:'var(--ds-link)'}}>Edit</a> }] },
-    { key: '2', cells: [{ content: <strong>Infections</strong> }, { content: <span style={{display: 'flex', gap: 8}}><div style={{width: 16, height: 16, backgroundColor: '#d63c8a', borderRadius: '50%'}}></div> Pink</span> }, { content: '19 items' }, { content: <a href="#" style={{color:'var(--ds-link)'}}>Edit</a> }] },
-    { key: '3', cells: [{ content: <strong>ENT</strong> }, { content: <span style={{display: 'flex', gap: 8}}><div style={{width: 16, height: 16, backgroundColor: '#1a7f37', borderRadius: '50%'}}></div> Green</span> }, { content: '43 items' }, { content: <a href="#" style={{color:'var(--ds-link)'}}>Edit</a> }] },
-    { key: '4', cells: [{ content: <strong>General</strong> }, { content: <span style={{display: 'flex', gap: 8}}><div style={{width: 16, height: 16, backgroundColor: '#cf4f27', borderRadius: '50%'}}></div> Orange</span> }, { content: '312 items' }, { content: <a href="#" style={{color:'var(--ds-link)'}}>Edit</a> }] },
+    { key: '1', cells: [{ content: <strong>Cardiac</strong> }, { content: <span style={{display: 'flex', gap: 8}}><div style={{width: 16, height: 16, backgroundColor: '#1561cc', borderRadius: '50%'}}></div> Blue</span> }, { content: '124 items' }, { content: <a href="#" onClick={(e) => { e.preventDefault(); onEdit({ id: '1', name: 'Cardiac' }); }} style={{color:'var(--ds-link)'}}>Edit</a> }] },
+    { key: '2', cells: [{ content: <strong>Infections</strong> }, { content: <span style={{display: 'flex', gap: 8}}><div style={{width: 16, height: 16, backgroundColor: '#d63c8a', borderRadius: '50%'}}></div> Pink</span> }, { content: '19 items' }, { content: <a href="#" onClick={(e) => { e.preventDefault(); onEdit({ id: '2', name: 'Infections' }); }} style={{color:'var(--ds-link)'}}>Edit</a> }] },
+    { key: '3', cells: [{ content: <strong>ENT</strong> }, { content: <span style={{display: 'flex', gap: 8}}><div style={{width: 16, height: 16, backgroundColor: '#1a7f37', borderRadius: '50%'}}></div> Green</span> }, { content: '43 items' }, { content: <a href="#" onClick={(e) => { e.preventDefault(); onEdit({ id: '3', name: 'ENT' }); }} style={{color:'var(--ds-link)'}}>Edit</a> }] },
+    { key: '4', cells: [{ content: <strong>General</strong> }, { content: <span style={{display: 'flex', gap: 8}}><div style={{width: 16, height: 16, backgroundColor: '#cf4f27', borderRadius: '50%'}}></div> Orange</span> }, { content: '312 items' }, { content: <a href="#" onClick={(e) => { e.preventDefault(); onEdit({ id: '4', name: 'General' }); }} style={{color:'var(--ds-link)'}}>Edit</a> }] },
   ];
 
   return (
@@ -306,14 +307,14 @@ function CategoriesTags() {
         <p style={{ color: token('color.text.subtle', '#5E6C84'), fontSize: 14 }}>
           Define the organizational tags and categories applied to inventory items and missions.
         </p>
-        <PrimaryButton>Add category</PrimaryButton>
+        <PrimaryButton onClick={onAdd}>Add category</PrimaryButton>
       </div>
       <DynamicTable head={head} rows={rows} rowsPerPage={10} defaultPage={1} />
     </>
   );
 }
 
-function Locations() {
+function Locations({ onAdd, onEdit }) {
   const head = {
     cells: [
       { key: 'name', content: 'Location name', isSortable: true },
@@ -323,9 +324,9 @@ function Locations() {
     ],
   };
   const rows = [
-    { key: '1', cells: [{ content: <strong>Main Warehouse Los Angeles</strong> }, { content: 'Facility' }, { content: '4,520' }, { content: <a href="#" style={{color:'var(--ds-link)'}}>Edit</a> }] },
-    { key: '2', cells: [{ content: <strong>Cabinet 3B</strong> }, { content: 'Sub-location' }, { content: '142' }, { content: <a href="#" style={{color:'var(--ds-link)'}}>Edit</a> }] },
-    { key: '3', cells: [{ content: <strong>Storage A</strong> }, { content: 'Sub-location' }, { content: '93' }, { content: <a href="#" style={{color:'var(--ds-link)'}}>Edit</a> }] },
+    { key: '1', cells: [{ content: <strong>Main Warehouse Los Angeles</strong> }, { content: 'Facility' }, { content: '4,520' }, { content: <a href="#" onClick={(e) => { e.preventDefault(); onEdit({ id: '1', name: 'Main Warehouse Los Angeles', type: 'Facility' }); }} style={{color:'var(--ds-link)'}}>Edit</a> }] },
+    { key: '2', cells: [{ content: <strong>Cabinet 3B</strong> }, { content: 'Sub-location' }, { content: '142' }, { content: <a href="#" onClick={(e) => { e.preventDefault(); onEdit({ id: '2', name: 'Cabinet 3B', type: 'Sub-location' }); }} style={{color:'var(--ds-link)'}}>Edit</a> }] },
+    { key: '3', cells: [{ content: <strong>Storage A</strong> }, { content: 'Sub-location' }, { content: '93' }, { content: <a href="#" onClick={(e) => { e.preventDefault(); onEdit({ id: '3', name: 'Storage A', type: 'Sub-location' }); }} style={{color:'var(--ds-link)'}}>Edit</a> }] },
   ];
 
   return (
@@ -334,21 +335,21 @@ function Locations() {
         <p style={{ color: token('color.text.subtle', '#5E6C84'), fontSize: 14 }}>
           Manage your physical warehouses and logical sub-locations (cabinets, shelves).
         </p>
-        <PrimaryButton>Add location</PrimaryButton>
+        <PrimaryButton onClick={onAdd}>Add location</PrimaryButton>
       </div>
       <DynamicTable head={head} rows={rows} rowsPerPage={10} defaultPage={1} />
     </>
   );
 }
 
-function AutomationRules() {
+function AutomationRules({ onAdd }) {
   return (
     <>
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
         <p style={{ color: token('color.text.subtle', '#5E6C84'), fontSize: 14 }}>
           Automatically trigger actions, alerts, and workflows based on specific events.
         </p>
-        <PrimaryButton>Create rule</PrimaryButton>
+        <PrimaryButton onClick={onAdd}>Create rule</PrimaryButton>
       </div>
       
       <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
@@ -383,6 +384,13 @@ function AutomationRules() {
 
 export default function SettingsPage({ onNavigate }) {
   const [activeTab, setActiveTab] = useState('General configuration');
+  const [isModalOpen, setModalOpen] = useState(null); // null, 'category', 'location', 'automation'
+  const [editingItem, setEditingItem] = useState(null);
+
+  const closeModal = () => {
+    setModalOpen(null);
+    setEditingItem(null);
+  };
 
   const renderContent = () => {
     switch (activeTab) {
@@ -392,9 +400,9 @@ export default function SettingsPage({ onNavigate }) {
       case 'Users':                 return <Users />;
       case 'Groups':                return <Groups />;
       case 'Authentication':        return <Authentication />;
-      case 'Categories & Tags':     return <CategoriesTags />;
-      case 'Locations':             return <Locations />;
-      case 'Automation rules':      return <AutomationRules />;
+      case 'Categories & Tags':     return <CategoriesTags onAdd={() => setModalOpen('category')} onEdit={(item) => { setEditingItem(item); setModalOpen('category'); }} />;
+      case 'Locations':             return <Locations onAdd={() => setModalOpen('location')} onEdit={(item) => { setEditingItem(item); setModalOpen('location'); }} />;
+      case 'Automation rules':      return <AutomationRules onAdd={() => setModalOpen('automation')} />;
       default: return null;
     }
   };
@@ -488,6 +496,84 @@ export default function SettingsPage({ onNavigate }) {
           </div>
         </Main>
       </Content>
+
+      <ModalTransition>
+        {isModalOpen === 'category' && (
+          <Modal onClose={closeModal}>
+            <ModalHeader>
+              <ModalTitle>{editingItem ? 'Edit Category' : 'Add Category'}</ModalTitle>
+            </ModalHeader>
+            <ModalBody>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 20, paddingBottom: 20 }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#5E6C84', marginBottom: 6 }}>Category Name</label>
+                  <TextField defaultValue={editingItem?.name || ''} placeholder="e.g. Surgical Supplies" />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#5E6C84', marginBottom: 6 }}>Tag Color</label>
+                  <Select options={[{label: 'Blue', value: 'blue'}, {label: 'Pink', value: 'pink'}, {label: 'Green', value: 'green'}, {label: 'Orange', value: 'orange'}]} defaultValue={{label: 'Blue', value: 'blue'}} />
+                </div>
+              </div>
+            </ModalBody>
+            <ModalFooter>
+              <SubtleButton onClick={closeModal}>Cancel</SubtleButton>
+              <PrimaryButton onClick={closeModal}>{editingItem ? 'Save' : 'Add'}</PrimaryButton>
+            </ModalFooter>
+          </Modal>
+        )}
+
+        {isModalOpen === 'location' && (
+          <Modal onClose={closeModal}>
+            <ModalHeader>
+              <ModalTitle>{editingItem ? 'Edit Location' : 'Add Location'}</ModalTitle>
+            </ModalHeader>
+            <ModalBody>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 20, paddingBottom: 20 }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#5E6C84', marginBottom: 6 }}>Location Name</label>
+                  <TextField defaultValue={editingItem?.name || ''} placeholder="e.g. Warehouse B - Shelf 4" />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#5E6C84', marginBottom: 6 }}>Location Type</label>
+                  <Select options={[{label: 'Facility', value: 'facility'}, {label: 'Sub-location', value: 'sub'}]} defaultValue={editingItem ? {label: editingItem.type, value: editingItem.type.toLowerCase()} : {label: 'Facility', value: 'facility'}} />
+                </div>
+              </div>
+            </ModalBody>
+            <ModalFooter>
+              <SubtleButton onClick={closeModal}>Cancel</SubtleButton>
+              <PrimaryButton onClick={closeModal}>{editingItem ? 'Save' : 'Add'}</PrimaryButton>
+            </ModalFooter>
+          </Modal>
+        )}
+
+        {isModalOpen === 'automation' && (
+          <Modal onClose={closeModal} width="medium">
+            <ModalHeader>
+              <ModalTitle>Create automation rule</ModalTitle>
+            </ModalHeader>
+            <ModalBody>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 24, paddingBottom: 20 }}>
+                <div>
+                  <h4 style={{ margin: '0 0 16px', fontSize: 14 }}>Trigger</h4>
+                  <Select placeholder="When..." options={[{label: 'Item quantity drops', value: 'qty'}, {label: 'Mission is completed', value: 'mission'}, {label: 'Item expires', value: 'expiry'}]} />
+                </div>
+                <div>
+                  <h4 style={{ margin: '0 0 16px', fontSize: 14 }}>Condition</h4>
+                  <Select placeholder="If..." options={[{label: 'Quantity is less than', value: 'lt'}, {label: 'Location is', value: 'loc'}]} />
+                </div>
+                <div>
+                  <h4 style={{ margin: '0 0 16px', fontSize: 14 }}>Action</h4>
+                  <Select placeholder="Then..." options={[{label: 'Send notification to', value: 'notify'}, {label: 'Assign task to', value: 'task'}, {label: 'Flag as low stock', value: 'flag'}]} />
+                </div>
+              </div>
+            </ModalBody>
+            <ModalFooter>
+              <SubtleButton onClick={closeModal}>Cancel</SubtleButton>
+              <PrimaryButton onClick={closeModal}>Create rule</PrimaryButton>
+            </ModalFooter>
+          </Modal>
+        )}
+      </ModalTransition>
     </PageLayout>
   );
 }

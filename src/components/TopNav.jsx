@@ -37,12 +37,9 @@ const NotificationBadge = () => (
 
 const ProductHome = () => (
   <CustomProductHome
-    iconUrl={ICON_URL}
-    iconAlt="Mending Kids"
     logoUrl={LOGO_URL}
     logoAlt="Mending Kids"
-    siteTitle="Inventory Management System"
-    href="/"
+    href="#"
   />
 );
 

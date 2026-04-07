@@ -29,12 +29,6 @@ export default function SideNav({ active = 'inventory', onNavigate }) {
     <div style={{ height: '100%' }}>
       <SideNavigation label="Main Navigation" testId="side-navigation">
       <NavigationContent>
-        <Header 
-          iconBefore={<div style={{ width: 32, height: 32, backgroundColor: '#422670', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 4 }}><FolderIcon label="Logo" size="medium" /></div>}
-          description="Inventory"
-        >
-          Mending Kids
-        </Header>
         <Section>
           {NAV_ITEMS.map(({ id, label, Icon }) => {
             const isActive = active === id;
