@@ -14,6 +14,7 @@
     "@atlaskit/avatar": "^25.11.3",
     "@atlaskit/avatar-group": "^12.5.1",
     "@atlaskit/button": "^23.9.9",
+    "@atlaskit/checkbox": "^17.3.9",
     "@atlaskit/css-reset": "^7.3.12",
     "@atlaskit/datetime-picker": "^17.5.3",
     "@atlaskit/drawer": "^11.0.28",
