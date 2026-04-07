@@ -9,6 +9,7 @@ import { token } from '@atlaskit/tokens';
 
 import TopNav from './TopNav';
 import SideNav from './SideNav';
+import RequestDetailPanel from './RequestDetailPanel';
 
 const INITIAL_REQUESTS = [
   { id: 'REQ-101', requester: 'Dr. Adams', mission: 'Tanzania 2025', status: 'Pending', priority: 'High', date: 'Oct 15, 2025' },
@@ -56,14 +57,29 @@ function PriorityBadge({ priority }) {
 
 export default function ItemRequestsPage({ onNavigate }) {
   const [search, setSearch] = useState('');
+  const [requests, setRequests] = useState(INITIAL_REQUESTS);
   
-  const filtered = INITIAL_REQUESTS.filter(r => 
+  const [detailOpen, setDetailOpen] = useState(false);
+  const [selectedRequest, setSelectedRequest] = useState(null);
+
+  const handleRowClick = (req) => {
+    setSelectedRequest(req);
+    setDetailOpen(true);
+  };
+
+  const handleUpdateStatus = (id, newStatus) => {
+    setRequests(prev => prev.map(r => r.id === id ? { ...r, status: newStatus } : r));
+    setSelectedRequest(prev => prev && prev.id === id ? { ...prev, status: newStatus } : prev);
+  };
+  
+  const filtered = requests.filter(r => 
     r.id.toLowerCase().includes(search.toLowerCase()) || 
     r.requester.toLowerCase().includes(search.toLowerCase())
   );
 
   const rows = filtered.map(row => ({
     key: row.id,
+    onClick: () => handleRowClick(row),
     cells: [
       { key: 'id', content: <span style={{ color: '#0052CC', fontWeight: 500, cursor: 'pointer' }}>{row.id}</span> },
       { key: 'requester', content: <span style={{ fontWeight: 500, color: '#172B4D' }}>{row.requester}</span> },
@@ -72,9 +88,8 @@ export default function ItemRequestsPage({ onNavigate }) {
       { key: 'priority', content: <PriorityBadge priority={row.priority} /> },
       { key: 'date', content: <span style={{ color: '#626F86', fontSize: 13 }}>{row.date}</span> },
       { key: 'actions', content: (
-          <span style={{ display: 'flex', gap: 4 }}>
+          <span style={{ display: 'flex', gap: 4 }} onClick={e => e.stopPropagation()}>
             <IconButton icon={EditIcon} label="Edit" appearance="subtle" spacing="compact" />
-            <IconButton icon={ShowMoreHorizontalIcon} label="More" appearance="subtle" spacing="compact" />
           </span>
         ) 
       },
@@ -114,6 +129,7 @@ export default function ItemRequestsPage({ onNavigate }) {
           </div>
         </Main>
       </Content>
+      <RequestDetailPanel isOpen={detailOpen} onClose={() => setDetailOpen(false)} request={selectedRequest} onUpdateStatus={handleUpdateStatus} />
     </PageLayout>
   );
 }
