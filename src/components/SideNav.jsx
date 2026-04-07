@@ -15,13 +15,7 @@ import PeopleIcon from '@atlaskit/icon/core/people-group';
 import MediaIcon from '@atlaskit/icon/core/archive-box';
 import GroupIcon from '@atlaskit/icon/core/people-group';
 import GraphLineIcon from '@atlaskit/icon/core/chart-trend';
-
-// inventory icon (using a grid/list style icon)
-const InventoryIcon = (props) => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true" {...props}>
-    <path d="M3 5h18a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Zm0 6h18a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1v-2a1 1 0 0 1 1-1Zm0 6h18a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1v-2a1 1 0 0 1 1-1Z" fill="currentColor" />
-  </svg>
-);
+import InventoryIcon from '@atlaskit/icon/core/assets';
 
 const NAV_ITEMS = [
   { id: 'dashboard', label: 'Dashboard', Icon: DashboardIcon },
@@ -62,7 +56,7 @@ export default function SideNav({ active = 'inventory', onNavigate }) {
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', color: isActive ? '#422670' : '#44546F' }}>
-              {id === 'inventory' ? <InventoryIcon /> : <Icon label={label} size="medium" />}
+              <Icon label={label} size="medium" />
             </div>
             {label}
           </button>
