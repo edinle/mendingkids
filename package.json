@@ -1,0 +1,45 @@
+{
+  "name": "mending-kids-ui",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "eslint .",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@atlaskit/atlassian-navigation": "^5.6.5",
+    "@atlaskit/button": "^23.9.9",
+    "@atlaskit/css-reset": "^7.3.12",
+    "@atlaskit/datetime-picker": "^17.5.3",
+    "@atlaskit/drawer": "^11.0.28",
+    "@atlaskit/dynamic-table": "^18.3.19",
+    "@atlaskit/form": "^15.3.7",
+    "@atlaskit/icon": "^32.0.0",
+    "@atlaskit/lozenge": "^13.4.4",
+    "@atlaskit/page-layout": "^4.2.30",
+    "@atlaskit/select": "^21.7.7",
+    "@atlaskit/side-navigation": "^11.1.6",
+    "@atlaskit/textfield": "^8.2.3",
+    "@atlaskit/tokens": "^11.0.2",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "prop-types": "^15.8.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.1",
+    "@types/react": "^18.3.28",
+    "@types/react-dom": "^18.3.7",
+    "@vitejs/plugin-react": "^5.1.1",
+    "eslint": "^9.39.1",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "eslint-plugin-react-refresh": "^0.4.24",
+    "globals": "^16.5.0",
+    "typescript": "~5.4.0",
+    "vite": "^7.3.1"
+  }
+}
