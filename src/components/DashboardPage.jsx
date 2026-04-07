@@ -86,102 +86,145 @@ export default function DashboardPage({ onNavigate }) {
             <div style={{ display: 'grid', gridTemplateColumns: '1.8fr 1fr', gap: 32 }}>
               
               {/* Complex Action Board */}
-              <div style={{
-                backgroundColor: '#fff', borderRadius: 12, padding: 28,
-                boxShadow: '0 2px 8px rgba(9,30,66,0.04), 0 1px 2px rgba(9,30,66,0.02)'
-              }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-                  <h2 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: '#172B4D' }}>Priority Item Tracking</h2>
-                  <span style={{ fontSize: 13, color: '#0C66E4', cursor: 'pointer', fontWeight: 500 }}>View Registry</span>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
+                <div style={{
+                  backgroundColor: '#fff', borderRadius: 12, padding: 28,
+                  boxShadow: '0 2px 8px rgba(9,30,66,0.04), 0 1px 2px rgba(9,30,66,0.02)'
+                }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+                    <h2 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: '#172B4D' }}>Priority Item Tracking</h2>
+                    <span style={{ fontSize: 13, color: '#0C66E4', cursor: 'pointer', fontWeight: 500 }}>View Registry</span>
+                  </div>
+                  
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20 }}>
+                    {[
+                      { title: 'Flagged (Expiring)', count: 4, bg: '#FFF7D6', fg: '#172B4D', topBorder: '#F5CD47', items: [
+                        { sub: '08 AUG 2026', title: 'Sterile Gauze Pads' },
+                        { sub: '15 SEP 2026', title: 'Infusion Set w/ Flow' }
+                      ]},
+                      { title: 'In Review Queue', count: 2, bg: '#EAE6FF', fg: '#403294', topBorder: '#8F7EE7', items: [
+                        { sub: 'Awaiting checks', title: 'IV Cannula 20G' }
+                      ]},
+                      { title: 'Recently Disposed', count: 12, bg: '#E3FCEF', fg: '#006644', topBorder: '#4BCE97', items: [
+                        { sub: 'Cleared properly', title: 'Lidocaine Expired' }
+                      ]}
+                    ].map(col => (
+                      <div key={col.title} style={{ 
+                        backgroundColor: col.bg, borderRadius: 8, padding: 16, 
+                        borderTop: `3px solid ${col.topBorder}`
+                      }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                          <h3 style={{ margin: 0, fontSize: 13, fontWeight: 700, color: col.fg, textTransform: 'uppercase' }}>{col.title}</h3>
+                          <span style={{ backgroundColor: 'rgba(255,255,255,0.6)', color: col.fg, padding: '2px 8px', borderRadius: 12, fontSize: 12, fontWeight: 700 }}>{col.count}</span>
+                        </div>
+                        
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                          {col.items.map(item => (
+                            <div key={item.title} style={{ 
+                              backgroundColor: '#fff', padding: '14px 16px', borderRadius: 6, 
+                              boxShadow: '0 1px 3px rgba(9,30,66,0.08)', cursor: 'pointer',
+                              borderLeft: `2px solid ${col.topBorder}`,
+                              transition: 'transform 0.15s'
+                            }}
+                            onMouseEnter={e => e.currentTarget.style.transform = 'translateX(4px)'}
+                            onMouseLeave={e => e.currentTarget.style.transform = 'translateX(0)'}
+                            >
+                              <h4 style={{ margin: '0 0 4px', fontSize: 14, fontWeight: 600, color: '#172B4D' }}>{item.title}</h4>
+                              <span style={{ fontSize: 12, color: '#6B778C', fontWeight: 500 }}>{item.sub}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-                
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20 }}>
-                  {[
-                    { title: 'Flagged (Expiring)', count: 4, bg: '#FFF7D6', fg: '#172B4D', topBorder: '#F5CD47', items: [
-                      { sub: '08 AUG 2026', title: 'Sterile Gauze Pads' },
-                      { sub: '15 SEP 2026', title: 'Infusion Set w/ Flow' }
-                    ]},
-                    { title: 'In Review Queue', count: 2, bg: '#EAE6FF', fg: '#403294', topBorder: '#8F7EE7', items: [
-                      { sub: 'Awaiting checks', title: 'IV Cannula 20G' }
-                    ]},
-                    { title: 'Recently Disposed', count: 12, bg: '#E3FCEF', fg: '#006644', topBorder: '#4BCE97', items: [
-                      { sub: 'Cleared properly', title: 'Lidocaine Expired' }
-                    ]}
-                  ].map(col => (
-                    <div key={col.title} style={{ 
-                      backgroundColor: col.bg, borderRadius: 8, padding: 16, 
-                      borderTop: `3px solid ${col.topBorder}`
-                    }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-                        <h3 style={{ margin: 0, fontSize: 13, fontWeight: 700, color: col.fg, textTransform: 'uppercase' }}>{col.title}</h3>
-                        <span style={{ backgroundColor: 'rgba(255,255,255,0.6)', color: col.fg, padding: '2px 8px', borderRadius: 12, fontSize: 12, fontWeight: 700 }}>{col.count}</span>
+
+                <div style={{
+                  backgroundColor: '#fff', borderRadius: 12, padding: 28,
+                  boxShadow: '0 2px 8px rgba(9,30,66,0.04), 0 1px 2px rgba(9,30,66,0.02)'
+                }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+                    <h2 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: '#172B4D' }}>Active Resource Requests</h2>
+                    <span style={{ fontSize: 13, color: '#0C66E4', cursor: 'pointer', fontWeight: 500 }}>Global Requests Map</span>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                    {[
+                      { mission: 'Uganda Cardiac 2026', type: 'Surgical Supplies', status: 'High Priority', amount: '450 units' },
+                      { mission: 'Peru General Surgery', type: 'Medications', status: 'In Review', amount: '120 units' }
+                    ].map(req => (
+                      <div key={req.mission} style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 16px', border: '1px solid #F4F5F7', borderRadius: 8 }}>
+                        <div>
+                          <strong style={{ fontSize: 14, color: '#172B4D' }}>{req.mission}</strong>
+                          <span style={{ display: 'block', fontSize: 12, color: '#6B778C' }}>{req.type} • {req.amount}</span>
+                        </div>
+                        <Lozenge appearance={req.status === 'High Priority' ? 'removed' : 'inprogress'}>{req.status}</Lozenge>
                       </div>
-                      
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                        {col.items.map(item => (
-                          <div key={item.title} style={{ 
-                            backgroundColor: '#fff', padding: '14px 16px', borderRadius: 6, 
-                            boxShadow: '0 1px 3px rgba(9,30,66,0.08)', cursor: 'pointer',
-                            borderLeft: `2px solid ${col.topBorder}`,
-                            transition: 'transform 0.15s'
-                          }}
-                          onMouseEnter={e => e.currentTarget.style.transform = 'translateX(4px)'}
-                          onMouseLeave={e => e.currentTarget.style.transform = 'translateX(0)'}
-                          >
-                            <h4 style={{ margin: '0 0 4px', fontSize: 14, fontWeight: 600, color: '#172B4D' }}>{item.title}</h4>
-                            <span style={{ fontSize: 12, color: '#6B778C', fontWeight: 500 }}>{item.sub}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
               </div>
 
-              {/* Enhanced Activity Logs */}
-              <div style={{
-                backgroundColor: '#fff', borderRadius: 12, padding: 28,
-                boxShadow: '0 2px 8px rgba(9,30,66,0.04), 0 1px 2px rgba(9,30,66,0.02)',
-                display: 'flex', flexDirection: 'column'
-              }}>
-                <h2 style={{ margin: '0 0 24px', fontSize: 18, fontWeight: 700, color: '#172B4D' }}>Latest Events</h2>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 20, flex: 1 }}>
-                  {recentActivity.map(item => (
-                    <div key={item.id} style={{ display: 'flex', gap: 16, alignItems: 'flex-start' }}>
-                      <div style={{ 
-                        width: 36, height: 36, borderRadius: '50%', flexShrink: 0,
-                        backgroundColor: item.type === 'alert' ? '#FFEBE6' : item.type === 'restock' ? '#E3FCEF' : '#DEEBFF',
-                        color: item.type === 'alert' ? '#BF2600' : item.type === 'restock' ? '#006644' : '#0747A6',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center'
-                      }}>
-                        {item.type === 'alert' ? <WarningIcon size="small" /> : item.type === 'restock' ? <CheckCircleIcon size="small" /> : <RefreshIcon size="small" />}
+              {/* Enhanced Activity Logs & Partner Stats */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
+                <div style={{
+                  backgroundColor: '#fff', borderRadius: 12, padding: 28,
+                  boxShadow: '0 2px 8px rgba(9,30,66,0.04), 0 1px 2px rgba(9,30,66,0.02)',
+                  display: 'flex', flexDirection: 'column'
+                }}>
+                  <h2 style={{ margin: '0 0 24px', fontSize: 18, fontWeight: 700, color: '#172B4D' }}>Latest Events</h2>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 20, flex: 1 }}>
+                    {recentActivity.map(item => (
+                      <div key={item.id} style={{ display: 'flex', gap: 16, alignItems: 'flex-start' }}>
+                        <div style={{ 
+                          width: 36, height: 36, borderRadius: '50%', flexShrink: 0,
+                          backgroundColor: item.type === 'alert' ? '#FFEBE6' : item.type === 'restock' ? '#E3FCEF' : '#DEEBFF',
+                          color: item.type === 'alert' ? '#BF2600' : item.type === 'restock' ? '#006644' : '#0747A6',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center'
+                        }}>
+                          {item.type === 'alert' ? <WarningIcon size="small" /> : item.type === 'restock' ? <CheckCircleIcon size="small" /> : <RefreshIcon size="small" />}
+                        </div>
+                        <div style={{ borderBottom: '1px solid #F4F5F7', paddingBottom: 16, width: '100%' }}>
+                          <p style={{ margin: 0, fontSize: 14, color: '#172B4D', lineHeight: '1.4' }}>
+                            <strong style={{ color: '#091E42' }}>{item.action}</strong> {item.item}
+                          </p>
+                          <p style={{ margin: '4px 0 0', fontSize: 13, color: '#6B778C' }}>
+                            {item.type === 'alert' ? 'Expires ' : 'To '}{item.target}
+                            <span style={{ 
+                              display: 'inline-block', marginLeft: 8, padding: '2px 6px',
+                              backgroundColor: '#F4F5F7', borderRadius: 3, fontSize: 11
+                             }}>{item.time}</span>
+                          </p>
+                        </div>
                       </div>
-                      <div style={{ borderBottom: '1px solid #F4F5F7', paddingBottom: 16, width: '100%' }}>
-                        <p style={{ margin: 0, fontSize: 14, color: '#172B4D', lineHeight: '1.4' }}>
-                          <strong style={{ color: '#091E42' }}>{item.action}</strong> {item.item}
-                        </p>
-                        <p style={{ margin: '4px 0 0', fontSize: 13, color: '#6B778C' }}>
-                          {item.type === 'alert' ? 'Expires ' : 'To '}{item.target}
-                          <span style={{ 
-                            display: 'inline-block', marginLeft: 8, padding: '2px 6px',
-                            backgroundColor: '#F4F5F7', borderRadius: 3, fontSize: 11
-                           }}>{item.time}</span>
-                        </p>
-                      </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
+                  <button style={{ 
+                    marginTop: 16, width: '100%', padding: '12px', borderRadius: 6,
+                    backgroundColor: '#F4F5F7', border: 'none', 
+                    color: '#422670', cursor: 'pointer', fontSize: 14, fontWeight: 600,
+                    transition: 'background-color 0.2s'
+                   }}
+                   onMouseEnter={e => e.currentTarget.style.backgroundColor = '#EAE6FF'}
+                   onMouseLeave={e => e.currentTarget.style.backgroundColor = '#F4F5F7'}
+                   >
+                    Load All Activity
+                  </button>
                 </div>
-                <button style={{ 
-                  marginTop: 16, width: '100%', padding: '12px', borderRadius: 6,
-                  backgroundColor: '#F4F5F7', border: 'none', 
-                  color: '#422670', cursor: 'pointer', fontSize: 14, fontWeight: 600,
-                  transition: 'background-color 0.2s'
-                 }}
-                 onMouseEnter={e => e.currentTarget.style.backgroundColor = '#EAE6FF'}
-                 onMouseLeave={e => e.currentTarget.style.backgroundColor = '#F4F5F7'}
-                 >
-                  Load All Activity
-                </button>
+
+                <div style={{
+                  backgroundColor: '#251343', borderRadius: 12, padding: 24, color: '#fff',
+                  boxShadow: '0 4px 12px rgba(37, 19, 67, 0.2)'
+                }}>
+                  <h3 style={{ margin: '0 0 16px', fontSize: 16, fontWeight: 600 }}>Active Volunteers</h3>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
+                    <span style={{ fontSize: 32, fontWeight: 800 }}>84</span>
+                    <span style={{ fontSize: 12, color: '#A5ADBA' }}>Current Deployment</span>
+                  </div>
+                  <div style={{ height: 4, width: '100%', backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: 2 }}>
+                    <div style={{ height: '100%', width: '65%', backgroundColor: '#F5CD47', borderRadius: 2 }} />
+                  </div>
+                  <p style={{ margin: '12px 0 0', fontSize: 12, color: '#A5ADBA' }}>Next cycle starts in 8 days.</p>
+                </div>
               </div>
 
             </div>

@@ -11,6 +11,11 @@ import DashboardIcon from '@atlaskit/icon/core/dashboard';
 import GlobeIcon from '@atlaskit/icon/core/globe';
 import AppsIcon from '@atlaskit/icon/core/menu';
 
+import PeopleIcon from '@atlaskit/icon/core/people';
+import MediaIcon from '@atlaskit/icon/core/media';
+import GroupIcon from '@atlaskit/icon/core/group';
+import GraphLineIcon from '@atlaskit/icon/core/graph-line';
+
 // inventory icon (using a grid/list style icon)
 const InventoryIcon = (props) => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true" {...props}>
@@ -20,8 +25,12 @@ const InventoryIcon = (props) => (
 
 const NAV_ITEMS = [
   { id: 'dashboard', label: 'Dashboard', Icon: DashboardIcon },
-  { id: 'missions', label: 'Missions', Icon: GlobeIcon },
-  { id: 'inventory', label: 'Inventory', Icon: InventoryIcon },
+  { id: 'inventory', label: 'Inventory Management', Icon: InventoryIcon },
+  { id: 'missions', label: 'Missions Tracking', Icon: GlobeIcon },
+  { id: 'donors', label: 'Donors & Partners', Icon: PeopleIcon },
+  { id: 'requests', label: 'Item Requests', Icon: MediaIcon },
+  { id: 'volunteers', label: 'Volunteers', Icon: GroupIcon },
+  { id: 'reports', label: 'Reports', Icon: GraphLineIcon },
 ];
 
 export default function SideNav({ active = 'inventory', onNavigate }) {

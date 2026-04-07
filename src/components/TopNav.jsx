@@ -4,8 +4,10 @@ import {
   Settings,
   Notifications,
   Profile,
+  Search,
 } from '@atlaskit/atlassian-navigation';
 import NotificationIcon from '@atlaskit/icon/core/notification';
+import SearchIcon from '@atlaskit/icon/core/search';
 
 // Inline SVG data URLs for logo (purple box with "MK" text)
 const LOGO_URL =
@@ -67,12 +69,23 @@ const NavProfile = () => (
   />
 );
 
+const NavSearch = () => (
+  <div style={{ padding: '0 8px', minWidth: 240 }}>
+    <Search
+      onClick={() => {}}
+      placeholder="Search inventory items, missions, partners..."
+      tooltip="Search ( / )"
+    />
+  </div>
+);
+
 export default function TopNav() {
   return (
     <AtlassianNavigation
       label="Mending Kids Inventory"
       primaryItems={[]}
       renderProductHome={ProductHome}
+      renderSearch={NavSearch}
       renderNotifications={NavNotifications}
       renderSettings={NavSettings}
       renderProfile={NavProfile}
