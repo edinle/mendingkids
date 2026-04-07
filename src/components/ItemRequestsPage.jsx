@@ -10,6 +10,7 @@ import { token } from '@atlaskit/tokens';
 import TopNav from './TopNav';
 import SideNav from './SideNav';
 import RequestDetailPanel from './RequestDetailPanel';
+import RequestFormPanel from './RequestFormPanel';
 
 const INITIAL_REQUESTS = [
   { id: 'REQ-101', requester: 'Dr. Adams', mission: 'Tanzania 2025', status: 'Pending', priority: 'High', date: 'Oct 15, 2025' },
@@ -60,6 +61,7 @@ export default function ItemRequestsPage({ onNavigate }) {
   const [requests, setRequests] = useState(INITIAL_REQUESTS);
   
   const [detailOpen, setDetailOpen] = useState(false);
+  const [formOpen, setFormOpen] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState(null);
 
   const handleRowClick = (req) => {
@@ -70,6 +72,10 @@ export default function ItemRequestsPage({ onNavigate }) {
   const handleUpdateStatus = (id, newStatus) => {
     setRequests(prev => prev.map(r => r.id === id ? { ...r, status: newStatus } : r));
     setSelectedRequest(prev => prev && prev.id === id ? { ...prev, status: newStatus } : prev);
+  };
+
+  const handleSaveNewRequest = (reqData) => {
+    setRequests(prev => [reqData, ...prev]);
   };
   
   const filtered = requests.filter(r => 
@@ -105,7 +111,9 @@ export default function ItemRequestsPage({ onNavigate }) {
           <div style={{ padding: '24px 32px 32px', maxWidth: 1200, margin: '0 auto' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
               <h1 style={{ margin: 0, fontSize: 24, fontWeight: 600, color: token('color.text', '#172B4D') }}>Item Requests</h1>
-              <button style={{ height: 32, padding: '0 16px', backgroundColor: '#422670', color: '#fff', border: 'none', borderRadius: 4, fontSize: 14, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit' }}>
+              <button 
+                onClick={() => setFormOpen(true)}
+                style={{ height: 32, padding: '0 16px', backgroundColor: '#422670', color: '#fff', border: 'none', borderRadius: 4, fontSize: 14, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit' }}>
                 New Request
               </button>
             </div>
@@ -130,6 +138,7 @@ export default function ItemRequestsPage({ onNavigate }) {
         </Main>
       </Content>
       <RequestDetailPanel isOpen={detailOpen} onClose={() => setDetailOpen(false)} request={selectedRequest} onUpdateStatus={handleUpdateStatus} />
+      <RequestFormPanel isOpen={formOpen} onClose={() => setFormOpen(false)} onSave={handleSaveNewRequest} />
     </PageLayout>
   );
 }

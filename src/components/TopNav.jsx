@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import {
   AtlassianNavigation,
   CustomProductHome,
@@ -8,6 +9,9 @@ import {
 } from '@atlaskit/atlassian-navigation';
 import NotificationIcon from '@atlaskit/icon/core/notification';
 import SearchIcon from '@atlaskit/icon/core/search';
+import CheckCircleIcon from '@atlaskit/icon/glyph/check-circle';
+import ErrorIcon from '@atlaskit/icon/glyph/error';
+import InfoIcon from '@atlaskit/icon/glyph/info';
 
 // Inline SVG data URLs for logo (purple box with "MK" text)
 const LOGO_URL =
@@ -41,6 +45,51 @@ const ProductHome = () => (
     href="/"
   />
 );
+
+const MOCK_NOTIFICATIONS = [
+  { id: 1, type: 'success', title: 'Mission Approved', desc: 'Peru Cleft Lip 2026 has been approved by admin.', time: '10m ago' },
+  { id: 2, type: 'error', title: 'Low Stock Alert', desc: 'Surgical Masks are below the minimum threshold.', time: '1h ago' },
+  { id: 3, type: 'info', title: 'New Item Request', desc: 'Dr. Adams requested items for Tanzania 2025.', time: '2h ago' },
+];
+
+function NotificationsPopover({ isOpen, onClose }) {
+  if (!isOpen) return null;
+  return (
+    <>
+      <div onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 300 }} />
+      <div style={{
+        position: 'absolute', top: 56, right: 80, width: 360,
+        backgroundColor: '#fff', borderRadius: 4, zIndex: 301,
+        boxShadow: '0 8px 12px rgba(9,30,66,0.15), 0 0 1px rgba(9,30,66,0.31)',
+        display: 'flex', flexDirection: 'column'
+      }}>
+        <div style={{ padding: '16px 20px', borderBottom: '1px solid #DFE1E6', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <h3 style={{ margin: 0, fontSize: 16, fontWeight: 600, color: '#172B4D' }}>Notifications</h3>
+          <button style={{ background: 'none', border: 'none', color: '#0C66E4', fontSize: 13, cursor: 'pointer', fontWeight: 500 }}>Mark all as read</button>
+        </div>
+        <div style={{ maxHeight: 400, overflowY: 'auto' }}>
+          {MOCK_NOTIFICATIONS.map(n => (
+            <div key={n.id} style={{ display: 'flex', gap: 12, padding: '16px 20px', borderBottom: '1px solid #F4F5F7', cursor: 'pointer', /* hover effect handled by css normally, just keep simple here */ }}>
+              <div style={{ flexShrink: 0, marginTop: 2 }}>
+                {n.type === 'success' && <CheckCircleIcon primaryColor="#1F845A" size="medium" />}
+                {n.type === 'error' && <ErrorIcon primaryColor="#AE2E24" size="medium" />}
+                {n.type === 'info' && <InfoIcon primaryColor="#0C66E4" size="medium" />}
+              </div>
+              <div>
+                <p style={{ margin: '0 0 4px', fontSize: 14, fontWeight: 600, color: '#172B4D' }}>{n.title}</p>
+                <p style={{ margin: '0 0 6px', fontSize: 13, color: '#5E6C84', lineHeight: 1.4 }}>{n.desc}</p>
+                <span style={{ fontSize: 12, color: '#8590A2' }}>{n.time}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+        <div style={{ padding: '12px', textAlign: 'center', backgroundColor: '#F4F5F7', borderBottomLeftRadius: 4, borderBottomRightRadius: 4 }}>
+          <button style={{ background: 'none', border: 'none', color: '#0C66E4', fontSize: 14, cursor: 'pointer', fontWeight: 500 }}>View all notifications</button>
+        </div>
+      </div>
+    </>
+  );
+}
 
 const NavNotifications = () => (
   <Notifications
@@ -79,16 +128,21 @@ const NavSearch = () => (
   </div>
 );
 
-export default function TopNav() {
+export default function TopNav({ onNavigate }) {
+  const [notifOpen, setNotifOpen] = useState(false);
+
   return (
-    <AtlassianNavigation
-      label="Mending Kids Inventory"
-      primaryItems={[]}
-      renderProductHome={ProductHome}
-      renderSearch={NavSearch}
-      renderNotifications={NavNotifications}
-      renderSettings={NavSettings}
-      renderProfile={NavProfile}
-    />
+    <>
+      <AtlassianNavigation
+        label="Mending Kids Inventory"
+        primaryItems={[]}
+        renderProductHome={ProductHome}
+        renderSearch={NavSearch}
+        renderNotifications={() => <Notifications badge={NotificationBadge} onClick={() => setNotifOpen(!notifOpen)} tooltip="Notifications" />}
+        renderSettings={() => <Settings onClick={() => onNavigate && onNavigate('settings')} tooltip="Settings" />}
+        renderProfile={NavProfile}
+      />
+      <NotificationsPopover isOpen={notifOpen} onClose={() => setNotifOpen(false)} />
+    </>
   );
 }
