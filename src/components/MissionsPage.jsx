@@ -1,25 +1,250 @@
-import React, { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { PageLayout, Content, Main, LeftSidebarWithoutResize, TopNavigation } from '@atlaskit/page-layout';
 import TopNav from './TopNav';
 import SideNav from './SideNav';
-import { token } from '@atlaskit/tokens';
-import Button from '@atlaskit/button';
-import AddIcon from '@atlaskit/icon/core/add';
-import SearchIcon from '@atlaskit/icon/core/search';
-import Lozenge from '@atlaskit/lozenge';
-import AvatarGroup from '@atlaskit/avatar-group';
-import Avatar from '@atlaskit/avatar';
+import CreateMissionPanel from './CreateMissionPanel';
 
-const MISSIONS = [
-  { id: 1, name: 'Uganda Cardiac 2026', location: 'Kampala, Uganda', dates: 'Aug 10 - Aug 24, 2026', status: 'upcoming', type: 'Cardiac', items: 340, volunteers: 12 },
-  { id: 2, name: 'Guatemala Dental 2026', location: 'Guatemala City', dates: 'Sep 05 - Sep 15, 2026', status: 'upcoming', type: 'Dental', items: 120, volunteers: 8 },
-  { id: 3, name: 'Peru General Surgery', location: 'Lima, Peru', dates: 'Oct 01 - Oct 14, 2026', status: 'planning', type: 'General', items: 450, volunteers: 20 },
-  { id: 4, name: 'Tanzania Orthopedic', location: 'Dar es Salaam, Tanzania', dates: 'Nov 12 - Nov 28, 2026', status: 'planning', type: 'Orthopedic', items: 210, volunteers: 15 },
-  { id: 5, name: 'Vietnam ENT 2025', location: 'Hanoi, Vietnam', dates: 'Dec 01 - Dec 15, 2025', status: 'completed', type: 'ENT', items: 500, volunteers: 18 },
+// ─── Data ───────────────────────────────────────────────────────────────────
+
+const SPECIALTY_COLORS = {
+  ENT:        { bg: '#1a7f37', text: '#fff' },
+  Ortho:      { bg: '#0e7490', text: '#fff' },
+  Cardiac:    { bg: '#1561cc', text: '#fff' },
+  General:    { bg: '#cf4f27', text: '#fff' },
+  Plastics:   { bg: '#6d28d9', text: '#fff' },
+  Infections: { bg: '#be185d', text: '#fff' },
+  Dental:     { bg: '#b45309', text: '#fff' },
+};
+
+const MISSIONS_DATA = [
+  { id: 1, name: 'Tanzania 2025', location: 'Dar es Salaam', dates: '11/5 - 11/21', specialty: 'ENT',        items: 30, people: 10, overdue: false },
+  { id: 2, name: 'Tanzania 2025', location: 'Dar es Salaam', dates: '3/4-3/10',     specialty: 'Ortho',      items: 30, people: 10, overdue: true  },
+  { id: 3, name: 'Tanzania 2025', location: 'Dar es Salaam', dates: '11/5 - 11/21', specialty: 'ENT',        items: 30, people: 10, overdue: false },
+  { id: 4, name: 'Tanzania 2025', location: 'Dar es Salaam', dates: '11/5 - 11/21', specialty: 'ENT',        items: 30, people: 10, overdue: false },
+  { id: 5, name: 'Tanzania 2025', location: 'Dar es Salaam', dates: '11/5 - 11/21', specialty: 'Cardiac',    items: 30, people: 10, overdue: false },
+  { id: 6, name: 'Tanzania 2025', location: 'Dar es Salaam', dates: '11/5 - 11/21', specialty: 'General',    items: 30, people: 10, overdue: false },
+  { id: 7, name: 'Tanzania 2025', location: 'Dar es Salaam', dates: '11/5 - 11/21', specialty: 'Plastics',   items: 30, people: 10, overdue: false },
+  { id: 8, name: 'Tanzania 2025', location: 'Dar es Salaam', dates: '11/5 - 11/21', specialty: 'General',    items: 30, people: 10, overdue: false },
+  { id: 9, name: 'Tanzania 2025', location: 'Dar es Salaam', dates: '11/5 - 11/21', specialty: 'Infections', items: 30, people: 10, overdue: false },
 ];
 
+const SPECIALTIES = [...new Set(MISSIONS_DATA.map(m => m.specialty))];
+const LOCATIONS   = [...new Set(MISSIONS_DATA.map(m => m.location))];
+
+// ─── Shared primitives ───────────────────────────────────────────────────────
+
+function SpecialtyBadge({ specialty }) {
+  const c = SPECIALTY_COLORS[specialty] || { bg: '#626F86', text: '#fff' };
+  return (
+    <span style={{
+      display: 'inline-flex', alignItems: 'center',
+      padding: '2px 10px', borderRadius: 999,
+      backgroundColor: c.bg, color: c.text,
+      fontSize: 11, fontWeight: 500, whiteSpace: 'nowrap',
+    }}>
+      {specialty}
+    </span>
+  );
+}
+
+function FilterDropdown({ label, options, selected, onSelect }) {
+  const [open, setOpen] = useState(false);
+  const ref  = useRef(null);
+  useEffect(() => {
+    const h = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+    document.addEventListener('mousedown', h);
+    return () => document.removeEventListener('mousedown', h);
+  }, []);
+  return (
+    <div ref={ref} style={{ position: 'relative' }}>
+      <button
+        onClick={() => setOpen(o => !o)}
+        style={{
+          display: 'flex', alignItems: 'center', gap: 6,
+          height: 32, padding: '0 10px',
+          border: '1px solid #d9d9d9', borderRadius: 4,
+          background: selected ? '#F3F0FF' : '#fff',
+          color: selected ? '#422670' : '#172B4D',
+          cursor: 'pointer', fontSize: 13, fontFamily: 'inherit',
+          fontWeight: selected ? 500 : 400,
+        }}
+      >
+        {selected || label}
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+          <path d={open ? 'M3 8l3-3 3 3' : 'M3 4l3 3 3-3'} stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+        </svg>
+      </button>
+      {open && (
+        <div style={{
+          position: 'absolute', top: '100%', left: 0, marginTop: 4,
+          minWidth: 160, padding: '4px 0',
+          background: '#fff', borderRadius: 4,
+          boxShadow: '0 4px 16px rgba(9,30,66,0.16)',
+          zIndex: 100,
+        }}>
+          <DropItem label="All" active={!selected} onClick={() => { onSelect(''); setOpen(false); }} />
+          {options.map(o => (
+            <DropItem key={o} label={o} active={selected === o} onClick={() => { onSelect(o); setOpen(false); }} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function DropItem({ label, active, onClick }) {
+  const [hov, setHov] = useState(false);
+  return (
+    <button
+      onClick={onClick}
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      style={{
+        display: 'block', width: '100%', padding: '7px 12px', border: 'none',
+        background: active ? '#F3F0FF' : hov ? '#FAFBFC' : 'transparent',
+        color: active ? '#422670' : '#172B4D',
+        fontSize: 13, fontFamily: 'inherit', textAlign: 'left',
+        fontWeight: active ? 600 : 400, cursor: 'pointer',
+      }}
+    >
+      {label}
+    </button>
+  );
+}
+
+// ─── Mission Card ─────────────────────────────────────────────────────────────
+
+function MissionCard({ mission, onClick }) {
+  const [hov, setHov] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef(null);
+  useEffect(() => {
+    const h = (e) => { if (menuRef.current && !menuRef.current.contains(e.target)) setMenuOpen(false); };
+    document.addEventListener('mousedown', h);
+    return () => document.removeEventListener('mousedown', h);
+  }, []);
+
+  return (
+    <div
+      onClick={() => onClick(mission)}
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      style={{
+        background: '#fff',
+        border: `1px solid ${hov ? '#b7b9be' : '#e8e8e8'}`,
+        borderRadius: 6, padding: '16px',
+        cursor: 'pointer', transition: 'border-color 0.12s',
+      }}
+    >
+      {/* Row 1: title + badge */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
+        <span style={{ fontSize: 16, fontWeight: 500, color: '#000', lineHeight: '20px' }}>
+          {mission.name}
+        </span>
+        <SpecialtyBadge specialty={mission.specialty} />
+      </div>
+
+      {/* Row 2: location */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 4 }}>
+        <PinIcon />
+        <span style={{ fontSize: 13, color: '#44546F' }}>{mission.location}</span>
+      </div>
+
+      {/* Row 3: dates */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 14 }}>
+        {mission.overdue
+          ? <><OverdueIcon /><span style={{ fontSize: 13, color: '#c62828', fontWeight: 500 }}>{mission.dates}</span></>
+          : <><ClockIcon /><span style={{ fontSize: 13, color: '#44546F' }}>{mission.dates}</span></>
+        }
+      </div>
+
+      {/* Row 4: meta + more */}
+      <div
+        style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+        onClick={e => e.stopPropagation()}
+      >
+        <span style={{ fontSize: 12, color: '#626F86' }}>
+          {mission.items} items · {mission.people} people
+        </span>
+        <div ref={menuRef} style={{ position: 'relative' }}>
+          <button
+            onClick={() => setMenuOpen(o => !o)}
+            style={{
+              background: 'transparent', border: 'none', cursor: 'pointer',
+              padding: '2px 4px', borderRadius: 3, color: '#44546F',
+              display: 'flex', alignItems: 'center',
+            }}
+          >
+            <DotsIcon />
+          </button>
+          {menuOpen && (
+            <div style={{
+              position: 'absolute', right: 0, top: '100%', marginTop: 4,
+              background: '#fff', border: '1px solid #e8e8e8', borderRadius: 4,
+              boxShadow: '0 4px 12px rgba(9,30,66,0.12)', zIndex: 50, minWidth: 140,
+            }}>
+              {['View', 'Edit', 'Archive', 'Delete'].map(action => (
+                <button key={action} style={{
+                  display: 'block', width: '100%', padding: '8px 14px',
+                  border: 'none', background: 'transparent', textAlign: 'left',
+                  fontSize: 13, cursor: 'pointer', fontFamily: 'inherit',
+                  color: action === 'Delete' ? '#c62828' : '#172B4D',
+                }}>{action}</button>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Tiny SVGs ────────────────────────────────────────────────────────────────
+
+const PinIcon = () => (
+  <svg width="12" height="14" viewBox="0 0 12 14" fill="none" style={{ flexShrink: 0 }}>
+    <path d="M6 0a4.5 4.5 0 0 1 4.5 4.5C10.5 7.5 6 13 6 13S1.5 7.5 1.5 4.5A4.5 4.5 0 0 1 6 0Z" fill="#626F86" />
+    <circle cx="6" cy="4.5" r="1.5" fill="#fff" />
+  </svg>
+);
+
+const ClockIcon = () => (
+  <svg width="13" height="13" viewBox="0 0 13 13" fill="none" style={{ flexShrink: 0 }}>
+    <circle cx="6.5" cy="6.5" r="5.75" stroke="#626F86" strokeWidth="1.2" />
+    <path d="M6.5 3.5v3l2 1.5" stroke="#626F86" strokeWidth="1.2" strokeLinecap="round" />
+  </svg>
+);
+
+const OverdueIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style={{ flexShrink: 0 }}>
+    <circle cx="7" cy="7" r="6.25" stroke="#c62828" strokeWidth="1.3" />
+    <path d="M7 4v3.5M7 9.5v.5" stroke="#c62828" strokeWidth="1.3" strokeLinecap="round" />
+  </svg>
+);
+
+const DotsIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+    <circle cx="4" cy="8" r="1.2" fill="#626F86" />
+    <circle cx="8" cy="8" r="1.2" fill="#626F86" />
+    <circle cx="12" cy="8" r="1.2" fill="#626F86" />
+  </svg>
+);
+
+// ─── Main Page ────────────────────────────────────────────────────────────────
+
 export default function MissionsPage({ onNavigate }) {
-  const [search, setSearch] = useState('');
+  const [tab, setTab]                   = useState('current');
+  const [specialtyFilter, setSpecialty] = useState('');
+  const [locationFilter, setLocation]   = useState('');
+  const [search, setSearch]             = useState('');
+  const [createOpen, setCreateOpen]     = useState(false);
+
+  const filtered = MISSIONS_DATA.filter(m => {
+    if (specialtyFilter && m.specialty !== specialtyFilter) return false;
+    if (locationFilter  && m.location  !== locationFilter)  return false;
+    if (search && !m.name.toLowerCase().includes(search.toLowerCase())) return false;
+    return true;
+  });
 
   return (
     <PageLayout>
@@ -31,82 +256,112 @@ export default function MissionsPage({ onNavigate }) {
           <SideNav active="missions" onNavigate={onNavigate} />
         </LeftSidebarWithoutResize>
         <Main>
-          <div style={{ padding: '32px', maxWidth: 1200, margin: '0 auto' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-              <h1 style={{ margin: 0, fontSize: 24, color: token('color.text', '#172B4D') }}>Missions</h1>
-              <div style={{ display: 'flex', gap: 12 }}>
-                <div style={{ position: 'relative', width: 250 }}>
-                  <span style={{ position: 'absolute', left: 10, top: 6, color: '#8590A2' }}>
-                    <SearchIcon size="small" label="" />
-                  </span>
-                  <input
-                    type="text"
-                    placeholder="Search missions..."
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    style={{
-                      width: '100%', padding: '8px 12px 8px 36px',
-                      border: `1px solid ${token('color.border', '#DFE1E6')}`, borderRadius: 4,
-                      fontSize: 14, backgroundColor: token('elevation.surface', '#fff')
-                    }}
-                  />
-                </div>
+          <div style={{
+            padding: '28px 32px',
+            fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+            minHeight: '100vh', backgroundColor: '#fff',
+          }}>
+            {/* Header */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+              <h1 style={{ margin: 0, fontSize: 24, fontWeight: 600, color: '#000' }}>Missions</h1>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <button
+                  onClick={() => setCreateOpen(true)}
                   style={{
-                    backgroundColor: '#422670', color: '#fff', border: 'none', borderRadius: 4,
-                    padding: '0 16px', display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer',
-                    fontSize: 14, fontWeight: 500, transition: '0.2s'
+                    display: 'flex', alignItems: 'center', gap: 6,
+                    height: 36, padding: '0 16px',
+                    backgroundColor: '#422670', color: '#fff',
+                    border: 'none', borderRadius: 4,
+                    fontSize: 14, fontWeight: 500, fontFamily: 'inherit',
+                    cursor: 'pointer',
                   }}
-                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#331D58'}
-                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#422670'}
                 >
-                  <AddIcon size="small" label="" /> Create Mission
+                  Create Mission
+                </button>
+                <button style={{
+                  width: 36, height: 36, border: '1px solid #e8e8e8', borderRadius: 4,
+                  background: '#fff', cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                }}>
+                  <DotsIcon />
                 </button>
               </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: 24 }}>
-              {MISSIONS.filter(m => m.name.toLowerCase().includes(search.toLowerCase())).map(m => (
-                <div key={m.id} style={{
-                  backgroundColor: '#fff', border: `1px solid ${token('color.border', '#DFE1E6')}`,
-                  borderRadius: 8, padding: 20, boxShadow: '0 1px 2px rgba(9,30,66,0.1)', cursor: 'pointer',
-                  transition: 'transform 0.2s, box-shadow 0.2s'
-                }}
-                onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 4px 8px rgba(9,30,66,0.15)'; }}
-                onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 1px 2px rgba(9,30,66,0.1)'; }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
-                    <h3 style={{ margin: 0, fontSize: 16, color: '#172B4D', fontWeight: 600 }}>{m.name}</h3>
-                    <Lozenge appearance={m.status === 'upcoming' ? 'success' : m.status === 'planning' ? 'inprogress' : 'default'} isBold>
-                      {m.status.toUpperCase()}
-                    </Lozenge>
-                  </div>
-                  <p style={{ margin: '0 0 16px', fontSize: 13, color: '#6B778C' }}>{m.dates}</p>
-                  
-                  <div style={{ display: 'flex', gap: 16, marginBottom: 20 }}>
-                     <div>
-                       <span style={{ display: 'block', fontSize: 12, color: '#8590A2', marginBottom: 4 }}>Location</span>
-                       <span style={{ fontSize: 14, color: '#172B4D' }}>{m.location}</span>
-                     </div>
-                     <div>
-                       <span style={{ display: 'block', fontSize: 12, color: '#8590A2', marginBottom: 4 }}>Type</span>
-                       <span style={{ fontSize: 14, color: '#172B4D' }}>{m.type}</span>
-                     </div>
-                  </div>
+            {/* Tabs */}
+            <div style={{ display: 'flex', borderBottom: '1px solid #e8e8e8', marginBottom: 16 }}>
+              {['current', 'archive'].map(t => (
+                <button
+                  key={t}
+                  onClick={() => setTab(t)}
+                  style={{
+                    padding: '10px 16px', border: 'none', background: 'transparent',
+                    fontSize: 14, cursor: 'pointer', fontFamily: 'inherit',
+                    color: tab === t ? '#172B4D' : '#626F86',
+                    fontWeight: tab === t ? 600 : 400,
+                    borderBottom: tab === t ? '2px solid #172B4D' : '2px solid transparent',
+                    marginBottom: -1,
+                  }}
+                >
+                  {t.charAt(0).toUpperCase() + t.slice(1)}
+                </button>
+              ))}
+            </div>
 
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #DFE1E6', paddingTop: 16 }}>
-                    <span style={{ fontSize: 13, color: '#44546F', fontWeight: 500 }}>{m.items} Items Assigned</span>
-                    <AvatarGroup presence="online" size="small" appearance="stack" maxCount={3} data={[
-                      { name: 'Dr. Smith', src: '' },
-                      { name: 'Dr. Jones', src: '' },
-                      { name: 'Nurse Joy', src: '' }
-                    ]} />
-                  </div>
-                </div>
+            {/* Filter row */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <FilterDropdown label="Specialty" options={SPECIALTIES} selected={specialtyFilter} onSelect={setSpecialty} />
+                <FilterDropdown label="Location"  options={LOCATIONS}   selected={locationFilter}  onSelect={setLocation}  />
+              </div>
+              <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                <span style={{ position: 'absolute', left: 8, color: '#8590A2', display: 'flex' }}>
+                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+                    <circle cx="7" cy="7" r="5" stroke="currentColor" strokeWidth="1.5" />
+                    <path d="M11 11l3 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                  </svg>
+                </span>
+                <input
+                  type="text"
+                  placeholder="Placeholder"
+                  value={search}
+                  onChange={e => setSearch(e.target.value)}
+                  style={{
+                    height: 32, paddingLeft: 28, paddingRight: 10,
+                    border: '1px solid #d9d9d9', borderRadius: 4,
+                    fontSize: 13, fontFamily: 'inherit', width: 180, outline: 'none',
+                  }}
+                />
+                <button style={{
+                  height: 32, padding: '0 12px', marginLeft: 4,
+                  border: '1px solid #d9d9d9', borderRadius: 4,
+                  background: '#fff', cursor: 'pointer',
+                  fontSize: 13, fontFamily: 'inherit', color: '#172B4D',
+                }}>
+                  Search
+                </button>
+              </div>
+            </div>
+
+            {/* Cards grid */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
+              {filtered.map(m => (
+                <MissionCard
+                  key={m.id}
+                  mission={m}
+                  onClick={() => onNavigate('mission-detail', m)}
+                />
               ))}
             </div>
           </div>
         </Main>
       </Content>
+
+      <CreateMissionPanel
+        isOpen={createOpen}
+        onClose={() => setCreateOpen(false)}
+        onNavigate={onNavigate}
+      />
     </PageLayout>
   );
 }

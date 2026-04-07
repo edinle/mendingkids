@@ -1,17 +1,17 @@
 import { useState } from 'react';
-import InventoryPage from "./components/InventoryPage";
-import MissionsPage from "./components/MissionsPage";
-import DashboardPage from "./components/DashboardPage";
+import InventoryPage     from './components/InventoryPage';
+import MissionsPage      from './components/MissionsPage';
+import MissionDetailPage from './components/MissionDetailPage';
+import AddItemsPage      from './components/AddItemsPage';
+import DashboardPage     from './components/DashboardPage';
 
 import { PageLayout, Content, Main, LeftSidebarWithoutResize, TopNavigation } from '@atlaskit/page-layout';
-import TopNav from './components/TopNav';
+import TopNav  from './components/TopNav';
 import SideNav from './components/SideNav';
 
 const PlaceholderPage = ({ title, onNavigate, id }) => (
   <PageLayout>
-    <TopNavigation isFixed>
-      <TopNav />
-    </TopNavigation>
+    <TopNavigation isFixed><TopNav /></TopNavigation>
     <Content>
       <LeftSidebarWithoutResize width={240}>
         <SideNav active={id} onNavigate={onNavigate} />
@@ -19,12 +19,9 @@ const PlaceholderPage = ({ title, onNavigate, id }) => (
       <Main>
         <div style={{ padding: 40, textAlign: 'center', marginTop: 100 }}>
           <h1 style={{ color: '#172B4D', fontSize: 32 }}>{title}</h1>
-          <p style={{ color: '#6B778C', fontSize: 16 }}>This section is currently under development to match the Figma design spec.</p>
-          <button 
-            style={{ 
-              marginTop: 24, padding: '10px 20px', backgroundColor: '#422670', color: '#fff', 
-              border: 'none', borderRadius: 6, cursor: 'pointer', fontWeight: 600 
-            }}
+          <p style={{ color: '#6B778C', fontSize: 16 }}>This section is coming soon.</p>
+          <button
+            style={{ marginTop: 24, padding: '10px 20px', backgroundColor: '#422670', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer', fontWeight: 600 }}
             onClick={() => onNavigate('dashboard')}
           >
             Back to Dashboard
@@ -36,17 +33,23 @@ const PlaceholderPage = ({ title, onNavigate, id }) => (
 );
 
 export default function App() {
-  const [currentPage, setCurrentPage] = useState('inventory');
+  // nav = { page: string, params?: any }
+  const [nav, setNav] = useState({ page: 'missions' });
+
+  // onNavigate(page, params?) — params carries mission object etc.
+  const onNavigate = (page, params) => setNav({ page, params });
 
   return (
     <>
-      {currentPage === 'inventory'  && <InventoryPage onNavigate={setCurrentPage} />}
-      {currentPage === 'missions'   && <MissionsPage onNavigate={setCurrentPage} />}
-      {currentPage === 'dashboard'  && <DashboardPage onNavigate={setCurrentPage} />}
-      {currentPage === 'donors'     && <PlaceholderPage title="Donors & Partners" onNavigate={setCurrentPage} id="donors" />}
-      {currentPage === 'requests'   && <PlaceholderPage title="Item Requests" onNavigate={setCurrentPage} id="requests" />}
-      {currentPage === 'volunteers' && <PlaceholderPage title="Volunteers" onNavigate={setCurrentPage} id="volunteers" />}
-      {currentPage === 'reports'    && <PlaceholderPage title="Reports" onNavigate={setCurrentPage} id="reports" />}
+      {nav.page === 'dashboard'      && <DashboardPage      onNavigate={onNavigate} />}
+      {nav.page === 'inventory'      && <InventoryPage      onNavigate={onNavigate} />}
+      {nav.page === 'missions'       && <MissionsPage       onNavigate={onNavigate} />}
+      {nav.page === 'mission-detail' && <MissionDetailPage  mission={nav.params}  onNavigate={onNavigate} />}
+      {nav.page === 'add-items'      && <AddItemsPage       mission={nav.params}  onNavigate={onNavigate} />}
+      {nav.page === 'donors'         && <PlaceholderPage title="Donors & Partners" onNavigate={onNavigate} id="donors"     />}
+      {nav.page === 'requests'       && <PlaceholderPage title="Item Requests"     onNavigate={onNavigate} id="requests"   />}
+      {nav.page === 'volunteers'     && <PlaceholderPage title="Volunteers"        onNavigate={onNavigate} id="volunteers" />}
+      {nav.page === 'reports'        && <PlaceholderPage title="Reports"           onNavigate={onNavigate} id="reports"    />}
     </>
   );
 }
