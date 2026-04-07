@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import {
   PageLayout,
   TopNavigation,
-  LeftSidebarWithoutResize,
+  LeftSidebar,
   Content,
   Main,
 } from '@atlaskit/page-layout';
@@ -361,13 +361,13 @@ export default function InventoryPage({ onNavigate }) {
       </TopNavigation>
 
       <Content>
-        <LeftSidebarWithoutResize
+        <LeftSidebar
           id="left-sidebar"
           skipLinkTitle="Project Navigation"
           width={240}
         >
           <SideNav active="inventory" onNavigate={onNavigate} />
-        </LeftSidebarWithoutResize>
+        </LeftSidebar>
 
         <Main id="main-content" skipLinkTitle="Main Content">
           <div style={{ padding: '24px 24px 32px' }}>

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { PageLayout, TopNavigation, LeftSidebarWithoutResize, Content, Main } from '@atlaskit/page-layout';
+import { PageLayout, TopNavigation, LeftSidebar, Content, Main } from '@atlaskit/page-layout';
 import DynamicTable from '@atlaskit/dynamic-table';
 import { IconButton } from '@atlaskit/button/new';
 import EditIcon from '@atlaskit/icon/core/edit';
@@ -109,7 +109,7 @@ export default function DonorsPage({ onNavigate }) {
     <PageLayout>
       <TopNavigation isFixed><TopNav /></TopNavigation>
       <Content>
-        <LeftSidebarWithoutResize width={240}><SideNav active="donors" onNavigate={onNavigate} /></LeftSidebarWithoutResize>
+        <LeftSidebar width={240}><SideNav active="donors" onNavigate={onNavigate} /></LeftSidebar>
         <Main>
           <div style={{ padding: '24px 32px 32px', maxWidth: 1200, margin: '0 auto' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>

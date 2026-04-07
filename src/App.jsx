@@ -9,7 +9,7 @@ import ItemRequestsPage  from './components/ItemRequestsPage';
 import SettingsPage      from './components/SettingsPage';
 import ReportsPage       from './components/ReportsPage';
 
-import { PageLayout, Content, Main, LeftSidebarWithoutResize, TopNavigation } from '@atlaskit/page-layout';
+import { PageLayout, Content, Main, LeftSidebar, TopNavigation } from '@atlaskit/page-layout';
 import TopNav  from './components/TopNav';
 import SideNav from './components/SideNav';
 
@@ -17,9 +17,9 @@ const PlaceholderPage = ({ title, onNavigate, id }) => (
   <PageLayout>
     <TopNavigation isFixed><TopNav onNavigate={onNavigate} /></TopNavigation>
     <Content>
-      <LeftSidebarWithoutResize width={240}>
+      <LeftSidebar width={240} id="app-sidebar" isFixed={false}>
         <SideNav active={id} onNavigate={onNavigate} />
-      </LeftSidebarWithoutResize>
+      </LeftSidebar>
       <Main>
         <div style={{ padding: 40, textAlign: 'center', marginTop: 100 }}>
           <h1 style={{ color: '#172B4D', fontSize: 32 }}>{title}</h1>

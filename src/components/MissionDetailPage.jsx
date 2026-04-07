@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { PageLayout, Content, Main, LeftSidebarWithoutResize, TopNavigation } from '@atlaskit/page-layout';
+import { PageLayout, Content, Main, LeftSidebar, TopNavigation } from '@atlaskit/page-layout';
 import TopNav from './TopNav';
 import SideNav from './SideNav';
 
@@ -196,9 +196,9 @@ export default function MissionDetailPage({ mission, onNavigate }) {
         <TopNav />
       </TopNavigation>
       <Content>
-        <LeftSidebarWithoutResize width={240}>
+        <LeftSidebar width={240}>
           <SideNav active="missions" onNavigate={onNavigate} />
-        </LeftSidebarWithoutResize>
+        </LeftSidebar>
         <Main>
           <div style={{
             display: 'flex', height: '100%',

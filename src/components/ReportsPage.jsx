@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { PageLayout, TopNavigation, LeftSidebarWithoutResize, Content, Main } from '@atlaskit/page-layout';
+import { PageLayout, TopNavigation, LeftSidebar, Content, Main } from '@atlaskit/page-layout';
 import { token } from '@atlaskit/tokens';
 
 import TopNav from './TopNav';
@@ -28,7 +28,7 @@ export default function ReportsPage({ onNavigate }) {
     <PageLayout>
       <TopNavigation isFixed><TopNav onNavigate={onNavigate} /></TopNavigation>
       <Content>
-        <LeftSidebarWithoutResize width={240}><SideNav active="reports" onNavigate={onNavigate} /></LeftSidebarWithoutResize>
+        <LeftSidebar width={240} id="reports-sidebar" isFixed><SideNav active="reports" onNavigate={onNavigate} /></LeftSidebar>
         <Main>
           <div style={{ padding: '24px 32px 32px', maxWidth: 1200, margin: '0 auto' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>

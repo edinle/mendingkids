@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import {
-  PageLayout, Content, Main, LeftSidebarWithoutResize, TopNavigation,
+  PageLayout, Content, Main, LeftSidebar, TopNavigation,
 } from '@atlaskit/page-layout';
 import TopNav from './TopNav';
 import SideNav from './SideNav';
@@ -546,9 +546,9 @@ export default function DashboardPage({ onNavigate }) {
       </TopNavigation>
 
       <Content>
-        <LeftSidebarWithoutResize width={240}>
+        <LeftSidebar width={240}>
           <SideNav active="dashboard" onNavigate={onNavigate} />
-        </LeftSidebarWithoutResize>
+        </LeftSidebar>
 
         <Main>
           <div style={{

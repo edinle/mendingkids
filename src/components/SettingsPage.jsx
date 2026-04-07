@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { PageLayout, TopNavigation, LeftSidebarWithoutResize, Content, Main } from '@atlaskit/page-layout';
+import { PageLayout, TopNavigation, LeftSidebar, Content, Main } from '@atlaskit/page-layout';
 import TextField from '@atlaskit/textfield';
 import Select from '@atlaskit/select';
 import { Checkbox } from '@atlaskit/checkbox';
@@ -36,7 +36,7 @@ export default function SettingsPage({ onNavigate }) {
       <TopNavigation isFixed><TopNav onNavigate={onNavigate} /></TopNavigation>
       <Content>
         {/* Jira-style Settings Sidebar */}
-        <LeftSidebarWithoutResize width={260}>
+        <LeftSidebar width={260} id="settings-sidebar" isFixed={false}>
           <div style={{ 
             height: '100%', 
             backgroundColor: token('elevation.surface.sunken', '#F4F5F7'),
@@ -104,7 +104,7 @@ export default function SettingsPage({ onNavigate }) {
               ))}
             </div>
           </div>
-        </LeftSidebarWithoutResize>
+        </LeftSidebar>
 
         {/* Main Content */}
         <Main>
