@@ -167,7 +167,7 @@ export default function AddItemsPage({ mission, onNavigate }) {
               <div>
                 <button 
                   onClick={() => onNavigate('mission-detail', mission)}
-                  style={{ background: 'none', border: 'none', color: '#0052CC', cursor: 'pointer', padding: 0, marginBottom: 8, fontSize: 14, fontWeight: 500 }}>
+                  style={{ background: 'none', border: 'none', color: 'var(--ds-link)', cursor: 'pointer', padding: 0, marginBottom: 8, fontSize: 14, fontWeight: 500 }}>
                   ← Back to Mission
                 </button>
                 <h1 style={{ margin: 0, fontSize: 24, fontWeight: 600, color: '#172B4D' }}>Add Items {mission ? `to ${mission.name}` : ''}</h1>

@@ -60,7 +60,7 @@ StatusDot.propTypes = { status: PropTypes.string };
 const ACTIVITY_CONFIGS = {
   added:   { bg: '#DCFFF1', color: '#216E4E' },
   removed: { bg: '#FFEDEB', color: '#AE2E24' },
-  mission: { bg: '#E9F2FF', color: '#0C66E4' },
+  mission: { bg: '#EADEFA', color: '#422670' },
   expired: { bg: '#FFF3EB', color: '#E56910' },
   updated: { bg: '#F3F0FF', color: '#5E4DB2' },
 };
@@ -449,9 +449,9 @@ function DocumentationTab() {
           <p style={{ fontSize: 12, color: token('color.text.subtle', '#505258'), margin: '0 0 4px' }}>Valuation Source</p>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-              <path d="M5.5 7a1.75 1.75 0 0 0 1.75 1.75h1.75a1.75 1.75 0 0 0 0-3.5H8.5M8.5 7a1.75 1.75 0 0 0-1.75-1.75H5a1.75 1.75 0 0 0 0 3.5h.75" stroke="#0C66E4" strokeWidth="1.2" strokeLinecap="round" />
+              <path d="M5.5 7a1.75 1.75 0 0 0 1.75 1.75h1.75a1.75 1.75 0 0 0 0-3.5H8.5M8.5 7a1.75 1.75 0 0 0-1.75-1.75H5a1.75 1.75 0 0 0 0 3.5h.75" stroke="var(--ds-link)" strokeWidth="1.2" strokeLinecap="round" />
             </svg>
-            <span style={{ fontSize: 14, color: '#0C66E4' }}>www.amazon.com/value</span>
+            <span style={{ fontSize: 14, color: 'var(--ds-link)' }}>www.amazon.com/value</span>
           </div>
         </div>
       </div>
@@ -909,7 +909,7 @@ export default function OverviewPanel({ isOpen, onClose, item, onEdit }) {
                   display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 4,
                   height: 22, padding: '0 8px', borderRadius: 3,
                   backgroundColor: status === 'available' ? '#E3FCEF' : '#E9F2FF',
-                  color: status === 'available' ? '#006644' : '#0C66E4',
+                  color: status === 'available' ? '#006644' : 'var(--ds-link)',
                   border: '1px solid transparent', cursor: 'pointer',
                   fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.03em',
                   fontFamily: 'inherit', transition: 'background-color 0.2s',

@@ -5,6 +5,28 @@ body {
   min-height: 100vh;
 }
 
+:root {
+  --ds-background-brand: #422670 !important;
+  --ds-background-brand-hovered: #331d58 !important;
+  --ds-background-brand-pressed: #251343 !important;
+  --ds-background-brand-bold: #422670 !important;
+  --ds-background-brand-bold-hovered: #331d58 !important;
+  --ds-background-brand-bold-pressed: #251343 !important;
+  
+  --ds-text-brand: #5137a2 !important;
+  --ds-text-selected: #422670 !important;
+  --ds-background-selected: #F3F0FF !important;
+  --ds-background-selected-pressed: #E4D9FE !important;
+  --ds-background-selected-hovered: #EADEFA !important;
+  --ds-link: #5137a2 !important;
+  --ds-link-pressed: #331d58 !important;
+  --ds-border-brand: #5137a2 !important;
+  --ds-icon-brand: #422670 !important;
+  
+  /* Make sure TopNavigation stretches */
+  --nav-layout-width: 100vw;
+}
+
 /* Spin animation for loading states */
 @keyframes spin {
   to { transform: rotate(360deg); }

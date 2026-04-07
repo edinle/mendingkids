@@ -65,7 +65,7 @@ function NotificationsPopover({ isOpen, onClose }) {
       }}>
         <div style={{ padding: '16px 20px', borderBottom: '1px solid #DFE1E6', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <h3 style={{ margin: 0, fontSize: 16, fontWeight: 600, color: '#172B4D' }}>Notifications</h3>
-          <button style={{ background: 'none', border: 'none', color: '#0C66E4', fontSize: 13, cursor: 'pointer', fontWeight: 500 }}>Mark all as read</button>
+          <button style={{ background: 'none', border: 'none', color: 'var(--ds-link)', fontSize: 13, cursor: 'pointer', fontWeight: 500 }}>Mark all as read</button>
         </div>
         <div style={{ maxHeight: 400, overflowY: 'auto' }}>
           {MOCK_NOTIFICATIONS.map(n => (
@@ -73,7 +73,7 @@ function NotificationsPopover({ isOpen, onClose }) {
               <div style={{ flexShrink: 0, marginTop: 2 }}>
                 {n.type === 'success' && <CheckCircleIcon primaryColor="#1F845A" size="medium" />}
                 {n.type === 'error' && <ErrorIcon primaryColor="#AE2E24" size="medium" />}
-                {n.type === 'info' && <InfoIcon primaryColor="#0C66E4" size="medium" />}
+                {n.type === 'info' && <InfoIcon primaryColor="var(--ds-icon-brand)" size="medium" />}
               </div>
               <div>
                 <p style={{ margin: '0 0 4px', fontSize: 14, fontWeight: 600, color: '#172B4D' }}>{n.title}</p>
@@ -84,7 +84,7 @@ function NotificationsPopover({ isOpen, onClose }) {
           ))}
         </div>
         <div style={{ padding: '12px', textAlign: 'center', backgroundColor: '#F4F5F7', borderBottomLeftRadius: 4, borderBottomRightRadius: 4 }}>
-          <button style={{ background: 'none', border: 'none', color: '#0C66E4', fontSize: 14, cursor: 'pointer', fontWeight: 500 }}>View all notifications</button>
+          <button style={{ background: 'none', border: 'none', color: 'var(--ds-link)', fontSize: 14, cursor: 'pointer', fontWeight: 500 }}>View all notifications</button>
         </div>
       </div>
     </>

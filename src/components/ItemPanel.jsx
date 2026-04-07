@@ -109,7 +109,7 @@ function AssetsPrefix() {
 
 // ─── Globe icon for AI suggestions ─────────────────────────────────────────
 
-function GlobeIcon({ color = '#0C66E4' }) {
+function GlobeIcon({ color = 'var(--ds-link)' }) {
   return (
     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
       <circle cx="8" cy="8" r="6" stroke={color} strokeWidth="1.3" />
@@ -325,9 +325,9 @@ function Step2({ values, onChange }) {
                   transition: 'background-color 0.15s ease',
                 }}
               >
-                <GlobeIcon color="#0C66E4" />
+                <GlobeIcon color="var(--ds-link)" />
                 <span style={{
-                  fontSize: 13, color: '#0C66E4',
+                  fontSize: 13, color: 'var(--ds-link)',
                   overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
                 }}>
                   {url}

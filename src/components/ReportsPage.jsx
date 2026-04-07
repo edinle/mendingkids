@@ -68,8 +68,8 @@ export default function ReportsPage({ onNavigate }) {
                     style={{
                       height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
                       backgroundColor: downloading === report.id ? '#F4F5F7' : '#fff', 
-                      color: downloading === report.id ? '#A5ADBA' : '#0052CC', 
-                      border: downloading === report.id ? '1px solid #DFE1E6' : '1px solid #0052CC', 
+                      color: downloading === report.id ? '#A5ADBA' : 'var(--ds-link)', 
+                      border: downloading === report.id ? '1px solid #DFE1E6' : '1px solid var(--ds-link)', 
                       borderRadius: 3, fontSize: 14, fontWeight: 500, cursor: downloading === report.id ? 'not-allowed' : 'pointer', transition: 'all 0.2s'
                     }}
                   >

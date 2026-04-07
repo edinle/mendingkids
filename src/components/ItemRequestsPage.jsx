@@ -87,7 +87,7 @@ export default function ItemRequestsPage({ onNavigate }) {
     key: row.id,
     onClick: () => handleRowClick(row),
     cells: [
-      { key: 'id', content: <span style={{ color: '#0052CC', fontWeight: 500, cursor: 'pointer' }}>{row.id}</span> },
+      { key: 'id', content: <span style={{ color: 'var(--ds-link)', fontWeight: 500, cursor: 'pointer' }}>{row.id}</span> },
       { key: 'requester', content: <span style={{ fontWeight: 500, color: '#172B4D' }}>{row.requester}</span> },
       { key: 'mission', content: row.mission },
       { key: 'status', content: <StatusBadge status={row.status} /> },

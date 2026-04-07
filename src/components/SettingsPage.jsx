@@ -142,10 +142,10 @@ function GlobalPermissions() {
     ],
   };
   const rows = [
-    { key: 'admin', cells: [{ content: <strong>Administer System</strong> }, { content: 'site-admins, system-administrators' }, { content: <a href="#" style={{color:'#0C66E4'}}>Edit</a> }] },
-    { key: 'create', cells: [{ content: <strong>Create Missions</strong> }, { content: 'coordinators, site-admins' }, { content: <a href="#" style={{color:'#0C66E4'}}>Edit</a> }] },
-    { key: 'manage', cells: [{ content: <strong>Manage Inventory</strong> }, { content: 'inventory-managers, site-admins' }, { content: <a href="#" style={{color:'#0C66E4'}}>Edit</a> }] },
-    { key: 'view', cells: [{ content: <strong>View Reports</strong> }, { content: 'site-admins, external-partners' }, { content: <a href="#" style={{color:'#0C66E4'}}>Edit</a> }] },
+    { key: 'admin', cells: [{ content: <strong>Administer System</strong> }, { content: 'site-admins, system-administrators' }, { content: <a href="#" style={{color:'var(--ds-link)'}}>Edit</a> }] },
+    { key: 'create', cells: [{ content: <strong>Create Missions</strong> }, { content: 'coordinators, site-admins' }, { content: <a href="#" style={{color:'var(--ds-link)'}}>Edit</a> }] },
+    { key: 'manage', cells: [{ content: <strong>Manage Inventory</strong> }, { content: 'inventory-managers, site-admins' }, { content: <a href="#" style={{color:'var(--ds-link)'}}>Edit</a> }] },
+    { key: 'view', cells: [{ content: <strong>View Reports</strong> }, { content: 'site-admins, external-partners' }, { content: <a href="#" style={{color:'var(--ds-link)'}}>Edit</a> }] },
   ];
 
   return (
@@ -191,14 +191,15 @@ function Users() {
     cells: [
       { key: 'name', content: 'Name', isSortable: true },
       { key: 'email', content: 'Email', isSortable: true },
+      { key: 'group', content: 'Group', isSortable: true },
       { key: 'last_active', content: 'Last active', isSortable: true },
       { key: 'status', content: 'Status', isSortable: false },
     ],
   };
   const rows = [
-    { key: '1', cells: [{ content: <strong>Sarah Johnson</strong> }, { content: 's.johnson@mendingkids.org' }, { content: 'Just now' }, { content: <span style={{color: '#1a7f37', fontWeight: 600, fontSize: 12}}>Active</span> }] },
-    { key: '2', cells: [{ content: <strong>Mark Patel</strong> }, { content: 'm.patel@mendingkids.org' }, { content: 'Yesterday' }, { content: <span style={{color: '#1a7f37', fontWeight: 600, fontSize: 12}}>Active</span> }] },
-    { key: '3', cells: [{ content: <strong>Elena Torres</strong> }, { content: 'elena.t@mendingkids.org' }, { content: '12 Dec, 2025' }, { content: <span style={{color: '#1a7f37', fontWeight: 600, fontSize: 12}}>Active</span> }] },
+    { key: '1', cells: [{ content: <strong>Sarah Johnson</strong> }, { content: 's.johnson@mendingkids.org' }, { content: 'site-admins' }, { content: 'Just now' }, { content: <span style={{color: '#1a7f37', fontWeight: 600, fontSize: 12}}>Active</span> }] },
+    { key: '2', cells: [{ content: <strong>Mark Patel</strong> }, { content: 'm.patel@mendingkids.org' }, { content: 'inventory-managers' }, { content: 'Yesterday' }, { content: <span style={{color: '#1a7f37', fontWeight: 600, fontSize: 12}}>Active</span> }] },
+    { key: '3', cells: [{ content: <strong>Elena Torres</strong> }, { content: 'elena.t@mendingkids.org' }, { content: 'external-partners' }, { content: '12 Dec, 2025' }, { content: <span style={{color: '#1a7f37', fontWeight: 600, fontSize: 12}}>Active</span> }] },
   ];
 
   return (
@@ -220,12 +221,13 @@ function Groups() {
       { key: 'group', content: 'Group name', isSortable: true },
       { key: 'members', content: 'Members', isSortable: false },
       { key: 'type', content: 'Type', isSortable: false },
+      { key: 'actions', content: '', isSortable: false },
     ],
   };
   const rows = [
-    { key: '1', cells: [{ content: <strong>site-admins</strong> }, { content: '3 users' }, { content: 'System defined' }] },
-    { key: '2', cells: [{ content: <strong>inventory-managers</strong> }, { content: '12 users' }, { content: 'Custom group' }] },
-    { key: '3', cells: [{ content: <strong>external-partners</strong> }, { content: '45 users' }, { content: 'Custom group' }] },
+    { key: '1', cells: [{ content: <strong>site-admins</strong> }, { content: '3 users' }, { content: 'System defined' }, { content: <a href="#" style={{color:'var(--ds-link)'}}>Edit</a> }] },
+    { key: '2', cells: [{ content: <strong>inventory-managers</strong> }, { content: '12 users' }, { content: 'Custom group' }, { content: <a href="#" style={{color:'var(--ds-link)'}}>Edit</a> }] },
+    { key: '3', cells: [{ content: <strong>external-partners</strong> }, { content: '45 users' }, { content: 'Custom group' }, { content: <a href="#" style={{color:'var(--ds-link)'}}>Edit</a> }] },
   ];
 
   return (
@@ -292,10 +294,10 @@ function CategoriesTags() {
     ],
   };
   const rows = [
-    { key: '1', cells: [{ content: <strong>Cardiac</strong> }, { content: <span style={{display: 'flex', gap: 8}}><div style={{width: 16, height: 16, backgroundColor: '#1561cc', borderRadius: '50%'}}></div> Blue</span> }, { content: '124 items' }, { content: <a href="#" style={{color:'#0C66E4'}}>Edit</a> }] },
-    { key: '2', cells: [{ content: <strong>Infections</strong> }, { content: <span style={{display: 'flex', gap: 8}}><div style={{width: 16, height: 16, backgroundColor: '#d63c8a', borderRadius: '50%'}}></div> Pink</span> }, { content: '19 items' }, { content: <a href="#" style={{color:'#0C66E4'}}>Edit</a> }] },
-    { key: '3', cells: [{ content: <strong>ENT</strong> }, { content: <span style={{display: 'flex', gap: 8}}><div style={{width: 16, height: 16, backgroundColor: '#1a7f37', borderRadius: '50%'}}></div> Green</span> }, { content: '43 items' }, { content: <a href="#" style={{color:'#0C66E4'}}>Edit</a> }] },
-    { key: '4', cells: [{ content: <strong>General</strong> }, { content: <span style={{display: 'flex', gap: 8}}><div style={{width: 16, height: 16, backgroundColor: '#cf4f27', borderRadius: '50%'}}></div> Orange</span> }, { content: '312 items' }, { content: <a href="#" style={{color:'#0C66E4'}}>Edit</a> }] },
+    { key: '1', cells: [{ content: <strong>Cardiac</strong> }, { content: <span style={{display: 'flex', gap: 8}}><div style={{width: 16, height: 16, backgroundColor: '#1561cc', borderRadius: '50%'}}></div> Blue</span> }, { content: '124 items' }, { content: <a href="#" style={{color:'var(--ds-link)'}}>Edit</a> }] },
+    { key: '2', cells: [{ content: <strong>Infections</strong> }, { content: <span style={{display: 'flex', gap: 8}}><div style={{width: 16, height: 16, backgroundColor: '#d63c8a', borderRadius: '50%'}}></div> Pink</span> }, { content: '19 items' }, { content: <a href="#" style={{color:'var(--ds-link)'}}>Edit</a> }] },
+    { key: '3', cells: [{ content: <strong>ENT</strong> }, { content: <span style={{display: 'flex', gap: 8}}><div style={{width: 16, height: 16, backgroundColor: '#1a7f37', borderRadius: '50%'}}></div> Green</span> }, { content: '43 items' }, { content: <a href="#" style={{color:'var(--ds-link)'}}>Edit</a> }] },
+    { key: '4', cells: [{ content: <strong>General</strong> }, { content: <span style={{display: 'flex', gap: 8}}><div style={{width: 16, height: 16, backgroundColor: '#cf4f27', borderRadius: '50%'}}></div> Orange</span> }, { content: '312 items' }, { content: <a href="#" style={{color:'var(--ds-link)'}}>Edit</a> }] },
   ];
 
   return (
@@ -321,9 +323,9 @@ function Locations() {
     ],
   };
   const rows = [
-    { key: '1', cells: [{ content: <strong>Main Warehouse Los Angeles</strong> }, { content: 'Facility' }, { content: '4,520' }, { content: <a href="#" style={{color:'#0C66E4'}}>Edit</a> }] },
-    { key: '2', cells: [{ content: <strong>Cabinet 3B</strong> }, { content: 'Sub-location' }, { content: '142' }, { content: <a href="#" style={{color:'#0C66E4'}}>Edit</a> }] },
-    { key: '3', cells: [{ content: <strong>Storage A</strong> }, { content: 'Sub-location' }, { content: '93' }, { content: <a href="#" style={{color:'#0C66E4'}}>Edit</a> }] },
+    { key: '1', cells: [{ content: <strong>Main Warehouse Los Angeles</strong> }, { content: 'Facility' }, { content: '4,520' }, { content: <a href="#" style={{color:'var(--ds-link)'}}>Edit</a> }] },
+    { key: '2', cells: [{ content: <strong>Cabinet 3B</strong> }, { content: 'Sub-location' }, { content: '142' }, { content: <a href="#" style={{color:'var(--ds-link)'}}>Edit</a> }] },
+    { key: '3', cells: [{ content: <strong>Storage A</strong> }, { content: 'Sub-location' }, { content: '93' }, { content: <a href="#" style={{color:'var(--ds-link)'}}>Edit</a> }] },
   ];
 
   return (
@@ -426,7 +428,7 @@ export default function SettingsPage({ onNavigate }) {
                 <button 
                   onClick={() => onNavigate('dashboard')}
                   style={{ 
-                    background: 'none', border: 'none', color: '#422670', cursor: 'pointer', 
+                    background: 'none', border: 'none', color: 'var(--ds-text-selected)', cursor: 'pointer', 
                     fontSize: 14, fontWeight: 500, padding: 0, display: 'flex', alignItems: 'center', gap: 4
                   }}>
                   <svg width="14" height="14" viewBox="0 0 14 14" fill="none">

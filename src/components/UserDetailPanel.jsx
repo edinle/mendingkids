@@ -12,7 +12,7 @@ export default function UserDetailPanel({ isOpen, onClose, user, onEdit }) {
     <SlidePanel isOpen={isOpen} onClose={onClose} width={480}>
       <div style={{ padding: '32px 24px', flex: 1, overflowY: 'auto' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 32 }}>
-          <div style={{ width: 64, height: 64, backgroundColor: '#0052CC', color: '#fff', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28, fontWeight: 'bold' }}>
+          <div style={{ width: 64, height: 64, backgroundColor: '#422670', color: '#fff', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28, fontWeight: 'bold' }}>
             {user.name.charAt(0)}
           </div>
           <div>

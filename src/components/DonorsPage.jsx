@@ -85,7 +85,7 @@ export default function DonorsPage({ onNavigate }) {
     onClick: () => handleRowClick(row),
     cells: [
       { key: 'name', content: <div style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' }}>
-          <div style={{ width: 28, height: 28, backgroundColor: '#0052CC', color: '#fff', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 'bold' }}>
+          <div style={{ width: 28, height: 28, backgroundColor: '#422670', color: '#fff', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 'bold' }}>
             {row.name.charAt(0)}
           </div>
           <span style={{ fontWeight: 500, color: '#172B4D' }}>{row.name}</span>
