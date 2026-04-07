@@ -11,10 +11,10 @@ import DashboardIcon from '@atlaskit/icon/core/dashboard';
 import GlobeIcon from '@atlaskit/icon/core/globe';
 import AppsIcon from '@atlaskit/icon/core/menu';
 
-import PeopleIcon from '@atlaskit/icon/core/people';
-import MediaIcon from '@atlaskit/icon/core/media';
-import GroupIcon from '@atlaskit/icon/core/group';
-import GraphLineIcon from '@atlaskit/icon/core/graph-line';
+import PeopleIcon from '@atlaskit/icon/core/people-group';
+import MediaIcon from '@atlaskit/icon/core/archive-box';
+import GroupIcon from '@atlaskit/icon/core/people-group';
+import GraphLineIcon from '@atlaskit/icon/core/chart-trend';
 
 // inventory icon (using a grid/list style icon)
 const InventoryIcon = (props) => (
