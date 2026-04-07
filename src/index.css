@@ -16,13 +16,36 @@ body {
   --ds-text-brand: #5137a2 !important;
   --ds-text-selected: #422670 !important;
   --ds-background-selected: #F3F0FF !important;
-  --ds-background-selected-pressed: #E4D9FE !important;
   --ds-background-selected-hovered: #EADEFA !important;
+  --ds-background-selected-pressed: #E4D9FE !important;
+  
+  /* Link colours */
   --ds-link: #5137a2 !important;
   --ds-link-pressed: #331d58 !important;
-  --ds-border-brand: #5137a2 !important;
-  --ds-icon-brand: #422670 !important;
   
+  /* Icon colours */
+  --ds-icon-brand: #422670 !important;
+  --ds-icon-selected: #422670 !important;
+  --ds-icon-information: #5137a2 !important;
+
+  /* Border colours */
+  --ds-border-brand: #5137a2 !important;
+  --ds-border-focused: #5137a2 !important;
+  --ds-border-selected: #5137a2 !important;
+
+  /* Button / generic blue UI fixes */
+  --ds-background-information: #F3F0FF !important;
+  --ds-background-information-hovered: #EADEFA !important;
+  --ds-background-information-pressed: #E4D9FE !important;
+  --ds-border-information: #422670 !important;
+  --ds-icon-information: #422670 !important;
+  
+  --ds-background-neutral-pressed: rgba(66, 38, 112, 0.16) !important;
+  --ds-background-neutral-hovered: rgba(66, 38, 112, 0.08) !important;
+  --ds-background-neutral-subtle-hovered: rgba(66, 38, 112, 0.08) !important;
+  --ds-background-neutral-subtle-pressed: rgba(66, 38, 112, 0.16) !important;
+  --ds-border-input: #5137a2 !important;
+
   /* Make sure TopNavigation stretches */
   --nav-layout-width: 100vw;
 }

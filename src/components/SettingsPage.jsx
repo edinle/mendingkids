@@ -403,9 +403,8 @@ export default function SettingsPage({ onNavigate }) {
     <PageLayout>
       <TopNavigation isFixed><TopNav onNavigate={onNavigate} /></TopNavigation>
       <Content>
-        {/* MK Purple overriding standard tokens for Sidebar */}
-        <div style={{ height: '100%', '--ds-background-selected': '#EADEFA', '--ds-text-selected': '#422670' }}>
-          <LeftSidebar width={260} id="settings-sidebar" isFixed={false}>
+        <div style={{ height: '100%' }}>
+          <LeftSidebar width={260} id="settings-sidebar" isFixed={true}>
             <div style={{ 
               height: '100%', 
               backgroundColor: token('elevation.surface.sunken', '#F4F5F7'),
@@ -479,11 +478,13 @@ export default function SettingsPage({ onNavigate }) {
 
         {/* Main Content */}
         <Main>
-          <div style={{ padding: '32px 40px', maxWidth: 900, margin: '0 auto', paddingBottom: 100 }}>
+          <div style={{ height: 'calc(100vh - 56px)', overflowY: 'auto' }}>
+            <div style={{ padding: '32px 40px', maxWidth: 900, margin: '0 auto', paddingBottom: 100 }}>
             <h1 style={{ margin: '0 0 8px', fontSize: 24, fontWeight: 500, color: token('color.text', '#172B4D') }}>
               {activeTab}
             </h1>
             {renderContent()}
+            </div>
           </div>
         </Main>
       </Content>

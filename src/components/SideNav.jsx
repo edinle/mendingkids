@@ -26,13 +26,7 @@ const NAV_ITEMS = [
 
 export default function SideNav({ active = 'inventory', onNavigate }) {
   return (
-    <div style={{
-      '--ds-background-selected': '#F3F0FF', 
-      '--ds-text-selected': '#422670', 
-      '--ds-icon-selected': '#422670',
-      '--ds-background-neutral-hovered': 'rgba(66, 38, 112, 0.08)',
-      height: '100%',
-    }}>
+    <div style={{ height: '100%' }}>
       <SideNavigation label="Main Navigation" testId="side-navigation">
       <NavigationContent>
         <Header 
