@@ -71,6 +71,42 @@ function SubtleButton({ children, onClick }) {
 
 // ─── Settings Views ────────────────────────────────────────────────────────
 
+function TableConfigPopover({ columns, onWidthChange, label = "Columns" }) {
+  const [isOpen, setIsOpen] = useState(false);
+  return (
+    <div style={{ position: 'relative' }}>
+      <button 
+        onClick={() => setIsOpen(!isOpen)}
+        style={{ height: 28, padding: '0 8px', border: '1px solid #DFE1E6', borderRadius: 4, background: '#fff', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, color: '#44546F' }}
+      >
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg>
+        Layout
+      </button>
+      {isOpen && (
+        <div style={{ position: 'absolute', top: '100%', right: 0, marginTop: 4, zIndex: 1000, padding: '16px', minWidth: 200, backgroundColor: '#fff', borderRadius: 4, boxShadow: '0 4px 16px rgba(9,30,66,0.16)', border: '1px solid #DFE1E6' }}>
+          <h4 style={{ margin: '0 0 12px', fontSize: 11, fontWeight: 700, color: '#172B4D', textTransform: 'uppercase' }}>{label} Widths (%)</h4>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {columns.map(col => (
+              <div key={col.key} style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: '#44546F' }}>
+                  <span>{col.label}</span>
+                  <span>{col.width}%</span>
+                </div>
+                <input 
+                  type="range" min="5" max="60" value={col.width} 
+                  onChange={(e) => onWidthChange(col.key, parseInt(e.target.value))}
+                  style={{ width: '100%', accentColor: '#422670', cursor: 'pointer' }}
+                />
+              </div>
+            ))}
+          </div>
+          <button onClick={() => setIsOpen(false)} style={{ marginTop: 12, width: '100%', height: 24, background: '#422670', color: '#fff', border: 'none', borderRadius: 3, cursor: 'pointer', fontSize: 11 }}>Done</button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function GeneralConfig() {
   return (
     <>
@@ -142,12 +178,12 @@ function GeneralConfig() {
   );
 }
 
-function GlobalPermissions({ onAdd, onEdit }) {
+function GlobalPermissions({ onAdd, onEdit, widths, onWidthChange }) {
   const head = {
     cells: [
-      { key: 'permission', content: 'Permission', isSortable: false },
-      { key: 'groups', content: 'Groups', isSortable: false },
-      { key: 'actions', content: '', isSortable: false },
+      { key: 'permission', content: 'Permission', isSortable: false, width: widths.permission },
+      { key: 'groups', content: 'Groups', isSortable: false, width: widths.groups },
+      { key: 'actions', content: '', isSortable: false, width: 10 },
     ],
   };
   const rows = [
@@ -163,7 +199,14 @@ function GlobalPermissions({ onAdd, onEdit }) {
         <p style={{ color: token('color.text.subtle', '#5E6C84'), fontSize: 14 }}>
           Global permissions apply to the entire system, regardless of mission scope.
         </p>
-        <PrimaryButton onClick={onAdd}>Grant permission</PrimaryButton>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <TableConfigPopover 
+            label="Permissions" 
+            columns={[{ key: 'permission', label: 'Name', width: widths.permission }, { key: 'groups', label: 'Groups', width: widths.groups }]} 
+            onWidthChange={onWidthChange} 
+          />
+          <PrimaryButton onClick={onAdd}>Grant permission</PrimaryButton>
+        </div>
       </div>
       <DynamicTable head={head} rows={rows} rowsPerPage={10} defaultPage={1} loadingSpinnerSize="large" />
     </>
@@ -195,14 +238,14 @@ function AuditLog() {
   );
 }
 
-function Users({ onInvite }) {
+function Users({ onInvite, widths, onWidthChange }) {
   const head = {
     cells: [
-      { key: 'name', content: 'Name', isSortable: true },
-      { key: 'email', content: 'Email', isSortable: true },
-      { key: 'group', content: 'Group', isSortable: true },
-      { key: 'last_active', content: 'Last active', isSortable: true },
-      { key: 'status', content: 'Status', isSortable: false },
+      { key: 'name', content: 'Name', isSortable: true, width: widths.name },
+      { key: 'email', content: 'Email', isSortable: true, width: widths.email },
+      { key: 'group', content: 'Group', isSortable: true, width: widths.group },
+      { key: 'last_active', content: 'Last active', isSortable: true, width: widths.last_active },
+      { key: 'status', content: 'Status', isSortable: false, width: widths.status },
     ],
   };
   const rows = [
@@ -215,22 +258,35 @@ function Users({ onInvite }) {
     <>
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
         <p style={{ color: token('color.text.subtle', '#5E6C84'), fontSize: 14 }}>
-          Manage access and see everyone working in your workspace.
+          Manage access, set security credentials, and see everyone working in your workspace.
         </p>
-        <PrimaryButton onClick={onInvite}>Invite users</PrimaryButton>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <TableConfigPopover 
+            label="User List" 
+            columns={[
+              { key: 'name', label: 'Name', width: widths.name },
+              { key: 'email', label: 'Email', width: widths.email },
+              { key: 'group', label: 'Groups', width: widths.group },
+              { key: 'last_active', label: 'Activity', width: widths.last_active },
+              { key: 'status', label: 'Status', width: widths.status },
+            ]} 
+            onWidthChange={onWidthChange} 
+          />
+          <PrimaryButton onClick={onInvite}>Set up new user</PrimaryButton>
+        </div>
       </div>
       <DynamicTable head={head} rows={rows} rowsPerPage={10} defaultPage={1} />
     </>
   );
 }
 
-function Groups({ onCreate, onEdit }) {
+function Groups({ onCreate, onEdit, widths, onWidthChange }) {
   const head = {
     cells: [
-      { key: 'group', content: 'Group name', isSortable: true },
-      { key: 'members', content: 'Members', isSortable: false },
-      { key: 'type', content: 'Type', isSortable: false },
-      { key: 'actions', content: '', isSortable: false },
+      { key: 'group', content: 'Group name', isSortable: true, width: widths.group_name },
+      { key: 'members', content: 'Members', isSortable: false, width: widths.members },
+      { key: 'type', content: 'Type', isSortable: false, width: widths.type },
+      { key: 'actions', content: '', isSortable: false, width: 10 },
     ],
   };
   const rows = MOCK_GROUPS.map(g => ({
@@ -249,7 +305,14 @@ function Groups({ onCreate, onEdit }) {
         <p style={{ color: token('color.text.subtle', '#5E6C84'), fontSize: 14 }}>
           Groups let you assign access and permissions to multiple users at once.
         </p>
-        <PrimaryButton onClick={onCreate}>Create group</PrimaryButton>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <TableConfigPopover 
+            label="Groups" 
+            columns={[{ key: 'group_name', label: 'Name', width: widths.group_name }, { key: 'members', label: 'Members', width: widths.members }, { key: 'type', label: 'Type', width: widths.type }]} 
+            onWidthChange={onWidthChange} 
+          />
+          <PrimaryButton onClick={onCreate}>Create group</PrimaryButton>
+        </div>
       </div>
       <DynamicTable head={head} rows={rows} rowsPerPage={10} defaultPage={1} />
     </>
@@ -409,6 +472,14 @@ export default function SettingsPage({ onNavigate, user, onSwitchAccount, onLogo
   const [editingItem, setEditingItem] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  const [tableWidths, setTableWidths] = useState({
+    name: 20, email: 25, group: 15, last_active: 15, status: 15, // Users
+    group_name: 40, members: 25, type: 25, // Groups
+    permission: 40, groups: 50, // Permissions
+  });
+
+  const updateWidth = (key, val) => setTableWidths(prev => ({ ...prev, [key]: val }));
+
   const openModal = (type, item = null) => {
     setEditingItem(item);
     setIsModalOpen(type);
@@ -421,10 +492,10 @@ export default function SettingsPage({ onNavigate, user, onSwitchAccount, onLogo
   const renderContent = () => {
     switch (activeTab) {
       case 'General configuration': return <GeneralConfig />;
-      case 'Global permissions':    return <GlobalPermissions onAdd={() => openModal('permission')} onEdit={(item) => openModal('permission', item)} />;
+      case 'Global permissions':    return <GlobalPermissions onAdd={() => openModal('permission')} onEdit={(item) => openModal('permission', item)} widths={tableWidths} onWidthChange={updateWidth} />;
       case 'Audit log':             return <AuditLog />;
-      case 'Users':                 return <Users onInvite={() => openModal('invite')} />;
-      case 'Groups':                return <Groups onCreate={() => openModal('group')} onEdit={(item) => openModal('group', item)} />;
+      case 'Users':                 return <Users onInvite={() => openModal('invite')} widths={tableWidths} onWidthChange={updateWidth} />;
+      case 'Groups':                return <Groups onCreate={() => openModal('group')} onEdit={(item) => openModal('group', item)} widths={tableWidths} onWidthChange={updateWidth} />;
       case 'Authentication':        return <Authentication />;
       case 'Categories & Tags':     return <CategoriesTags onAdd={() => openModal('category')} onEdit={(item) => openModal('category', item)} />;
       case 'Locations':             return <Locations onAdd={() => openModal('location')} onEdit={(item) => openModal('location', item)} />;
@@ -523,7 +594,7 @@ export default function SettingsPage({ onNavigate, user, onSwitchAccount, onLogo
               {isModalOpen === 'location' && (editingItem ? 'Edit Location' : 'Add Location')}
               {isModalOpen === 'automation' && 'Create automation rule'}
               {isModalOpen === 'permission' && (editingItem ? 'Edit Permission' : 'Grant Permission')}
-              {isModalOpen === 'invite' && 'Invite Users'}
+              {isModalOpen === 'invite' && 'Setup New User'}
               {isModalOpen === 'group' && (editingItem ? 'Edit Group' : 'Create Group')}
             </h2>
           </div>
@@ -603,14 +674,32 @@ export default function SettingsPage({ onNavigate, user, onSwitchAccount, onLogo
 
             {isModalOpen === 'invite' && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+                <p style={{ margin: 0, fontSize: 14, color: '#44546F' }}>Enter the user's details and set an initial security passcode.</p>
                 <div>
-                  <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#5E6C84', marginBottom: 6 }}>Email Addresses</label>
-                  <TextField placeholder="e.g. john@mendingkids.org, sarah@mendingkids.org" />
-                  <span style={{ fontSize: 12, color: '#626F86', marginTop: 4, display: 'block' }}>Comma separated list of emails.</span>
+                  <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#5E6C84', marginBottom: 6 }}>Full Name</label>
+                  <TextField placeholder="e.g. John Doe" />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#5E6C84', marginBottom: 6 }}>Email Address</label>
+                  <TextField placeholder="e.g. john@mendingkids.org" />
                 </div>
                 <div>
                   <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#5E6C84', marginBottom: 6 }}>Assign to Groups</label>
-                  <Select isMulti options={[{label: 'site-admins', value: 'sa'}, {label: 'inventory-managers', value: 'im'}]} />
+                  <Select isMulti placeholder="Select groups..." options={[{label: 'site-admins', value: 'sa'}, {label: 'inventory-managers', value: 'im'}, {label: 'external-partners', value: 'ep'}]} />
+                </div>
+                <div style={{ padding: '20px', backgroundColor: '#F4F5F7', borderRadius: 8, border: '1px solid #DFE1E6' }}>
+                  <h4 style={{ margin: '0 0 12px', fontSize: 13, fontWeight: 700, color: '#172B4D', textTransform: 'uppercase' }}>Security Passcode</h4>
+                  <div style={{ display: 'flex', gap: 12 }}>
+                    <div style={{ flex: 1 }}>
+                      <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: '#626F86', marginBottom: 4 }}>Access Passcode</label>
+                      <TextField type="password" placeholder="••••••" />
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: '#626F86', marginBottom: 4 }}>Confirm Passcode</label>
+                      <TextField type="password" placeholder="••••••" />
+                    </div>
+                  </div>
+                  <span style={{ fontSize: 11, color: '#626F86', marginTop: 8, display: 'block' }}>Passcode must be at least 6 digits for mission security.</span>
                 </div>
               </div>
             )}
@@ -625,6 +714,27 @@ export default function SettingsPage({ onNavigate, user, onSwitchAccount, onLogo
                   <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#5E6C84', marginBottom: 6 }}>Description</label>
                   <TextField placeholder="Who is in this group?" />
                 </div>
+
+                <div style={{ borderTop: '1px solid #DFE1E6', paddingTop: 24 }}>
+                  <h4 style={{ margin: '0 0 16px', fontSize: 14, fontWeight: 600 }}>Assign Permissions to this Group</h4>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                    {[
+                      { id: 'p1', name: 'Administer System', desc: 'Can manage all settings, users, and organization data.' },
+                      { id: 'p2', name: 'Create Missions', desc: 'Can create new missions and assign personnel.' },
+                      { id: 'p3', name: 'Manage Inventory', desc: 'Full access to items, shipments, and warehouses.' },
+                      { id: 'p4', name: 'View Reports', desc: 'Can view audit logs and financial mission reports.' },
+                    ].map(p => (
+                      <div key={p.id} style={{ display: 'flex', gap: 12, alignItems: 'flex-start', padding: '10px', borderRadius: 6, border: '1px solid #f0f0f0' }}>
+                        <Checkbox theme={(t) => ({ ...t, color: '#422670' })} />
+                        <div>
+                          <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#172B4D' }}>{p.name}</label>
+                          <span style={{ fontSize: 12, color: '#626F86' }}>{p.desc}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
                 {editingItem?.name === 'interns' && (
                   <div style={{ padding: 16, backgroundColor: '#FFF7E6', border: '1px solid #FFD591', borderRadius: 4 }}>
                     <h4 style={{ margin: '0 0 8px', color: '#874D00', fontSize: 13 }}>Intern Group Policy</h4>

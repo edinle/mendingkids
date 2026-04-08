@@ -253,6 +253,50 @@ export default function MissionDetailPage({ mission, onNavigate, user, onSwitchA
     { id: 3, name: 'Elena Rodriguez', role: 'Nurse Practitioner', email: 'elena.r@health.gov' },
   ]);
 
+  const [itemWidths, setItemWidths] = useState({ desc: 200, company: 150, ref: 150, qty: 60 });
+  const [peopleWidths, setPeopleWidths] = useState({ name: 180, role: 150, email: 180 });
+
+  function TableConfigPopover({ columns, onWidthChange, type }) {
+    const [isOpen, setIsOpen] = useState(false);
+    return (
+      <div style={{ position: 'relative' }}>
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          style={{
+            display: 'flex', alignItems: 'center', gap: 6,
+            height: 32, padding: '0 10px',
+            border: '1px solid #DFE1E6', borderRadius: 4,
+            background: '#fff', cursor: 'pointer', fontSize: 13, color: '#44546F'
+          }}
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg>
+          Layout
+        </button>
+        {isOpen && (
+          <div style={{ position: 'absolute', top: '100%', right: 0, marginTop: 4, zIndex: 1000, padding: '16px', minWidth: 240, backgroundColor: '#fff', borderRadius: 4, boxShadow: '0 4px 16px rgba(9,30,66,0.16)', border: '1px solid #DFE1E6' }}>
+            <h4 style={{ margin: '0 0 12px', fontSize: 13, fontWeight: 700, color: '#172B4D', textTransform: 'uppercase' }}>Edit {type} Columns</h4>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              {columns.map(col => (
+                <div key={col.key} style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <label style={{ fontSize: 12, color: '#44546F' }}>{col.label}</label>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: '#422670' }}>{col.val}px</span>
+                  </div>
+                  <input 
+                    type="range" min={col.min || 40} max={col.max || 400} value={col.val} 
+                    onChange={(e) => onWidthChange(col.key, parseInt(e.target.value))}
+                    style={{ width: '100%', accentColor: '#422670', cursor: 'pointer' }}
+                  />
+                </div>
+              ))}
+            </div>
+            <button onClick={() => setIsOpen(false)} style={{ marginTop: 16, width: '100%', height: 28, background: '#422670', color: '#fff', border: 'none', borderRadius: 3, cursor: 'pointer', fontSize: 12 }}>Close</button>
+          </div>
+        )}
+      </div>
+    );
+  }
+
   const handleDeleteItem = (item) => {
     setDeleteTarget({ type: 'item', data: item });
   };
@@ -374,6 +418,16 @@ export default function MissionDetailPage({ mission, onNavigate, user, onSwitchA
                       <div style={{ display: 'flex', gap: 8 }}>
                         <FilterDropdown label="Category" options={['Syringes', 'Patches', 'Chest Tubes', 'Bandages']} selected={null} onSelect={() => {}} />
                         <FilterDropdown label="Company" options={['Abbott', 'Nipro', 'Swann-Morton', 'Masimo', 'B. Braun']} selected={null} onSelect={() => {}} />
+                        <TableConfigPopover 
+                          type="Item"
+                          columns={[
+                            { key: 'desc', label: 'Description', val: itemWidths.desc, min: 100, max: 500 },
+                            { key: 'company', label: 'Company', val: itemWidths.company, min: 80, max: 300 },
+                            { key: 'ref', label: 'Reference', val: itemWidths.ref, min: 80, max: 300 },
+                            { key: 'qty', label: 'Qty', val: itemWidths.qty, min: 40, max: 100 },
+                          ]}
+                          onWidthChange={(key, val) => setItemWidths(prev => ({ ...prev, [key]: val }))}
+                        />
                       </div>
                       
                       {/* Search bar */}
@@ -400,13 +454,13 @@ export default function MissionDetailPage({ mission, onNavigate, user, onSwitchA
                     </div>
 
                   <div className="mobile-stack-table" style={{ border: '1px solid #e8e8e8', borderRadius: 4, overflow: 'hidden' }}>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'minmax(200px, 2fr) 1.2fr 1.2fr 60px 40px', padding: '10px 14px', backgroundColor: '#FAFBFC', borderBottom: '1px solid #e8e8e8', gap: 8 }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: `${itemWidths.desc}px ${itemWidths.company}px ${itemWidths.ref}px ${itemWidths.qty}px 40px`, padding: '10px 14px', backgroundColor: '#FAFBFC', borderBottom: '1px solid #e8e8e8', gap: 8 }}>
                       {['Item Description', 'Company', 'Reference', 'Qty', ''].map(h => (
                         <span key={h} style={{ fontSize: 11, fontWeight: 700, color: '#626F86', textTransform: 'uppercase' }}>{h}</span>
                       ))}
                     </div>
                     {filteredItems.map(item => (
-                      <div key={item.id} style={{ display: 'grid', gridTemplateColumns: 'minmax(200px, 2fr) 1.2fr 1.2fr 60px 40px', padding: '10px 14px', gap: 8, alignItems: 'center', borderBottom: '1px solid #f4f4f4' }}>
+                      <div key={item.id} style={{ display: 'grid', gridTemplateColumns: `${itemWidths.desc}px ${itemWidths.company}px ${itemWidths.ref}px ${itemWidths.qty}px 40px`, padding: '10px 14px', gap: 8, alignItems: 'center', borderBottom: '1px solid #f4f4f4' }}>
                         <span style={{ fontSize: 13, color: '#172B4D' }}>{item.description}</span>
                         <span style={{ fontSize: 13, color: '#44546F' }}>{item.company}</span>
                         <span style={{ fontSize: 13, color: '#172B4D' }}>{item.ref}</span>
@@ -428,7 +482,18 @@ export default function MissionDetailPage({ mission, onNavigate, user, onSwitchA
                 /* People View */
                 <>
                   <div style={{ display: 'flex', gap: 8, marginBottom: 16, alignItems: 'center', flexWrap: 'wrap', justifyContent: 'space-between' }}>
-                    <FilterDropdown label="Role" options={['Surgeon', 'Nurse', 'Coordinator', 'Specialist']} selected={null} onSelect={() => {}} />
+                    <div style={{ display: 'flex', gap: 8 }}>
+                      <FilterDropdown label="Role" options={['Surgeon', 'Nurse', 'Coordinator', 'Specialist']} selected={null} onSelect={() => {}} />
+                      <TableConfigPopover 
+                        type="People"
+                        columns={[
+                          { key: 'name', label: 'Name', val: peopleWidths.name, min: 100, max: 400 },
+                          { key: 'role', label: 'Role', val: peopleWidths.role, min: 80, max: 300 },
+                          { key: 'email', label: 'Email', val: peopleWidths.email, min: 100, max: 400 },
+                        ]}
+                        onWidthChange={(key, val) => setPeopleWidths(prev => ({ ...prev, [key]: val }))}
+                      />
+                    </div>
                     
                     <div style={{ position: 'relative', width: 280, flexShrink: 0 }}>
                       <span style={{ position: 'absolute', left: 8, top: '50%', transform: 'translateY(-50%)', color: '#8590A2', display: 'flex' }}>
@@ -448,13 +513,13 @@ export default function MissionDetailPage({ mission, onNavigate, user, onSwitchA
                   </div>
 
                   <div className="mobile-stack-table" style={{ border: '1px solid #e8e8e8', borderRadius: 4, overflow: 'hidden' }}>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr 1.2fr 40px', padding: '10px 14px', backgroundColor: '#FAFBFC', borderBottom: '1px solid #e8e8e8', gap: 8 }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: `${peopleWidths.name}px ${peopleWidths.role}px ${peopleWidths.email}px 40px`, padding: '10px 14px', backgroundColor: '#FAFBFC', borderBottom: '1px solid #e8e8e8', gap: 8 }}>
                       {['Name', 'Role', 'Email', ''].map(h => (
                         <span key={h} style={{ fontSize: 11, fontWeight: 700, color: '#626F86', textTransform: 'uppercase' }}>{h}</span>
                       ))}
                     </div>
                     {filteredPeople.map(person => (
-                      <div key={person.id} style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr 1.2fr 40px', padding: '12px 14px', gap: 8, alignItems: 'center', borderBottom: '1px solid #f4f4f4' }}>
+                      <div key={person.id} style={{ display: 'grid', gridTemplateColumns: `${peopleWidths.name}px ${peopleWidths.role}px ${peopleWidths.email}px 40px`, padding: '12px 14px', gap: 8, alignItems: 'center', borderBottom: '1px solid #f4f4f4' }}>
                         <span style={{ fontSize: 13, fontWeight: 500, color: '#172B4D' }}>{person.name}</span>
                         <span style={{ fontSize: 13, color: '#44546F' }}>{person.role}</span>
                         <span style={{ fontSize: 13, color: '#44546F' }}>{person.email}</span>

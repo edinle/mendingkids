@@ -178,74 +178,44 @@ function FilterOption({ label, isSelected, onClick }) {
   );
 }
 
-function FilterDropdown({ label, hasIcon, options, selected, onSelect }) {
-  const [open, setOpen] = useState(false);
-  const dropRef = useRef(null);
-
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (dropRef.current && !dropRef.current.contains(e.target)) setOpen(false);
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
-  const [isHovered, setIsHovered] = useState(false);
-
+function TableConfigPopover({ columns, onWidthChange }) {
+  const [isOpen, setIsOpen] = useState(false);
   return (
-    <div ref={dropRef} style={{ position: 'relative' }}>
-      <button
-        onClick={() => setOpen(!open)}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-        style={{
-          display: 'flex', alignItems: 'center', gap: 6,
-          height: 32, padding: '0 10px',
-          border: `1px solid ${(selected || isHovered) ? '#422670' : token('color.border', 'rgba(9,30,66,0.14)')}`,
-          borderRadius: 4,
-          background: selected ? '#F3F0FF' : isHovered ? '#FAFBFC' : token('elevation.surface', '#fff'),
-          cursor: 'pointer', fontSize: 14,
-          color: (selected || isHovered) ? '#422670' : token('color.text', '#172B4D'),
-          fontFamily: 'inherit', fontWeight: selected ? 500 : 400,
-          transition: 'all 0.2s',
-        }}
-      >
-        {hasIcon && (
-          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-            <rect x="1.5" y="3.5" width="13" height="11" rx="1.5" stroke="currentColor" strokeWidth="1.5" />
-            <path d="M5 2v3M11 2v3M1.5 7h13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-          </svg>
-        )}
-        {selected || label}
-        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-          <path d={open ? "M4 10l4-4 4 4" : "M4 6l4 4 4-4"} stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-        </svg>
-      </button>
-
-      {open && (
-        <div style={{
-          position: 'absolute', top: '100%', left: 0, marginTop: 4,
-          minWidth: 200, padding: '4px 0',
-          backgroundColor: '#fff', borderRadius: 4,
-          boxShadow: '0 4px 16px rgba(9,30,66,0.16), 0 0 1px rgba(9,30,66,0.12)',
-          zIndex: 100,
-        }}>
-          <FilterOption 
-            label="All" 
-            isSelected={!selected} 
-            onClick={() => { onSelect(''); setOpen(false); }} 
-          />
-          {options.map((opt) => (
-            <FilterOption 
-              key={opt}
-              label={opt} 
-              isSelected={selected === opt} 
-              onClick={() => { onSelect(opt); setOpen(false); }} 
-            />
-          ))}
+    <Popup
+      isOpen={isOpen}
+      onClose={() => setIsOpen(false)}
+      placement="bottom-end"
+      content={() => (
+        <div style={{ padding: '16px', minWidth: 280, backgroundColor: '#fff', borderRadius: 4, boxShadow: '0 4px 16px rgba(9,30,66,0.16)' }}>
+          <h4 style={{ margin: '0 0 16px', fontSize: 13, fontWeight: 700, color: '#172B4D', textTransform: 'uppercase' }}>Column Widths (%)</h4>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {columns.map(col => (
+              <div key={col.key} style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <label style={{ fontSize: 12, color: '#44546F' }}>{col.content}</label>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: '#422670' }}>{col.width}%</span>
+                </div>
+                <input 
+                  type="range" min="5" max="40" value={col.width} 
+                  onChange={(e) => onWidthChange(col.key, parseInt(e.target.value))}
+                  style={{ width: '100%', accentColor: '#422670', cursor: 'pointer' }}
+                />
+              </div>
+            ))}
+          </div>
         </div>
       )}
-    </div>
+      trigger={(triggerProps) => (
+        <Button
+          {...triggerProps}
+          iconBefore={<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg>}
+          onClick={() => setIsOpen(!isOpen)}
+          appearance="subtle"
+        >
+          Layout
+        </Button>
+      )}
+    />
   );
 }
 
@@ -293,6 +263,14 @@ export default function InventoryPage({ onNavigate, user, onSwitchAccount, onLog
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [confirmModal, setConfirmModal] = useState({ isOpen: false, item: null, action: null });
   const [missions, setMissions] = useState([]);
+
+  const [colWidths, setColWidths] = useState({
+    description: 22, company: 15, reference: 14, quantity: 8, location: 14, expiration: 12, mission: 14
+  });
+
+  const handleWidthChange = (key, width) => {
+    setColWidths(prev => ({ ...prev, [key]: width }));
+  };
 
   useEffect(() => {
     fetchInventory();
@@ -605,36 +583,75 @@ export default function InventoryPage({ onNavigate, user, onSwitchAccount, onLog
                 />
               </div>
 
-              <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-                <span style={{
-                  position: 'absolute', left: 10, display: 'flex',
-                  color: token('color.text.subtlest', '#626F86'), pointerEvents: 'none',
-                }}>
-                  <SearchIcon label="" />
-                </span>
-                <input
-                  type="text"
-                  placeholder="Search"
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  style={{
-                    height: 32, width: 220,
-                    paddingLeft: 32, paddingRight: 10,
-                    border: `1px solid ${token('color.border', 'rgba(9,30,66,0.14)')}`,
-                    borderRadius: 4, fontSize: 14,
-                    color: token('color.text', '#172B4D'),
-                    outline: 'none',
-                    backgroundColor: token('elevation.surface', '#fff'),
-                    fontFamily: 'inherit',
-                  }}
-                  aria-label="Search inventory"
+              <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 8 }}>
+                <TableConfigPopover 
+                  columns={TABS.find(t => t.key === activeTab).key === 'in-use' ? [
+                    { key: 'description', content: 'Description', width: colWidths.description },
+                    { key: 'company', content: 'Manufacturing', width: colWidths.company },
+                    { key: 'reference', content: 'Reference', width: colWidths.reference },
+                    { key: 'quantity', content: 'Quantity', width: colWidths.quantity },
+                    { key: 'mission', content: 'Mission', width: colWidths.mission },
+                    { key: 'location', content: 'Location', width: colWidths.location },
+                    { key: 'expiration', content: 'Expiration', width: colWidths.expiration },
+                  ] : [
+                    { key: 'description', content: 'Description', width: colWidths.description },
+                    { key: 'company', content: 'Manufacturing', width: colWidths.company },
+                    { key: 'reference', content: 'Reference', width: colWidths.reference },
+                    { key: 'quantity', content: 'Quantity', width: colWidths.quantity },
+                    { key: 'location', content: 'Location', width: colWidths.location },
+                    { key: 'expiration', content: 'Expiration', width: colWidths.expiration },
+                  ]}
+                  onWidthChange={handleWidthChange}
                 />
+                <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                  <span style={{
+                    position: 'absolute', left: 10, display: 'flex',
+                    color: token('color.text.subtlest', '#626F86'), pointerEvents: 'none',
+                  }}>
+                    <SearchIcon label="" />
+                  </span>
+                  <input
+                    type="text"
+                    placeholder="Search"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    style={{
+                      height: 32, width: 220,
+                      paddingLeft: 32, paddingRight: 10,
+                      border: `1px solid ${token('color.border', 'rgba(9,30,66,0.14)')}`,
+                      borderRadius: 4, fontSize: 14,
+                      color: token('color.text', '#172B4D'),
+                      outline: 'none',
+                      backgroundColor: token('elevation.surface', '#fff'),
+                      fontFamily: 'inherit',
+                    }}
+                    aria-label="Search inventory"
+                  />
+                </div>
               </div>
             </div>
 
-            {/* Table */}
             <DynamicTable
-              head={activeTab === 'in-use' ? IN_USE_HEAD : activeTab === 'archived' ? ARCHIVED_HEAD : AVAILABLE_HEAD}
+              head={{
+                cells: activeTab === 'in-use' ? [
+                  { key: 'description', content: 'Item Description', isSortable: true, width: colWidths.description },
+                  { key: 'company', content: 'Manufacturing Company', isSortable: true, width: colWidths.company },
+                  { key: 'reference', content: 'Reference Number', isSortable: true, width: colWidths.reference },
+                  { key: 'quantity', content: 'Quantity', isSortable: true, width: colWidths.quantity },
+                  { key: 'mission', content: 'Mission', isSortable: true, width: colWidths.mission },
+                  { key: 'location', content: 'Location', isSortable: true, width: colWidths.location },
+                  { key: 'expiration', content: 'Expiration Date', isSortable: true, width: colWidths.expiration },
+                  { key: 'actions', content: 'Actions', width: 10 },
+                ] : [
+                  { key: 'description', content: 'Item Description', isSortable: true, width: colWidths.description },
+                  { key: 'company', content: 'Manufacturing Company', isSortable: true, width: colWidths.company },
+                  { key: 'reference', content: 'Reference Number', isSortable: true, width: colWidths.reference },
+                  { key: 'quantity', content: 'Quantity', isSortable: true, width: colWidths.quantity },
+                  { key: 'location', content: 'Location', isSortable: true, width: colWidths.location },
+                  { key: 'expiration', content: 'Expiration Date', isSortable: true, width: colWidths.expiration },
+                  { key: 'actions', content: 'Actions', width: 10 },
+                ]
+              }}
               rows={tableRows}
               rowsPerPage={15}
               defaultPage={1}

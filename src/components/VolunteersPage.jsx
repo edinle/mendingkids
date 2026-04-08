@@ -12,6 +12,49 @@ import TopNav from './TopNav';
 import SideNav from './SideNav';
 import UserFormPanel from './UserFormPanel';
 import UserDetailPanel from './UserDetailPanel';
+import Popup from '@atlaskit/popup';
+import Button from '@atlaskit/button/new';
+
+function TableConfigPopover({ columns, onWidthChange }) {
+  const [isOpen, setIsOpen] = useState(false);
+  return (
+    <Popup
+      isOpen={isOpen}
+      onClose={() => setIsOpen(false)}
+      placement="bottom-end"
+      content={() => (
+        <div style={{ padding: '16px', minWidth: 260, backgroundColor: '#fff', borderRadius: 4, boxShadow: '0 4px 16px rgba(9,30,66,0.16)' }}>
+          <h4 style={{ margin: '0 0 16px', fontSize: 13, fontWeight: 700, color: '#172B4D', textTransform: 'uppercase' }}>Column Widths (%)</h4>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {columns.map(col => col.key !== 'actions' && (
+              <div key={col.key} style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <label style={{ fontSize: 12, color: '#44546F' }}>{col.label}</label>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: '#422670' }}>{col.width}%</span>
+                </div>
+                <input 
+                  type="range" min="5" max="40" value={col.width} 
+                  onChange={(e) => onWidthChange(col.key, parseInt(e.target.value))}
+                  style={{ width: '100%', accentColor: '#422670', cursor: 'pointer' }}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+      trigger={(triggerProps) => (
+        <Button
+          {...triggerProps}
+          iconBefore={<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg>}
+          onClick={() => setIsOpen(!isOpen)}
+          appearance="subtle"
+        >
+          Layout
+        </Button>
+      )}
+    />
+  );
+}
 
 // Volunteers are fetched from Supabase.
 
@@ -46,6 +89,11 @@ export default function VolunteersPage({ onNavigate, user, onSwitchAccount, onLo
   const [formOpen, setFormOpen] = useState(false);
   const [detailOpen, setDetailOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
+  const [colWidths, setColWidths] = useState({
+    name: 22, email: 20, role: 12, organization: 18, status: 10, lastActive: 13
+  });
+
+  const handleWidthChange = (key, val) => setColWidths(prev => ({ ...prev, [key]: val }));
 
   useEffect(() => {
     fetchVolunteers();
@@ -139,7 +187,10 @@ export default function VolunteersPage({ onNavigate, user, onSwitchAccount, onLo
               </button>
             </div>
             
-            <div style={{ paddingBottom: 16, borderBottom: `2px solid ${token('color.border', 'rgba(9,30,66,0.14)')}`, marginBottom: 20 }}>
+            <div style={{ 
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              paddingBottom: 16, borderBottom: `2px solid ${token('color.border', 'rgba(9,30,66,0.14)')}`, marginBottom: 20 
+            }}>
               <div style={{ position: 'relative', display: 'inline-flex', alignItems: 'center' }}>
                 <span style={{ position: 'absolute', left: 10, color: token('color.text.subtlest', '#626F86') }}>
                   <SearchIcon label="" />
@@ -152,10 +203,37 @@ export default function VolunteersPage({ onNavigate, user, onSwitchAccount, onLo
                   style={{ height: 34, width: 260, paddingLeft: 36, paddingRight: 10, border: `1px solid ${token('color.border', 'rgba(9,30,66,0.14)')}`, borderRadius: 4, fontSize: 14, color: token('color.text', '#172B4D'), outline: 'none', fontFamily: 'inherit' }}
                 />
               </div>
+              <TableConfigPopover 
+                columns={[
+                  { key: 'name', label: 'Name', width: colWidths.name },
+                  { key: 'email', label: 'Email', width: colWidths.email },
+                  { key: 'role', label: 'Role', width: colWidths.role },
+                  { key: 'organization', label: 'Organization', width: colWidths.organization },
+                  { key: 'status', label: 'Status', width: colWidths.status },
+                  { key: 'lastActive', label: 'Last Active', width: colWidths.lastActive },
+                ]}
+                onWidthChange={handleWidthChange}
+              />
             </div>
 
             <div className="mobile-stack-table">
-              <DynamicTable head={HEAD} rows={rows} rowsPerPage={10} defaultPage={1} isFixedSize />
+              <DynamicTable 
+                head={{
+                  cells: [
+                    { key: 'name', content: 'Name', isSortable: true, width: colWidths.name },
+                    { key: 'email', content: 'Email', isSortable: true, width: colWidths.email },
+                    { key: 'role', content: 'Role', isSortable: true, width: colWidths.role },
+                    { key: 'organization', content: 'Organization', isSortable: true, width: colWidths.organization },
+                    { key: 'status', content: 'Status', isSortable: true, width: colWidths.status },
+                    { key: 'lastActive', content: 'Last Active', isSortable: true, width: colWidths.lastActive },
+                    { key: 'actions', content: 'Actions', width: 5 },
+                  ]
+                }} 
+                rows={rows} 
+                rowsPerPage={10} 
+                defaultPage={1} 
+                isFixedSize 
+              />
             </div>
           </div>
         </Main>
