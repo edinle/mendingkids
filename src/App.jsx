@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { supabase } from './utils/supabase';
 import VolunteersPage   from './components/VolunteersPage';
 import InventoryPage     from './components/InventoryPage';
 import MissionsPage      from './components/MissionsPage';
@@ -47,29 +48,86 @@ const PlaceholderPage = ({ title, onNavigate, id, user, onSwitchAccount, onLogou
 );
 
 export default function App() {
-  const [user, setUser] = useState(null);
+  const [session, setSession] = useState(null);
+  const [userProfile, setUserProfile] = useState(null);
   const [nav, setNav] = useState({ page: 'missions' });
-  const [showInternRestricted, setShowInternRestricted] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Check active session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      if (session) fetchProfile(session.user.id);
+      setLoading(false);
+    });
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+      if (session) {
+        fetchProfile(session.user.id);
+      } else {
+        setUserProfile(null);
+      }
+      setLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const fetchProfile = async (id) => {
+    const { data } = await supabase.from('profiles').select('*').eq('id', id).single();
+    if (data) {
+      setUserProfile(data);
+    } else {
+      // Create profile if missing
+      const { data: newUser } = await supabase.auth.getUser();
+      const newProfile = {
+        id: id,
+        name: session.user.email.split('@')[0],
+        email: session.user.email,
+        role: 'Administrator'
+      };
+      await supabase.from('profiles').upsert(newProfile);
+      setUserProfile(newProfile);
+    }
+  };
 
   const onNavigate = (page, params) => setNav({ page, params });
   
-  const onLogin = (userData) => {
-    setUser(userData);
-    setNav({ page: 'dashboard' });
+  const onLogout = async () => {
+    await supabase.auth.signOut();
   };
 
-  const onLogout = () => {
-    setUser(null);
-  };
-
-  const onSwitchAccount = (role) => {
-    if (role === 'Intern') {
-      setUser({ ...user, name: 'Intern User', role: 'Intern', email: 'intern@mendingkids.org' });
-      setShowInternRestricted(true);
-    } else {
-      setUser({ ...user, name: 'Admin User', role: 'Administrator', email: 'admin@mendingkids.org' });
-      setShowInternRestricted(false);
+  const onSwitchAccount = async (role) => {
+    // For prototype switching roles, we update the profile in Supabase
+    const newRole = role === 'Intern' ? 'Intern' : 'Administrator';
+    const { error } = await supabase
+      .from('profiles')
+      .update({ role: newRole })
+      .eq('id', session.user.id);
+    
+    if (!error) {
+      setUserProfile({ ...userProfile, role: newRole });
     }
+  };
+
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', height: '100vh', alignItems: 'center', justifyContent: 'center' }}>
+        <p>Initializing...</p>
+      </div>
+    );
+  }
+
+  if (!session) {
+    return <LoginPage />;
+  }
+
+  const user = {
+    ...userProfile,
+    id: session.user.id,
+    email: session.user.email
   };
 
   if (!user) {
@@ -78,28 +136,7 @@ export default function App() {
 
   return (
     <>
-      {user.role === 'Intern' && showInternRestricted && (
-        <SlidePanel isOpen={showInternRestricted} onClose={() => setShowInternRestricted(false)}>
-          <div style={{ padding: 32 }}>
-            <div style={{ padding: 20, backgroundColor: '#DEEBFF', borderRadius: 4, display: 'flex', gap: 12, alignItems: 'flex-start' }}>
-              <span style={{ fontSize: 20 }}>ℹ️</span>
-              <div>
-                <h4 style={{ margin: '0 0 4px', color: '#0747A6' }}>Intern Account Mode</h4>
-                <p style={{ margin: 0, fontSize: 13, color: '#0747A6', lineHeight: 1.5 }}>
-                  You are now viewing the system as an <strong>Intern</strong>. 
-                  Some actions will require approval and your data access is restricted to assigned missions.
-                </p>
-              </div>
-            </div>
-            <button 
-              onClick={() => setShowInternRestricted(false)}
-              style={{ marginTop: 24, padding: '8px 16px', backgroundColor: '#422670', color: '#fff', border: 'none', borderRadius: 4, cursor: 'pointer', fontWeight: 600 }}
-            >
-              Continue as Intern
-            </button>
-          </div>
-        </SlidePanel>
-      )}
+
 
       {nav.page === 'dashboard'      && <DashboardPage      onNavigate={onNavigate} user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} />}
       {nav.page === 'inventory'      && <InventoryPage      onNavigate={onNavigate} user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} />}

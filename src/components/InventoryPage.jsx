@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { supabase } from '../utils/supabase';
 import {
   PageLayout,
   TopNavigation,
@@ -22,23 +23,8 @@ import AssignToMissionPanel from './AssignToMissionPanel';
 import { Section, ButtonItem } from '@atlaskit/menu';
 import Popup from '@atlaskit/popup';
 
-// ── Sample Data ────────────────────────────────────────────────────────────
-// Each item now has: status ('available' or 'in-use'), mission, and realistic locations
-
-const INITIAL_ROWS = [
-  { id: 1,  description: 'Adult Anesthesia Circuit 60in',        company: 'Teleflex',      reference: 'RC-1065',             quantity: 45,   status: 'available', mission: '',                      location: 'Cabinet 14 Shelf 2B',  expiration: '10 Nov 2028' },
-  { id: 2,  description: 'Prolene 4-0 Blue Monofilament',        company: 'Ethicon',       reference: '8681H',               quantity: 240,  status: 'available', mission: '',                      location: 'Cabinet 12 Shelf 1A',  expiration: '22 Dec 2025' },
-  { id: 3,  description: 'Pigtail Infusion Set 20 drops/ml',      company: 'Nipro',         reference: 'IS-20-60',            quantity: 500,  status: 'available', mission: '',                      location: 'Warehouse Box 4',      expiration: '15 Jan 2027' },
-  { id: 4,  description: 'ChloraPrep Open 3ml Applicator',       company: 'BD',            reference: '260400',              quantity: 120,  status: 'available', mission: '',                      location: 'Sterile Supply A',      expiration: '05 May 2026' },
-  { id: 5,  description: 'Surgical Cautery Tip (Stnd)',          company: 'Medtronic',     reference: 'E1450',               quantity: 85,   status: 'available', mission: '',                      location: 'Cabinet 15 Shelf 3C',  expiration: '18 Aug 2029' },
-  { id: 16, description: 'ECG Monitoring Lead Set (3-Lead)',     company: '3M',            reference: '2268-3',              quantity: 100,  status: 'in-use',    mission: 'Benin Cleft Lip & Palate', location: 'Benin Kit #1',       expiration: '08 Aug 2027' },
-  { id: 17, description: 'Micro-Aire Drill Saw Blade',           company: 'Stryker',       reference: 'SR-2102',             quantity: 15,   status: 'in-use',    mission: 'Guatemala Orthopedic 2026', location: 'Mission Crate B',    expiration: '12 Jan 2028' },
-  { id: 18, description: 'Pediatric Endotracheal Tube 4.0',      company: 'Covidien',      reference: '85743',               quantity: 30,   status: 'in-use',    mission: 'Tanzania Cardiac Relief', location: 'Cardiac Case #4',    expiration: '30 Sep 2026' },
-  { id: 19, description: 'Surgical Gloves (Size 7.5)',           company: 'Ansell',        reference: '5789324',             quantity: 100,  status: 'archived',  mission: '',                      location: 'Old Storage B',        expiration: '01 Jan 2024' },
-];
-
-// Mission list extracted from data
-const MISSIONS = [...new Set(INITIAL_ROWS.filter(r => r.mission).map(r => r.mission))];
+// ── Data ────────────────────────────────────────────────────────────
+// The data now comes from Supabase via the shipments and inventory tables.
 
 // ── Table Heads ────────────────────────────────────────────────────────────
 
@@ -292,7 +278,8 @@ const TABS = [
 
 export default function InventoryPage({ onNavigate, user, onSwitchAccount, onLogout }) {
   const [search, setSearch] = useState('');
-  const [rows, setRows] = useState(INITIAL_ROWS);
+  const [rows, setRows] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('available');
   const [missionFilter, setMissionFilter] = useState('');
   const [expirationFilter, setExpirationFilter] = useState('');
@@ -301,13 +288,57 @@ export default function InventoryPage({ onNavigate, user, onSwitchAccount, onLog
   const [assignOpen, setAssignOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [missions, setMissions] = useState([]);
+
+  useEffect(() => {
+    fetchInventory();
+    fetchMissionsList();
+  }, []);
+
+  const fetchInventory = async () => {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from('shipments')
+      .select(`
+        *,
+        inventory (
+          description,
+          company,
+          reference_number
+        ),
+        missions (
+          name
+        )
+      `);
+    
+    if (data) {
+      const mapped = data.map(s => ({
+        id: s.id,
+        description: s.inventory?.description || 'Unknown',
+        company: s.inventory?.company || 'Unknown',
+        reference: s.inventory?.reference_number || '—',
+        quantity: s.quantity,
+        status: s.status,
+        mission: s.missions?.name || '',
+        location: s.location || '',
+        expiration: s.expiration_date || '—'
+      }));
+      setRows(mapped);
+    }
+    setLoading(false);
+  };
+
+  const fetchMissionsList = async () => {
+    const { data } = await supabase.from('missions').select('name');
+    if (data) setMissions(data.map(m => m.name));
+  };
 
   const openAdd = (baseItem = null) => setPanel({ isOpen: true, baseItem });
   const closePanel = () => setPanel({ ...panel, isOpen: false });
   const openOverview = (item) => setOverview({ isOpen: true, item });
   const closeOverview = () => setOverview((p) => ({ ...p, isOpen: false }));
   
-  const handleItemAction = (item, action) => {
+  const handleItemAction = async (item, action) => {
     setSelectedItem(item);
     if (action === 'assign') {
       setAssignOpen(true);
@@ -315,12 +346,15 @@ export default function InventoryPage({ onNavigate, user, onSwitchAccount, onLog
       openAdd(item);
     } else if (action === 'delete') {
       if (confirm(`Are you sure you want to delete ${item.description}?`)) {
-        setRows(prev => prev.filter(r => r.id !== item.id));
+        const { error } = await supabase.from('shipments').delete().eq('id', item.id);
+        if (!error) fetchInventory();
       }
     } else if (action === 'archive') {
-      setRows(prev => prev.map(r => r.id === item.id ? { ...r, status: 'archived' } : r));
+      const { error } = await supabase.from('shipments').update({ status: 'archived' }).eq('id', item.id);
+      if (!error) fetchInventory();
     } else if (action === 'restore') {
-      setRows(prev => prev.map(r => r.id === item.id ? { ...r, status: 'available' } : r));
+      const { error } = await supabase.from('shipments').update({ status: 'available' }).eq('id', item.id);
+      if (!error) fetchInventory();
     }
   };
 

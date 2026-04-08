@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { supabase } from '../utils/supabase';
 import { PageLayout, TopNavigation, LeftSidebar, Content, Main } from '@atlaskit/page-layout';
 import DynamicTable from '@atlaskit/dynamic-table';
 import { IconButton } from '@atlaskit/button/new';
@@ -12,12 +13,7 @@ import SideNav from './SideNav';
 import RequestDetailPanel from './RequestDetailPanel';
 import RequestFormPanel from './RequestFormPanel';
 
-const INITIAL_REQUESTS = [
-  { id: 'REQ-101', requester: 'Dr. Robert Chen', mission: 'Guatemala Orthopedic 2026', status: 'Pending', priority: 'High', date: 'Mar 15, 2026' },
-  { id: 'REQ-102', requester: 'Maria Gonzalez', mission: 'Benin Cleft Lip & Palate', status: 'Approved', priority: 'Medium', date: 'Mar 14, 2026' },
-  { id: 'REQ-103', requester: 'Dr. Linda Park', mission: 'Tanzania Cardiac Relief', status: 'In Progress', priority: 'High', date: 'Mar 10, 2026' },
-  { id: 'REQ-104', requester: 'Kevin Lee', mission: 'Honduras General Surgical', status: 'Declined', priority: 'Low', date: 'Feb 28, 2026' },
-];
+// Requests are fetched from Supabase.
 
 const HEAD = {
   cells: [
@@ -58,25 +54,55 @@ function PriorityBadge({ priority }) {
 
 export default function ItemRequestsPage({ onNavigate, user, onSwitchAccount, onLogout }) {
   const [search, setSearch] = useState('');
-  const [requests, setRequests] = useState(INITIAL_REQUESTS);
+  const [requests, setRequests] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
   const [detailOpen, setDetailOpen] = useState(false);
   const [formOpen, setFormOpen] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState(null);
 
+  useEffect(() => {
+    fetchRequests();
+  }, []);
+
+  const fetchRequests = async () => {
+    setLoading(true);
+    const { data } = await supabase
+      .from('requests')
+      .select(`
+        *,
+        profiles ( name ),
+        missions ( name )
+      `);
+    
+    if (data) {
+      const mapped = data.map(r => ({
+        id: r.id,
+        requester: r.profiles?.name || 'Unknown',
+        mission: r.missions?.name || 'General',
+        status: r.status,
+        priority: r.priority,
+        date: new Date(r.date_created).toLocaleDateString()
+      }));
+      setRequests(mapped);
+    }
+    setLoading(false);
+  };
+
   const handleRowClick = (req) => {
     setSelectedRequest(req);
     setDetailOpen(true);
   };
 
-  const handleUpdateStatus = (id, newStatus) => {
-    setRequests(prev => prev.map(r => r.id === id ? { ...r, status: newStatus } : r));
-    setSelectedRequest(prev => prev && prev.id === id ? { ...prev, status: newStatus } : prev);
+  const handleUpdateStatus = async (id, newStatus) => {
+    const { error } = await supabase.from('requests').update({ status: newStatus }).eq('id', id);
+    if (!error) fetchRequests();
   };
 
-  const handleSaveNewRequest = (reqData) => {
-    setRequests(prev => [reqData, ...prev]);
+  const handleSaveNewRequest = async (reqData) => {
+    const { error } = await supabase.from('requests').insert(reqData);
+    if (!error) fetchRequests();
   };
   
   const filtered = requests.filter(r => 

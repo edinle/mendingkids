@@ -31,6 +31,8 @@
     "@atlaskit/tokens": "^11.0.2",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
+    "@supabase/supabase-js": "^2.102.1",
+    "dotenv": "^17.4.1",
     "prop-types": "^15.8.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"

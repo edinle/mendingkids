@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { supabase } from '../utils/supabase';
 import PropTypes from 'prop-types';
 import Select from '@atlaskit/select';
 import { DatePicker } from '@atlaskit/datetime-picker';
@@ -16,11 +17,11 @@ const UNIT_OPTIONS = [
 ];
 
 const LOCATION_OPTIONS = [
-  { label: 'Storage A',  value: 'storage_a' },
-  { label: 'Storage B',  value: 'storage_b' },
-  { label: 'Warehouse',  value: 'warehouse' },
-  { label: 'Cabinet 14 Shelf 3A', value: 'cabinet_14_3a' },
-  { label: 'Cabinet 15 Shelf 3A', value: 'cabinet_15_3a' },
+  { label: 'Storage A',  value: 'Storage A' },
+  { label: 'Storage B',  value: 'Storage B' },
+  { label: 'Warehouse',  value: 'Warehouse' },
+  { label: 'Cabinet 14 Shelf 2B', value: 'Cabinet 14 Shelf 2B' },
+  { label: 'Cabinet 12 Shelf 1A', value: 'Cabinet 12 Shelf 1A' },
 ];
 
 const ACQUISITION_OPTIONS = [
@@ -649,18 +650,42 @@ export default function ItemPanel({ isOpen, onClose, onSave, baseItem }) {
     if (step > 1) setStep(step - 1);
   };
 
-  const handleSave = () => {
-    onSave?.({
-      description:    s1.description,
-      company:        s1.company,
-      reference:      s1.referenceNum,
-      quantity:       s1.quantity ? Number(s1.quantity) : 0,
-      expiration:     s1.expirationDate,
-      marketValue:    s2.marketValue,
-      valuationSource:s2.valuationSource,
-    });
-    reset();
-    onClose();
+  const handleSave = async () => {
+    try {
+      // 1. Ensure inventory item exists (Upsert by reference number or description)
+      const { data: invData, error: invError } = await supabase
+        .from('inventory')
+        .upsert({
+          description: s1.description,
+          company: s1.company,
+          reference_number: s1.referenceNum,
+          unit_of_measure: s1.unitOfMeasure?.label || 'units'
+        }, { onConflict: 'description,reference_number' })
+        .select()
+        .single();
+
+      if (invError) throw invError;
+
+      // 2. Create the shipment entry
+      const { error: shipError } = await supabase
+        .from('shipments')
+        .insert({
+          inventory_id: invData.id,
+          quantity: s1.quantity ? Number(s1.quantity) : 0,
+          location: s1.location?.value || '',
+          expiration_date: s1.expirationDate,
+          status: 'available'
+        });
+
+      if (shipError) throw shipError;
+
+      onSave?.(); // Notify parent to refresh
+      reset();
+      onClose();
+    } catch (err) {
+      console.error('Save failed:', err);
+      alert('Failed to save item. See console for details.');
+    }
   };
 
   return (

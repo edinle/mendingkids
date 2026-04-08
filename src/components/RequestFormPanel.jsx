@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { token } from '@atlaskit/tokens';
+import { supabase } from '../utils/supabase';
 import Textfield from '@atlaskit/textfield';
 import Select from '@atlaskit/select';
 import SlidePanel from './SlidePanel';
@@ -15,17 +16,26 @@ export default function RequestFormPanel({ isOpen, onClose, onSave }) {
     requester: '', mission: '', priority: null, note: ''
   });
 
-  const handleSave = () => {
-    onSave({
-      id: `REQ-${Math.floor(Math.random() * 900) + 100}`, // random ID like REQ-XXX
-      requester: formData.requester || 'Unknown User',
-      mission: formData.mission || 'General Stock',
-      priority: formData.priority?.value || 'Low',
-      status: 'Pending',
-      date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-    });
-    setFormData({ requester: '', mission: '', priority: null, note: '' }); // reset
-    onClose();
+  const handleSave = async () => {
+    try {
+      // For this prototype, we'll try to find a matching mission ID or use default
+      const { data: missionData } = await supabase.from('missions').select('id').ilike('name', `%${formData.mission}%`).limit(1).single();
+      
+      const { error } = await supabase.from('requests').insert({
+        requester_id: (await supabase.auth.getUser()).data.user?.id, // Use current user
+        mission_id: missionData?.id,
+        priority: formData.priority?.value || 'Low',
+        status: 'Pending'
+      });
+      
+      if (error) throw error;
+      onSave?.(); 
+      setFormData({ requester: '', mission: '', priority: null, note: '' });
+      onClose();
+    } catch (err) {
+      console.error('Request save failed:', err);
+      alert('Failed to save request');
+    }
   };
 
   const labelSt = { display: 'block', marginBottom: 4, fontSize: 12, fontWeight: 600, color: token('color.text', '#172B4D') };

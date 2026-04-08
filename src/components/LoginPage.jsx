@@ -1,18 +1,29 @@
 import { useState } from 'react';
+import { supabase } from '../utils/supabase';
 import TextField from '@atlaskit/textfield';
 import { token } from '@atlaskit/tokens';
 
-export default function LoginPage({ onLogin }) {
+export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (email && password) {
-      onLogin({ email, name: email.split('@')[0], role: 'Administrator' });
-    } else {
+    setError('');
+    
+    if (!email || !password) {
       setError('Please enter both email and password.');
+      return;
+    }
+
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) {
+      setError(error.message);
     }
   };
 

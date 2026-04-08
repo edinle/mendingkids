@@ -1,32 +1,12 @@
 import { useState, useRef, useEffect } from 'react';
+import { supabase } from '../utils/supabase';
 import { PageLayout, Content, Main, LeftSidebar, TopNavigation } from '@atlaskit/page-layout';
 import TopNav from './TopNav';
 import SideNav from './SideNav';
 import CreateMissionPanel from './CreateMissionPanel';
 
-// ─── Data ───────────────────────────────────────────────────────────────────
-
-const SPECIALTY_COLORS = {
-  ENT:        { bg: '#1a7f37', text: '#fff' },
-  Ortho:      { bg: '#0e7490', text: '#fff' },
-  Cardiac:    { bg: '#1561cc', text: '#fff' },
-  General:    { bg: '#cf4f27', text: '#fff' },
-  Plastics:   { bg: '#6d28d9', text: '#fff' },
-  Infections: { bg: '#be185d', text: '#fff' },
-  Dental:     { bg: '#b45309', text: '#fff' },
-};
-
-const MISSIONS_DATA = [
-  { id: 1, name: 'Benin Cleft Lip & Palate', location: 'Cotonou, Benin', dates: '11/05 - 11/15', specialty: 'Plastics', items: 62, people: 14, overdue: false },
-  { id: 2, name: 'Guatemala Orthopedic 2026', location: 'Guatemala City', dates: '02/12 - 02/24', specialty: 'Ortho', items: 112, people: 9, overdue: true },
-  { id: 3, name: 'Tanzania Cardiac Relief', location: 'Dar es Salaam', dates: '05/10 - 05/22', specialty: 'Cardiac', items: 84, people: 11, overdue: false },
-  { id: 4, name: 'Honduras General Surgical', location: 'Tegucigalpa', dates: '09/18 - 10/02', specialty: 'General', items: 145, people: 18, overdue: false },
-  { id: 5, name: 'Peru Pediatric Dental', location: 'Lima, Peru', dates: '03/04 - 03/12', specialty: 'Dental', items: 35, people: 6, overdue: false },
-  { id: 6, name: 'Uganda ENT Specialty', location: 'Kampala, Uganda', dates: '12/01 - 12/10', specialty: 'ENT', items: 47, people: 8, overdue: false },
-];
-
-const SPECIALTIES = [...new Set(MISSIONS_DATA.map(m => m.specialty))];
-const LOCATIONS   = [...new Set(MISSIONS_DATA.map(m => m.location))];
+// ── Data Handling ────────────────────────────────────────────────────────────
+// Missions data is now fetched from Supabase.
 
 // ─── Shared primitives ───────────────────────────────────────────────────────
 
@@ -237,12 +217,36 @@ export default function MissionsPage({ onNavigate, user, onSwitchAccount, onLogo
   const [createOpen, setCreateOpen]     = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const filtered = MISSIONS_DATA.filter(m => {
+  const [missions, setMissions] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchMissions();
+  }, [tab]);
+
+  const fetchMissions = async () => {
+    setLoading(true);
+    let query = supabase.from('missions').select('*');
+    if (tab === 'archive') {
+      query = query.eq('status', 'ARCHIVED');
+    } else {
+      query = query.neq('status', 'ARCHIVED');
+    }
+    
+    const { data } = await query;
+    if (data) setMissions(data);
+    setLoading(false);
+  };
+
+  const filtered = missions.filter(m => {
     if (specialtyFilter && m.specialty !== specialtyFilter) return false;
     if (locationFilter  && m.location  !== locationFilter)  return false;
     if (search && !m.name.toLowerCase().includes(search.toLowerCase())) return false;
     return true;
   });
+
+  const allSpecialties = [...new Set(missions.map(m => m.specialty))];
+  const allLocations = [...new Set(missions.map(m => m.location))];
 
   return (
     <PageLayout>
@@ -308,8 +312,8 @@ export default function MissionsPage({ onNavigate, user, onSwitchAccount, onLogo
             {/* Filter row */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
               <div style={{ display: 'flex', gap: 8 }}>
-                <FilterDropdown label="Specialty" options={SPECIALTIES} selected={specialtyFilter} onSelect={setSpecialty} />
-                <FilterDropdown label="Location"  options={LOCATIONS}   selected={locationFilter}  onSelect={setLocation}  />
+                <FilterDropdown label="Specialty" options={allSpecialties} selected={specialtyFilter} onSelect={setSpecialty} />
+                <FilterDropdown label="Location"  options={allLocations}   selected={locationFilter}  onSelect={setLocation}  />
               </div>
               <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
                 <span style={{ position: 'absolute', left: 8, color: '#8590A2', display: 'flex' }}>

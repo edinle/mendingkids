@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { supabase } from '../utils/supabase';
 import SlidePanel from './SlidePanel';
 
 // ─── Sample inventory for suggested items ─────────────────────────────────────
@@ -357,7 +358,25 @@ export default function CreateMissionPanel({ isOpen, onClose }) {
   const handleClose = () => { onClose(); setStep(1); setForm(EMPTY_FORM); };
   const handleNext  = () => setStep(2);
   const handleBack  = () => setStep(1);
-  const handleSkip  = () => handleClose();
+  const handleSkip  = async () => {
+    try {
+      const { error } = await supabase.from('missions').insert({
+        name: form.name,
+        description: form.description,
+        location: form.location,
+        start_date: form.date.split(' - ')[0], // Rough parsing
+        end_date: form.date.split(' - ')[1],
+        specialty: form.category,
+        doctor_name: form.doctorName,
+        status: 'CURRENT'
+      });
+      if (error) throw error;
+      handleClose();
+    } catch (err) {
+      console.error('Failed to create mission:', err);
+      alert('Failed to create mission');
+    }
+  };
 
   return (
     <SlidePanel isOpen={isOpen} onClose={handleClose} width={420}>

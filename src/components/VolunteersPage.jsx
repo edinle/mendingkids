@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { supabase } from '../utils/supabase';
 import { PageLayout, TopNavigation, LeftSidebar, Content, Main } from '@atlaskit/page-layout';
 import DynamicTable from '@atlaskit/dynamic-table';
 import { IconButton } from '@atlaskit/button/new';
@@ -12,13 +13,7 @@ import SideNav from './SideNav';
 import UserFormPanel from './UserFormPanel';
 import UserDetailPanel from './UserDetailPanel';
 
-const INITIAL_VOLUNTEERS = [
-  { id: 1, name: 'Dr. Robert Chen', email: 'r.chen@ortho.org', role: 'Surgeon', organization: 'Cedar Sinai', status: 'Active', lastActive: '2 days ago' },
-  { id: 2, name: 'Maria Gonzalez', email: 'm.gonzalez@rn.com', role: 'Nurse', organization: 'UCLA Health', status: 'Active', lastActive: '1 week ago' },
-  { id: 3, name: 'James Thorne', email: 'j.thorne@tech.edu', role: 'Surgical Tech', organization: 'Individual', status: 'Active', lastActive: '3 days ago' },
-  { id: 4, name: 'Dr. Linda Park', email: 'l.park@anesth.com', role: 'Anesthesiologist', organization: 'City General', status: 'Inactive', lastActive: '2 months ago' },
-  { id: 5, name: 'Kevin Lee', email: 'k.lee@coordinator.org', role: 'Coordinator', organization: 'Mending Kids', status: 'Active', lastActive: '1 hour ago' },
-];
+// Volunteers are fetched from Supabase.
 
 const HEAD = {
   cells: [
@@ -44,12 +39,26 @@ function StatusBadge({ status }) {
 
 export default function VolunteersPage({ onNavigate, user, onSwitchAccount, onLogout }) {
   const [search, setSearch] = useState('');
-  const [users, setUsers] = useState(INITIAL_VOLUNTEERS);
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
   const [formOpen, setFormOpen] = useState(false);
   const [detailOpen, setDetailOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
+
+  useEffect(() => {
+    fetchVolunteers();
+  }, []);
+
+  const fetchVolunteers = async () => {
+    setLoading(true);
+    // In a real app, we might filter by a 'type' column. 
+    // For now, we fetch from donors table which handles external personnel.
+    const { data } = await supabase.from('donors').select('*');
+    if (data) setUsers(data);
+    setLoading(false);
+  };
 
   const handleAddUserClick = () => {
     setSelectedUser(null);
@@ -68,12 +77,9 @@ export default function VolunteersPage({ onNavigate, user, onSwitchAccount, onLo
     setDetailOpen(true);
   };
 
-  const handleSaveUser = (userData) => {
-    setUsers((prev) => {
-      const exists = prev.find(u => u.id === userData.id);
-      if (exists) return prev.map(u => u.id === userData.id ? userData : u);
-      return [...prev, userData];
-    });
+  const handleSaveUser = async (userData) => {
+    const { error } = await supabase.from('donors').upsert(userData);
+    if (!error) fetchVolunteers();
   };
   
   const filtered = users.filter(d => 

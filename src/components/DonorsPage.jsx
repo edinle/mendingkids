@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { supabase } from '../utils/supabase';
 import { PageLayout, TopNavigation, LeftSidebar, Content, Main } from '@atlaskit/page-layout';
 import DynamicTable from '@atlaskit/dynamic-table';
 import { IconButton } from '@atlaskit/button/new';
@@ -12,13 +13,7 @@ import SideNav from './SideNav';
 import UserFormPanel from './UserFormPanel';
 import UserDetailPanel from './UserDetailPanel';
 
-const INITIAL_DONORS = [
-  { id: 1, name: 'Children\'s Hospital of LA', email: 'shipments@chla.org', role: 'Partner', organization: 'CHLA', status: 'Active', lastActive: '2 days ago' },
-  { id: 2, name: 'Edwards Lifesciences', email: 'donations@edwards.com', role: 'Corporate', organization: 'Foundation', status: 'Active', lastActive: '1 week ago' },
-  { id: 3, name: 'Dr. Sarah Jenkins', email: 'sarah.jenkins@med.edu', role: 'Donor', organization: 'Individual', status: 'Active', lastActive: 'Yesterday' },
-  { id: 4, name: 'Direct Relief', email: 'logistics@directrelief.org', role: 'Partner', organization: 'Direct Relief', status: 'Active', lastActive: '4 hours ago' },
-  { id: 5, name: 'Medtronic Foundation', email: 'support@medtronic.org', role: 'Corporate', organization: 'Medtronic', status: 'Inactive', lastActive: '5 months ago' },
-];
+// Donors are fetched from Supabase.
 
 const HEAD = {
   cells: [
@@ -44,12 +39,24 @@ function StatusBadge({ status }) {
 
 export default function DonorsPage({ onNavigate, user, onSwitchAccount, onLogout }) {
   const [search, setSearch] = useState('');
-  const [users, setUsers] = useState(INITIAL_DONORS);
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
   const [formOpen, setFormOpen] = useState(false);
   const [detailOpen, setDetailOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
+
+  useEffect(() => {
+    fetchDonors();
+  }, []);
+
+  const fetchDonors = async () => {
+    setLoading(true);
+    const { data } = await supabase.from('donors').select('*');
+    if (data) setUsers(data);
+    setLoading(false);
+  };
 
   const handleAddUserClick = () => {
     setSelectedUser(null);
@@ -68,12 +75,9 @@ export default function DonorsPage({ onNavigate, user, onSwitchAccount, onLogout
     setDetailOpen(true);
   };
 
-  const handleSaveUser = (userData) => {
-    setUsers((prev) => {
-      const exists = prev.find(u => u.id === userData.id);
-      if (exists) return prev.map(u => u.id === userData.id ? userData : u);
-      return [...prev, userData];
-    });
+  const handleSaveUser = async (userData) => {
+    const { error } = await supabase.from('donors').upsert(userData);
+    if (!error) fetchDonors();
   };
   
   const filtered = users.filter(d => 
