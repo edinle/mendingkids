@@ -23,32 +23,14 @@ import OverviewPanel from './OverviewPanel';
 // Each item now has: status ('available' or 'in-use'), mission, and realistic locations
 
 const INITIAL_ROWS = [
-  { id: 1,  description: 'Pulse Oximeter User Guide',           company: 'Abbott',        reference: 'IS-170/AVF/RL/H-WB', quantity: 10,   status: 'available', mission: '',                      location: 'Cabinet 14 Shelf 3A',  expiration: '15 Nov 2027' },
-  { id: 2,  description: 'Hypodermic Needle 22G x 1.5in',       company: 'Abbott',        reference: '305766',              quantity: 2433, status: 'available', mission: '',                      location: 'Cabinet 12 Shelf 1B',  expiration: '22 Dec 2025' },
-  { id: 3,  description: 'Autoclave Sterilization Pouches',      company: 'Nipro',         reference: 'IS-170/AVF/RL/H-WB', quantity: 342,  status: 'available', mission: '',                      location: 'Storage Room A',       expiration: '30 Jan 2028' },
-  { id: 4,  description: 'Sterile Surgical Drapes',              company: 'Abbott',        reference: 'IS-170/AVF/RL/H-WB', quantity: 342,  status: 'available', mission: '',                      location: 'Cabinet 14 Shelf 3A',  expiration: '05 May 2027' },
-  { id: 5,  description: 'Disposable Face Masks (Box 50)',       company: 'Abbott',        reference: '305766',              quantity: 342,  status: 'available', mission: '',                      location: 'Storage Room B',       expiration: '18 Aug 2026' },
-  { id: 6,  description: 'Surgical Sutures Kit 3-0',             company: 'Nipro',         reference: '305766',              quantity: 85,   status: 'available', mission: '',                      location: 'Cabinet 15 Shelf 2A',  expiration: '09 Sep 2029' },
-  { id: 7,  description: 'ECG Electrodes (Pack 100)',            company: 'Nipro',         reference: '305766',              quantity: 120,  status: 'available', mission: '',                      location: 'Cabinet 11 Shelf 4B',  expiration: '14 Mar 2028' },
-  { id: 8,  description: 'Oxygen Delivery Mask (Adult)',         company: 'Nipro',         reference: 'IS-170/AVF/RL/H-WB', quantity: 56,   status: 'available', mission: '',                      location: 'Cabinet 13 Shelf 1A',  expiration: '22 Jul 2027' },
-  { id: 9,  description: 'Sterile Wound Dressings 4x4',         company: 'Nipro',         reference: 'IS-170/AVF/RL/H-WB', quantity: 200,  status: 'available', mission: '',                      location: 'Storage Room A',       expiration: '01 Dec 2027' },
-  { id: 10, description: 'Disposable Syringes 5ml',              company: 'Nipro',         reference: '305766',              quantity: 1500, status: 'available', mission: '',                      location: 'Cabinet 12 Shelf 2A',  expiration: '15 Jun 2028' },
-  { id: 11, description: 'Sterile Surgical Gowns (L)',           company: 'Nipro',         reference: '305766',              quantity: 75,   status: 'available', mission: '',                      location: 'Storage Room B',       expiration: '30 Apr 2027' },
-  { id: 12, description: 'Surgical Instrument Set (Basic)',      company: 'Abbott',        reference: '305766',              quantity: 12,   status: 'available', mission: '',                      location: 'Cabinet 15 Shelf 3A',  expiration: '20 Feb 2029' },
-  { id: 13, description: 'Blood Pressure Cuffs (Disp.)',        company: 'Abbott',        reference: '305766',              quantity: 45,   status: 'available', mission: '',                      location: 'Cabinet 11 Shelf 2B',  expiration: '11 Nov 2027' },
-  { id: 14, description: 'Sterilizable Surgical Scissors',       company: 'Abbott',        reference: '305766',              quantity: 30,   status: 'available', mission: '',                      location: 'Cabinet 14 Shelf 1A',  expiration: '08 Aug 2028' },
-  { id: 15, description: 'Disposable ECG Leads (12-Lead)',       company: 'Medline',       reference: 'MDL-ECG-12',          quantity: 65,   status: 'available', mission: '',                      location: 'Cabinet 13 Shelf 3B',  expiration: '25 Oct 2027' },
-  // In-use items (assigned to missions)
-  { id: 16, description: 'Infusion Set w/ Flow Regulator',       company: 'Nipro',         reference: 'IS-170/AVF/RL/H-WB', quantity: 100,  status: 'in-use',    mission: 'Uganda Cardiac 2026',   location: 'Mission Kit #1',       expiration: '08 Aug 2027' },
-  { id: 17, description: 'Sterile Gloves (Size 7.5)',            company: 'Medline',       reference: 'MDL-SG-75',           quantity: 500,  status: 'in-use',    mission: 'Uganda Cardiac 2026',   location: 'Mission Kit #1',       expiration: '12 Jan 2027' },
-  { id: 18, description: 'Lidocaine 1% 20ml Vials',             company: 'Pfizer',        reference: 'PF-LID-120',          quantity: 50,   status: 'in-use',    mission: 'Guatemala Dental 2026', location: 'Mission Kit #3',       expiration: '30 Sep 2026' },
-  { id: 19, description: 'Absorbable Sutures 4-0 (Vicryl)',     company: 'Ethicon',       reference: 'J392H',               quantity: 200,  status: 'in-use',    mission: 'Uganda Cardiac 2026',   location: 'Mission Kit #1',       expiration: '15 Apr 2028' },
-  { id: 20, description: 'Portable Pulse Oximeter',              company: 'Masimo',        reference: 'RAD-5V',              quantity: 8,    status: 'in-use',    mission: 'Peru Cleft Lip 2026',   location: 'Mission Kit #2',       expiration: '01 Mar 2029' },
-  { id: 21, description: 'Surgical Blade #15 (Box 100)',         company: 'Swann-Morton',  reference: 'SM-0105',             quantity: 300,  status: 'in-use',    mission: 'Guatemala Dental 2026', location: 'Mission Kit #3',       expiration: '20 Nov 2027' },
-  { id: 22, description: 'IV Cannula 20G',                       company: 'BD',            reference: 'BD-3901',             quantity: 150,  status: 'in-use',    mission: 'Peru Cleft Lip 2026',   location: 'Mission Kit #2',       expiration: '05 Jun 2027' },
-  { id: 23, description: 'Sterile Gauze Pads 4x4',              company: 'Johnson & Johnson', reference: 'JJ-GP44',         quantity: 1000, status: 'in-use',    mission: 'Uganda Cardiac 2026',   location: 'Mission Kit #1',       expiration: '28 Feb 2028' },
-  { id: 24, description: 'Endotracheal Tubes Size 7.0',          company: 'Medline',       reference: 'MDL-ETT-70',          quantity: 25,   status: 'in-use',    mission: 'Peru Cleft Lip 2026',   location: 'Mission Kit #2',       expiration: '17 Jul 2027' },
-  { id: 25, description: 'Hemostatic Forceps (Curved)',           company: 'Aesculap',      reference: 'BH110R',              quantity: 15,   status: 'in-use',    mission: 'Guatemala Dental 2026', location: 'Mission Kit #3',       expiration: '10 Dec 2029' },
+  { id: 1,  description: 'Adult Anesthesia Circuit 60in',        company: 'Teleflex',      reference: 'RC-1065',             quantity: 45,   status: 'available', mission: '',                      location: 'Cabinet 14 Shelf 2B',  expiration: '10 Nov 2028' },
+  { id: 2,  description: 'Prolene 4-0 Blue Monofilament',        company: 'Ethicon',       reference: '8681H',               quantity: 240,  status: 'available', mission: '',                      location: 'Cabinet 12 Shelf 1A',  expiration: '22 Dec 2025' },
+  { id: 3,  description: 'Pigtail Infusion Set 20 drops/ml',      company: 'Nipro',         reference: 'IS-20-60',            quantity: 500,  status: 'available', mission: '',                      location: 'Warehouse Box 4',      expiration: '15 Jan 2027' },
+  { id: 4,  description: 'ChloraPrep Open 3ml Applicator',       company: 'BD',            reference: '260400',              quantity: 120,  status: 'available', mission: '',                      location: 'Sterile Supply A',      expiration: '05 May 2026' },
+  { id: 5,  description: 'Surgical Cautery Tip (Stnd)',          company: 'Medtronic',     reference: 'E1450',               quantity: 85,   status: 'available', mission: '',                      location: 'Cabinet 15 Shelf 3C',  expiration: '18 Aug 2029' },
+  { id: 16, description: 'ECG Monitoring Lead Set (3-Lead)',     company: '3M',            reference: '2268-3',              quantity: 100,  status: 'in-use',    mission: 'Benin Cleft Lip & Palate', location: 'Benin Kit #1',       expiration: '08 Aug 2027' },
+  { id: 17, description: 'Micro-Aire Drill Saw Blade',           company: 'Stryker',       reference: 'SR-2102',             quantity: 15,   status: 'in-use',    mission: 'Guatemala Orthopedic 2026', location: 'Mission Crate B',    expiration: '12 Jan 2028' },
+  { id: 18, description: 'Pediatric Endotracheal Tube 4.0',      company: 'Covidien',      reference: '85743',               quantity: 30,   status: 'in-use',    mission: 'Tanzania Cardiac Relief', location: 'Cardiac Case #4',    expiration: '30 Sep 2026' },
 ];
 
 // Mission list extracted from data
@@ -106,9 +88,9 @@ function MissionBadge({ mission }) {
   if (!mission) return <span style={{ color: '#8590A2' }}>—</span>;
 
   const colorMap = {
-    'Uganda Cardiac 2026':   { bg: '#E9F2FF', color: '#0055CC', border: '#B3D4FF' },
-    'Guatemala Dental 2026': { bg: '#FFF3EB', color: '#974F0C', border: '#FAE1C7' },
-    'Peru Cleft Lip 2026':   { bg: '#F3F0FF', color: '#5E4DB2', border: '#DFD8FD' },
+    'Benin Cleft Lip & Palate': { bg: '#F3F0FF', color: '#5E4DB2', border: '#DFD8FD' },
+    'Guatemala Orthopedic 2026': { bg: '#E9F2FF', color: '#0055CC', border: '#B3D4FF' },
+    'Tanzania Cardiac Relief':   { bg: '#FFF3EB', color: '#974F0C', border: '#FAE1C7' },
   };
   const c = colorMap[mission] || { bg: '#F1F2F4', color: '#44546F', border: '#DFE1E6' };
 

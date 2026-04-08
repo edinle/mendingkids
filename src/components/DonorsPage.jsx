@@ -13,11 +13,11 @@ import UserFormPanel from './UserFormPanel';
 import UserDetailPanel from './UserDetailPanel';
 
 const INITIAL_DONORS = [
-  { id: 1, name: 'John Doe', email: 'john@example.com', role: 'Donor', organization: 'Individual', status: 'Active', lastActive: '2 days ago' },
-  { id: 2, name: 'Jane Smith', email: 'jane@medsupplies.com', role: 'Partner', organization: 'MedSupplies Inc.', status: 'Active', lastActive: '1 week ago' },
-  { id: 3, name: 'Dr. Adams', email: 'adams@hospital.org', role: 'Partner', organization: 'City Hospital', status: 'Inactive', lastActive: '4 months ago' },
-  { id: 4, name: 'Acme Corp', email: 'contact@acmecorp.com', role: 'Corporate', organization: 'Acme Corp', status: 'Active', lastActive: '1 hour ago' },
-  { id: 5, name: 'Mary Johnson', email: 'mjohnson@example.org', role: 'Donor', organization: 'Individual', status: 'Active', lastActive: '5 days ago' },
+  { id: 1, name: 'Children\'s Hospital of LA', email: 'shipments@chla.org', role: 'Partner', organization: 'CHLA', status: 'Active', lastActive: '2 days ago' },
+  { id: 2, name: 'Edwards Lifesciences', email: 'donations@edwards.com', role: 'Corporate', organization: 'Foundation', status: 'Active', lastActive: '1 week ago' },
+  { id: 3, name: 'Dr. Sarah Jenkins', email: 'sarah.jenkins@med.edu', role: 'Donor', organization: 'Individual', status: 'Active', lastActive: 'Yesterday' },
+  { id: 4, name: 'Direct Relief', email: 'logistics@directrelief.org', role: 'Partner', organization: 'Direct Relief', status: 'Active', lastActive: '4 hours ago' },
+  { id: 5, name: 'Medtronic Foundation', email: 'support@medtronic.org', role: 'Corporate', organization: 'Medtronic', status: 'Inactive', lastActive: '5 months ago' },
 ];
 
 const HEAD = {

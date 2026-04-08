@@ -13,10 +13,10 @@ import RequestDetailPanel from './RequestDetailPanel';
 import RequestFormPanel from './RequestFormPanel';
 
 const INITIAL_REQUESTS = [
-  { id: 'REQ-101', requester: 'Dr. Adams', mission: 'Tanzania 2025', status: 'Pending', priority: 'High', date: 'Oct 15, 2025' },
-  { id: 'REQ-102', requester: 'Nurse Betty', mission: 'Guatemala 2026', status: 'Approved', priority: 'Medium', date: 'Oct 14, 2025' },
-  { id: 'REQ-103', requester: 'Dr. Smith', mission: 'Peru Cleft Lip 2026', status: 'In Progress', priority: 'Low', date: 'Oct 10, 2025' },
-  { id: 'REQ-104', requester: 'City Hospital', mission: 'Uganda Cardiac 2026', status: 'Declined', priority: 'High', date: 'Sep 28, 2025' },
+  { id: 'REQ-101', requester: 'Dr. Robert Chen', mission: 'Guatemala Orthopedic 2026', status: 'Pending', priority: 'High', date: 'Mar 15, 2026' },
+  { id: 'REQ-102', requester: 'Maria Gonzalez', mission: 'Benin Cleft Lip & Palate', status: 'Approved', priority: 'Medium', date: 'Mar 14, 2026' },
+  { id: 'REQ-103', requester: 'Dr. Linda Park', mission: 'Tanzania Cardiac Relief', status: 'In Progress', priority: 'High', date: 'Mar 10, 2026' },
+  { id: 'REQ-104', requester: 'Kevin Lee', mission: 'Honduras General Surgical', status: 'Declined', priority: 'Low', date: 'Feb 28, 2026' },
 ];
 
 const HEAD = {

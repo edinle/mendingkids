@@ -17,15 +17,12 @@ const SPECIALTY_COLORS = {
 };
 
 const MISSIONS_DATA = [
-  { id: 1, name: 'Tanzania 2025', location: 'Dar es Salaam', dates: '11/5 - 11/21', specialty: 'ENT',        items: 30, people: 10, overdue: false },
-  { id: 2, name: 'Tanzania 2025', location: 'Dar es Salaam', dates: '3/4-3/10',     specialty: 'Ortho',      items: 30, people: 10, overdue: true  },
-  { id: 3, name: 'Tanzania 2025', location: 'Dar es Salaam', dates: '11/5 - 11/21', specialty: 'ENT',        items: 30, people: 10, overdue: false },
-  { id: 4, name: 'Tanzania 2025', location: 'Dar es Salaam', dates: '11/5 - 11/21', specialty: 'ENT',        items: 30, people: 10, overdue: false },
-  { id: 5, name: 'Tanzania 2025', location: 'Dar es Salaam', dates: '11/5 - 11/21', specialty: 'Cardiac',    items: 30, people: 10, overdue: false },
-  { id: 6, name: 'Tanzania 2025', location: 'Dar es Salaam', dates: '11/5 - 11/21', specialty: 'General',    items: 30, people: 10, overdue: false },
-  { id: 7, name: 'Tanzania 2025', location: 'Dar es Salaam', dates: '11/5 - 11/21', specialty: 'Plastics',   items: 30, people: 10, overdue: false },
-  { id: 8, name: 'Tanzania 2025', location: 'Dar es Salaam', dates: '11/5 - 11/21', specialty: 'General',    items: 30, people: 10, overdue: false },
-  { id: 9, name: 'Tanzania 2025', location: 'Dar es Salaam', dates: '11/5 - 11/21', specialty: 'Infections', items: 30, people: 10, overdue: false },
+  { id: 1, name: 'Benin Cleft Lip & Palate', location: 'Cotonou, Benin', dates: '11/05 - 11/15', specialty: 'Plastics', items: 62, people: 14, overdue: false },
+  { id: 2, name: 'Guatemala Orthopedic 2026', location: 'Guatemala City', dates: '02/12 - 02/24', specialty: 'Ortho', items: 112, people: 9, overdue: true },
+  { id: 3, name: 'Tanzania Cardiac Relief', location: 'Dar es Salaam', dates: '05/10 - 05/22', specialty: 'Cardiac', items: 84, people: 11, overdue: false },
+  { id: 4, name: 'Honduras General Surgical', location: 'Tegucigalpa', dates: '09/18 - 10/02', specialty: 'General', items: 145, people: 18, overdue: false },
+  { id: 5, name: 'Peru Pediatric Dental', location: 'Lima, Peru', dates: '03/04 - 03/12', specialty: 'Dental', items: 35, people: 6, overdue: false },
+  { id: 6, name: 'Uganda ENT Specialty', location: 'Kampala, Uganda', dates: '12/01 - 12/10', specialty: 'ENT', items: 47, people: 8, overdue: false },
 ];
 
 const SPECIALTIES = [...new Set(MISSIONS_DATA.map(m => m.specialty))];

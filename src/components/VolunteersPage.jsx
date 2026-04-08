@@ -13,11 +13,11 @@ import UserFormPanel from './UserFormPanel';
 import UserDetailPanel from './UserDetailPanel';
 
 const INITIAL_VOLUNTEERS = [
-  { id: 1, name: 'Alice Cooper', email: 'alice@example.com', role: 'Nurse', organization: 'Individual', status: 'Active', lastActive: '2 days ago' },
-  { id: 2, name: 'Bob Wilson', email: 'bob@medical.com', role: 'Surgeon', organization: 'Hope Hospital', status: 'Active', lastActive: '1 week ago' },
-  { id: 3, name: 'Charlie Davis', email: 'charlie@vols.org', role: 'Assistant', organization: 'Individual', status: 'Inactive', lastActive: '4 months ago' },
-  { id: 4, name: 'Diana Prince', email: 'diana@hero.com', role: 'Coordinator', organization: 'Rescue Team', status: 'Active', lastActive: '1 hour ago' },
-  { id: 5, name: 'Edward Norton', email: 'edward@example.org', role: 'Surgeon', organization: 'City Clinic', status: 'Active', lastActive: '5 days ago' },
+  { id: 1, name: 'Dr. Robert Chen', email: 'r.chen@ortho.org', role: 'Surgeon', organization: 'Cedar Sinai', status: 'Active', lastActive: '2 days ago' },
+  { id: 2, name: 'Maria Gonzalez', email: 'm.gonzalez@rn.com', role: 'Nurse', organization: 'UCLA Health', status: 'Active', lastActive: '1 week ago' },
+  { id: 3, name: 'James Thorne', email: 'j.thorne@tech.edu', role: 'Surgical Tech', organization: 'Individual', status: 'Active', lastActive: '3 days ago' },
+  { id: 4, name: 'Dr. Linda Park', email: 'l.park@anesth.com', role: 'Anesthesiologist', organization: 'City General', status: 'Inactive', lastActive: '2 months ago' },
+  { id: 5, name: 'Kevin Lee', email: 'k.lee@coordinator.org', role: 'Coordinator', organization: 'Mending Kids', status: 'Active', lastActive: '1 hour ago' },
 ];
 
 const HEAD = {
