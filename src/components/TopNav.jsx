@@ -118,10 +118,10 @@ const NavProfile = ({ user, onSwitchAccount, onLogout }) => {
       />
       {profileOpen && (
         <>
-          <div onClick={() => setProfileOpen(false)} style={{ position: 'fixed', inset: 0, zIndex: 300 }} />
+          <div onClick={() => setProfileOpen(false)} style={{ position: 'fixed', inset: 0, zIndex: 1000 }} />
           <div style={{
-            position: 'absolute', top: 32, right: 0, width: 200,
-            backgroundColor: '#fff', borderRadius: 4, zIndex: 301,
+            position: 'absolute', top: 40, right: 0, width: 200,
+            backgroundColor: '#fff', borderRadius: 4, zIndex: 1001,
             boxShadow: '0 8px 12px rgba(9,30,66,0.15), 0 1px 2px rgba(9,30,66,0.31)',
             padding: '8px 0'
           }}>

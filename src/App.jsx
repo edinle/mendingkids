@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import VolunteersPage   from './components/VolunteersPage';
 import InventoryPage     from './components/InventoryPage';
 import MissionsPage      from './components/MissionsPage';
 import MissionDetailPage from './components/MissionDetailPage';
@@ -27,7 +28,7 @@ const PlaceholderPage = ({ title, onNavigate, id, user, onSwitchAccount, onLogou
     </TopNavigation>
     <Content>
       <LeftSidebar width={240} id="app-sidebar" isFixed={false}>
-        <SideNav active={id} onNavigate={onNavigate} />
+        <SideNav active={id} onNavigate={onNavigate} user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} />
       </LeftSidebar>
       <Main>
         <div style={{ padding: 40, textAlign: 'center', marginTop: 100 }}>
@@ -107,7 +108,7 @@ export default function App() {
       {nav.page === 'add-items'      && <AddItemsPage       mission={nav.params}  onNavigate={onNavigate} user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} />}
       {nav.page === 'donors'         && <DonorsPage         onNavigate={onNavigate} user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} />}
       {nav.page === 'requests'       && <ItemRequestsPage   onNavigate={onNavigate} user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} />}
-      {nav.page === 'volunteers'     && <PlaceholderPage title="Volunteers" onNavigate={onNavigate} id="volunteers" user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} />}
+      {nav.page === 'volunteers'     && <VolunteersPage     onNavigate={onNavigate} user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} />}
       {nav.page === 'reports'        && <ReportsPage        onNavigate={onNavigate} user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} />}
       {nav.page === 'settings'       && <SettingsPage       onNavigate={onNavigate} user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} />}
     </>
