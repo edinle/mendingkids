@@ -354,7 +354,13 @@ function Locations({ onAdd, onEdit }) {
   );
 }
 
-function AutomationRules({ onAdd }) {
+function AutomationRules({ onAdd, onEdit }) {
+  const rules = [
+    { id: 'ar1', name: 'Low Stock Alert', desc: 'When item quantity drops below threshold, notify Inventory Managers.', status: true, trigger: 'qty', condition: 'lt', action: 'notify' },
+    { id: 'ar2', name: 'Expiration Warning', desc: 'If item expires in < 90 days, add warning flag and assign task.', status: true, trigger: 'expiry', condition: 'loc', action: 'flag' },
+    { id: 'ar3', name: 'Mission Completion Protocol', desc: 'When mission is marked Completed, automatically return un-used stock to Main Warehouse.', status: false, trigger: 'mission', condition: 'loc', action: 'task' },
+  ];
+
   return (
     <>
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
@@ -365,17 +371,13 @@ function AutomationRules({ onAdd }) {
       </div>
       
       <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-        {[
-          { name: 'Low Stock Alert', desc: 'When item quantity drops below threshold, notify Inventory Managers.', status: true },
-          { name: 'Expiration Warning', desc: 'If item expires in < 90 days, add warning flag and assign task.', status: true },
-          { name: 'Mission Completion Protocol', desc: 'When mission is marked Completed, automatically return un-used stock to Main Warehouse.', status: false },
-        ].map((rule, i) => (
+        {rules.map((rule, i) => (
           <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 20px', border: '1px solid #DFE1E6', borderRadius: 4, backgroundColor: '#fff' }}>
-            <div>
+            <div style={{ flex: 1 }}>
               <h4 style={{ margin: '0 0 4px', fontSize: 14, fontWeight: 600, color: '#172B4D' }}>{rule.name}</h4>
               <p style={{ margin: 0, fontSize: 13, color: '#5E6C84' }}>{rule.desc}</p>
             </div>
-            <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
               <span style={{ 
                 padding: '2px 8px', borderRadius: 12, fontSize: 12, fontWeight: 700, 
                 backgroundColor: rule.status ? '#E3FCEF' : '#DFE1E6', 
@@ -383,6 +385,13 @@ function AutomationRules({ onAdd }) {
               }}>
                 {rule.status ? 'ENABLED' : 'DISABLED'}
               </span>
+              <a 
+                href="#" 
+                onClick={(e) => { e.preventDefault(); onEdit(rule); }} 
+                style={{ color: 'var(--ds-link)', fontSize: 14, fontWeight: 500 }}
+              >
+                Edit
+              </a>
             </div>
           </div>
         ))}
@@ -414,7 +423,7 @@ export default function SettingsPage({ onNavigate, user, onSwitchAccount, onLogo
       case 'Authentication':        return <Authentication />;
       case 'Categories & Tags':     return <CategoriesTags onAdd={() => setModalOpen('category')} onEdit={(item) => { setEditingItem(item); setModalOpen('category'); }} />;
       case 'Locations':             return <Locations onAdd={() => setModalOpen('location')} onEdit={(item) => { setEditingItem(item); setModalOpen('location'); }} />;
-      case 'Automation rules':      return <AutomationRules onAdd={() => setModalOpen('automation')} />;
+      case 'Automation rules':      return <AutomationRules onAdd={() => setModalOpen('automation')} onEdit={(item) => { setEditingItem(item); setModalOpen('automation'); }} />;
       default: return null;
     }
   };
@@ -554,16 +563,32 @@ export default function SettingsPage({ onNavigate, user, onSwitchAccount, onLogo
             {isModalOpen === 'automation' && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
                 <div>
+                  <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#5E6C84', marginBottom: 6 }}>Rule Name</label>
+                  <TextField defaultValue={editingItem?.name || ''} placeholder="e.g. Low Stock Alert" />
+                </div>
+                <div>
                   <h4 style={{ margin: '0 0 12px', fontSize: 14 }}>Trigger</h4>
-                  <Select placeholder="When..." options={[{label: 'Item quantity drops', value: 'qty'}, {label: 'Mission is completed', value: 'mission'}, {label: 'Item expires', value: 'expiry'}]} />
+                  <Select 
+                    placeholder="When..." 
+                    options={[{label: 'Item quantity drops', value: 'qty'}, {label: 'Mission is completed', value: 'mission'}, {label: 'Item expires', value: 'expiry'}]} 
+                    defaultValue={editingItem ? { label: ({ qty: 'Item quantity drops', mission: 'Mission is completed', expiry: 'Item expires' })[editingItem.trigger], value: editingItem.trigger } : null}
+                  />
                 </div>
                 <div>
                   <h4 style={{ margin: '0 0 12px', fontSize: 14 }}>Condition</h4>
-                  <Select placeholder="If..." options={[{label: 'Quantity is less than', value: 'lt'}, {label: 'Location is', value: 'loc'}]} />
+                  <Select 
+                    placeholder="If..." 
+                    options={[{label: 'Quantity is less than', value: 'lt'}, {label: 'Location is', value: 'loc'}]} 
+                    defaultValue={editingItem ? { label: ({ lt: 'Quantity is less than', loc: 'Location is' })[editingItem.condition], value: editingItem.condition } : null}
+                  />
                 </div>
                 <div>
                   <h4 style={{ margin: '0 0 12px', fontSize: 14 }}>Action</h4>
-                  <Select placeholder="Then..." options={[{label: 'Send notification to', value: 'notify'}, {label: 'Assign task to', value: 'task'}, {label: 'Flag as low stock', value: 'flag'}]} />
+                  <Select 
+                    placeholder="Then..." 
+                    options={[{label: 'Send notification to', value: 'notify'}, {label: 'Assign task to', value: 'task'}, {label: 'Flag as low stock', value: 'flag'}]} 
+                    defaultValue={editingItem ? { label: ({ notify: 'Send notification to', task: 'Assign task to', flag: 'Flag as low stock' })[editingItem.action], value: editingItem.action } : null}
+                  />
                 </div>
               </div>
             )}
