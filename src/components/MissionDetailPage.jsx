@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { PageLayout, Content, Main, LeftSidebar, TopNavigation } from '@atlaskit/page-layout';
 import TopNav from './TopNav';
 import SideNav from './SideNav';
+import SlidePanel from './SlidePanel';
 
 // ─── Mock items for a mission ─────────────────────────────────────────────────
 
@@ -273,15 +274,14 @@ export default function MissionDetailPage({ mission, onNavigate, user, onSwitchA
               </div>
             </div>
 
-            {/* Add Items side panel */}
-            {addPanelOpen && (
+            <SlidePanel isOpen={addPanelOpen} onClose={() => setAddPanel(false)} width={400}>
               <AddItemsPanel
                 category={m.specialty || 'ENT'}
                 mission={m}
                 onClose={() => setAddPanel(false)}
                 onNavigate={onNavigate}
               />
-            )}
+            </SlidePanel>
           </div>
         </Main>
       </Content>
