@@ -188,6 +188,12 @@ export default function MissionDetailPage({ mission, onNavigate, user, onSwitchA
     General: { bg: '#cf4f27', text: '#fff' }, Ortho: { bg: '#0e7490', text: '#fff' },
     Plastics: { bg: '#6d28d9', text: '#fff' }, Infections: { bg: '#be185d', text: '#fff' },
   };
+
+  const [items, setItems] = useState(MISSION_ITEMS);
+
+  const handleUpdateItem = (id, field, value) => {
+    setItems(prev => prev.map(item => item.id === id ? { ...item, [field]: value } : item));
+  };
   const sc = SPECIALTY_COLORS[m.specialty] || { bg: '#626F86', text: '#fff' };
 
   return (
@@ -224,20 +230,8 @@ export default function MissionDetailPage({ mission, onNavigate, user, onSwitchA
               <p style={{ margin: '0 0 20px', fontSize: 13, color: '#626F86' }}>{m.timeAway || '4 months away'}</p>
 
               {/* Items count */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-                <span style={{ fontSize: 13, color: '#626F86', fontWeight: 500 }}>{m.items || 30} items</span>
-                <button
-                  onClick={() => setAddPanel(p => !p)}
-                  style={{
-                    height: 34, padding: '0 14px',
-                    border: 'none', borderRadius: 4,
-                    background: '#422670', color: '#fff',
-                    cursor: 'pointer', fontSize: 13, fontFamily: 'inherit', fontWeight: 500,
-                    display: 'flex', alignItems: 'center', gap: 6,
-                  }}
-                >
-                  + Add Items
-                </button>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                <span style={{ fontSize: 13, color: '#626F86', fontWeight: 500 }}>{m.items || items.length} items</span>
               </div>
 
               {/* Items table */}
@@ -252,12 +246,28 @@ export default function MissionDetailPage({ mission, onNavigate, user, onSwitchA
                   ))}
                 </div>
                 {/* Rows */}
-                {MISSION_ITEMS.map(item => (
+                {items.map(item => (
                   <div key={item.id} style={{ display: 'grid', gridTemplateColumns: '2fr 1.4fr 1.4fr 80px', padding: '10px 14px', gap: 8, alignItems: 'center', borderBottom: '1px solid #f4f4f4' }}>
                     <span style={{ fontSize: 13, color: '#172B4D' }}>{item.description}</span>
-                    <span style={{ fontSize: 13, color: '#172B4D' }}>{item.company}</span>
+                    <input 
+                      type="text" 
+                      value={item.company} 
+                      onChange={e => handleUpdateItem(item.id, 'company', e.target.value)}
+                      style={{ fontSize: 13, border: '1px solid transparent', padding: '4px 8px', borderRadius: 3, outline: 'none', background: 'transparent' }}
+                      onFocus={e => e.target.style.border = '1px solid #4C9AFF'}
+                      onBlur={e => e.target.style.border = '1px solid transparent'}
+                    />
                     <span style={{ fontSize: 13, color: '#172B4D' }}>{item.ref}</span>
-                    <QtyBadge qty={item.qty} flag={item.qtyFlag} />
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                      <input 
+                        type="number" 
+                        value={item.qty || ''} 
+                        onChange={e => handleUpdateItem(item.id, 'qty', parseInt(e.target.value) || 0)}
+                        style={{ width: 60, fontSize: 13, border: '1px solid transparent', padding: '4px 8px', borderRadius: 3, outline: 'none', background: 'transparent', fontWeight: 600 }}
+                        onFocus={e => e.target.style.border = '1px solid #4C9AFF'}
+                        onBlur={e => e.target.style.border = '1px solid transparent'}
+                      />
+                    </div>
                   </div>
                 ))}
               </div>
