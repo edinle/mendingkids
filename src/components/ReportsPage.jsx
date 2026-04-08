@@ -28,7 +28,9 @@ export default function ReportsPage({ onNavigate, user, onSwitchAccount, onLogou
     <PageLayout>
       <TopNavigation isFixed><TopNav onNavigate={onNavigate} user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} /></TopNavigation>
       <Content>
-        <LeftSidebar width={240} id="reports-sidebar" isFixed><SideNav active="reports" onNavigate={onNavigate} /></LeftSidebar>
+        <LeftSidebar width={240}>
+          <SideNav active="reports" onNavigate={onNavigate} user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} />
+        </LeftSidebar>
         <Main>
           <div style={{ padding: '32px 40px', maxWidth: 1200, margin: '0 auto' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>

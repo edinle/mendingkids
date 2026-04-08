@@ -106,7 +106,9 @@ export default function ItemRequestsPage({ onNavigate, user, onSwitchAccount, on
     <PageLayout>
       <TopNavigation isFixed><TopNav onNavigate={onNavigate} user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} /></TopNavigation>
       <Content>
-        <LeftSidebar width={240}><SideNav active="requests" onNavigate={onNavigate} /></LeftSidebar>
+        <LeftSidebar width={240}>
+          <SideNav active="requests" onNavigate={onNavigate} user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} />
+        </LeftSidebar>
         <Main>
           <div style={{ padding: '32px 40px', maxWidth: 1200, margin: '0 auto' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>

@@ -366,7 +366,7 @@ export default function InventoryPage({ onNavigate, user, onSwitchAccount, onLog
           skipLinkTitle="Project Navigation"
           width={240}
         >
-          <SideNav active="inventory" onNavigate={onNavigate} />
+          <SideNav active="inventory" onNavigate={onNavigate} user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} />
         </LeftSidebar>
 
         <Main id="main-content" skipLinkTitle="Main Content">

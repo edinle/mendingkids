@@ -12,12 +12,12 @@ import SideNav from './SideNav';
 import UserFormPanel from './UserFormPanel';
 import UserDetailPanel from './UserDetailPanel';
 
-const INITIAL_DONORS = [
-  { id: 1, name: 'John Doe', email: 'john@example.com', role: 'Donor', organization: 'Individual', status: 'Active', lastActive: '2 days ago' },
-  { id: 2, name: 'Jane Smith', email: 'jane@medsupplies.com', role: 'Partner', organization: 'MedSupplies Inc.', status: 'Active', lastActive: '1 week ago' },
-  { id: 3, name: 'Dr. Adams', email: 'adams@hospital.org', role: 'Partner', organization: 'City Hospital', status: 'Inactive', lastActive: '4 months ago' },
-  { id: 4, name: 'Acme Corp', email: 'contact@acmecorp.com', role: 'Corporate', organization: 'Acme Corp', status: 'Active', lastActive: '1 hour ago' },
-  { id: 5, name: 'Mary Johnson', email: 'mjohnson@example.org', role: 'Donor', organization: 'Individual', status: 'Active', lastActive: '5 days ago' },
+const INITIAL_VOLUNTEERS = [
+  { id: 1, name: 'Alice Cooper', email: 'alice@example.com', role: 'Nurse', organization: 'Individual', status: 'Active', lastActive: '2 days ago' },
+  { id: 2, name: 'Bob Wilson', email: 'bob@medical.com', role: 'Surgeon', organization: 'Hope Hospital', status: 'Active', lastActive: '1 week ago' },
+  { id: 3, name: 'Charlie Davis', email: 'charlie@vols.org', role: 'Assistant', organization: 'Individual', status: 'Inactive', lastActive: '4 months ago' },
+  { id: 4, name: 'Diana Prince', email: 'diana@hero.com', role: 'Coordinator', organization: 'Rescue Team', status: 'Active', lastActive: '1 hour ago' },
+  { id: 5, name: 'Edward Norton', email: 'edward@example.org', role: 'Surgeon', organization: 'City Clinic', status: 'Active', lastActive: '5 days ago' },
 ];
 
 const HEAD = {
@@ -42,9 +42,9 @@ function StatusBadge({ status }) {
   );
 }
 
-export default function DonorsPage({ onNavigate, user, onSwitchAccount, onLogout }) {
+export default function VolunteersPage({ onNavigate, user, onSwitchAccount, onLogout }) {
   const [search, setSearch] = useState('');
-  const [users, setUsers] = useState(INITIAL_DONORS);
+  const [users, setUsers] = useState(INITIAL_VOLUNTEERS);
   
   const [formOpen, setFormOpen] = useState(false);
   const [detailOpen, setDetailOpen] = useState(false);
@@ -106,18 +106,17 @@ export default function DonorsPage({ onNavigate, user, onSwitchAccount, onLogout
   }));
 
   return (
+    <div style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
     <PageLayout>
       <TopNavigation isFixed><TopNav onNavigate={onNavigate} user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} /></TopNavigation>
       <Content>
-        <LeftSidebar width={240}>
-          <SideNav active="donors" onNavigate={onNavigate} user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} />
-        </LeftSidebar>
+        <LeftSidebar width={240}><SideNav active="volunteers" onNavigate={onNavigate} user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} /></LeftSidebar>
         <Main>
           <div style={{ padding: '32px 40px', maxWidth: 1200, margin: '0 auto' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
-              <h1 style={{ margin: 0, fontSize: 24, fontWeight: 600, color: token('color.text', '#172B4D') }}>Donors & Partners</h1>
+              <h1 style={{ margin: 0, fontSize: 24, fontWeight: 600, color: token('color.text', '#172B4D') }}>Volunteers</h1>
               <button onClick={handleAddUserClick} style={{ height: 32, padding: '0 16px', backgroundColor: '#422670', color: '#fff', border: 'none', borderRadius: 4, fontSize: 14, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit' }}>
-                Add User
+                Add Volunteer
               </button>
             </div>
             
@@ -128,7 +127,7 @@ export default function DonorsPage({ onNavigate, user, onSwitchAccount, onLogout
                 </span>
                 <input
                   type="text"
-                  placeholder="Search users by name or email"
+                  placeholder="Search volunteers by name or email"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   style={{ height: 34, width: 260, paddingLeft: 36, paddingRight: 10, border: `1px solid ${token('color.border', 'rgba(9,30,66,0.14)')}`, borderRadius: 4, fontSize: 14, color: token('color.text', '#172B4D'), outline: 'none', fontFamily: 'inherit' }}
@@ -143,5 +142,6 @@ export default function DonorsPage({ onNavigate, user, onSwitchAccount, onLogout
       <UserFormPanel isOpen={formOpen} onClose={() => setFormOpen(false)} user={selectedUser} onSave={handleSaveUser} />
       <UserDetailPanel isOpen={detailOpen} onClose={() => setDetailOpen(false)} user={selectedUser} onEdit={handleEditClick} />
     </PageLayout>
+    </div>
   );
 }

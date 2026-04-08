@@ -17,7 +17,7 @@ import FolderIcon from '@atlaskit/icon/core/folder-open';
 
 const NAV_ITEMS = [
   { id: 'dashboard', label: 'Dashboard', Icon: DashboardIcon },
-  { id: 'inventory', label: 'Inventory Management', Icon: InventoryIcon },
+  { id: 'inventory', label: 'Inventory', Icon: InventoryIcon },
   { id: 'missions', label: 'Missions', Icon: GlobeIcon },
   { id: 'donors', label: 'Donors & Partners', Icon: GroupIcon },
   { id: 'requests', label: 'Item Requests', Icon: MediaIcon },
@@ -28,7 +28,7 @@ const NAV_ITEMS = [
 export default function SideNav({ active = 'inventory', onNavigate, user, onSwitchAccount, onLogout }) {
   const [profileOpen, setProfileOpen] = useState(false);
   return (
-    <div style={{ height: '100%' }}>
+    <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: '#F4F5F7', borderRight: '1px solid #DFE1E6' }}>
       <SideNavigation label="Main Navigation" testId="side-navigation">
       <NavigationContent>
         <Section>
@@ -48,12 +48,12 @@ export default function SideNav({ active = 'inventory', onNavigate, user, onSwit
         </Section>
       </NavigationContent>
       
-      <div style={{ padding: '16px', borderTop: '1px solid #DFE1E6', position: 'relative' }}>
+      <div style={{ padding: '8px 16px', borderTop: '1px solid #DFE1E6', marginTop: 'auto', backgroundColor: '#F4F5F7' }}>
         <div 
           onClick={() => setProfileOpen(!profileOpen)}
           style={{ 
             display: 'flex', alignItems: 'center', gap: 12, padding: '8px', cursor: 'pointer',
-            borderRadius: 4, transition: 'background 0.1s'
+            borderRadius: 4, transition: 'background 0.1s', position: 'relative'
           }}
           onMouseEnter={e => e.currentTarget.style.backgroundColor = 'rgba(9, 30, 66, 0.08)'}
           onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}
@@ -61,13 +61,13 @@ export default function SideNav({ active = 'inventory', onNavigate, user, onSwit
           <div style={{ 
             width: 32, height: 32, backgroundColor: '#6554C0', color: '#fff', 
             borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 14, fontWeight: 600
+            fontSize: 14, fontWeight: 600, flexShrink: 0
           }}>
-            {user?.name?.charAt(0).toUpperCase()}
+            {user?.name?.charAt(0).toUpperCase() || 'U'}
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <p style={{ margin: 0, fontSize: 13, fontWeight: 600, color: '#172B4D', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user?.name}</p>
-            <p style={{ margin: 0, fontSize: 11, color: '#626F86', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user?.role}</p>
+            <p style={{ margin: 0, fontSize: 13, fontWeight: 600, color: '#172B4D', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user?.name || 'User'}</p>
+            <p style={{ margin: 0, fontSize: 11, color: '#626F86', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user?.role || 'Guest'}</p>
           </div>
         </div>
 
@@ -75,14 +75,14 @@ export default function SideNav({ active = 'inventory', onNavigate, user, onSwit
           <>
             <div onClick={() => setProfileOpen(false)} style={{ position: 'fixed', inset: 0, zIndex: 300 }} />
             <div style={{
-              position: 'absolute', bottom: '100%', left: 16, width: 200,
+              position: 'fixed', bottom: 64, left: 16, width: 200,
               backgroundColor: '#fff', borderRadius: 4, zIndex: 301,
               boxShadow: '0 -4px 12px rgba(0,0,0,0.15)',
-              padding: '8px 0', marginBottom: 8
+              padding: '8px 0'
             }}>
               <div 
                 onClick={() => { setProfileOpen(false); onSwitchAccount('Administrator'); }}
-                style={{ padding: '8px 16px', fontSize: 14, cursor: 'pointer', color: '#172B4D' }}
+                style={{ padding: '8px 16px', fontSize: 13, cursor: 'pointer', color: '#172B4D' }}
                 onMouseEnter={e => e.currentTarget.style.backgroundColor = '#F4F5F7'}
                 onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}
               >
@@ -90,7 +90,7 @@ export default function SideNav({ active = 'inventory', onNavigate, user, onSwit
               </div>
               <div 
                 onClick={() => { setProfileOpen(false); onSwitchAccount('Intern'); }}
-                style={{ padding: '8px 16px', fontSize: 14, cursor: 'pointer', color: '#172B4D' }}
+                style={{ padding: '8px 16px', fontSize: 13, cursor: 'pointer', color: '#172B4D' }}
                 onMouseEnter={e => e.currentTarget.style.backgroundColor = '#F4F5F7'}
                 onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}
               >
@@ -99,7 +99,7 @@ export default function SideNav({ active = 'inventory', onNavigate, user, onSwit
               <div style={{ borderTop: '1px solid #F4F5F7', marginTop: 4 }}>
                 <div 
                   onClick={onLogout}
-                  style={{ padding: '8px 16px', fontSize: 14, cursor: 'pointer', color: '#172B4D' }}
+                  style={{ padding: '8px 16px', fontSize: 13, cursor: 'pointer', color: '#172B4D' }}
                   onMouseEnter={e => e.currentTarget.style.backgroundColor = '#F4F5F7'}
                   onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}
                 >
