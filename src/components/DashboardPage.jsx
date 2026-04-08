@@ -321,7 +321,7 @@ function CalendarDay({ day, events, isToday }) {
   );
 }
 
-function CalendarWidget() {
+function CalendarWidget({ onOpenPanel }) {
   const [hoveredDay, setHoveredDay] = useState(null);
   return (
     <div>
@@ -347,6 +347,13 @@ function CalendarWidget() {
             return (
               <div
                 key={`${wi}-${di}`}
+                onClick={() => {
+                  if (day && CALENDAR.events[day]) {
+                    // Find a mission matching the category or just show a default one for prototype
+                    const mission = MISSIONS[wi % MISSIONS.length];
+                    onOpenPanel('mission', mission);
+                  }
+                }}
                 onMouseEnter={() => setHoveredDay(day)}
                 onMouseLeave={() => setHoveredDay(null)}
                 style={{
@@ -410,7 +417,7 @@ function DetailField({ label, value }) {
   );
 }
 
-function MissionDetailPanel({ mission }) {
+function MissionDetailPanel({ mission, onNavigate }) {
   if (!mission) return null;
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
@@ -428,6 +435,18 @@ function MissionDetailPanel({ mission }) {
         <DetailField label="Items Required" value={mission.items} />
         <DetailField label="Date" value={mission.date} />
         <DetailField label="Pending Action" value={mission.action} />
+      </div>
+      <div style={{ padding: '16px 24px', borderTop: '1px solid #E8E8E8', backgroundColor: '#fff' }}>
+        <button
+          onClick={() => onNavigate('missions')}
+          style={{
+            width: '100%', height: 40, backgroundColor: '#422670', color: '#fff',
+            border: 'none', borderRadius: 4, fontSize: 14, fontWeight: 600,
+            cursor: 'pointer', fontFamily: 'inherit'
+          }}
+        >
+          View All Missions
+        </button>
       </div>
     </div>
   );
@@ -637,7 +656,7 @@ export default function DashboardPage({ onNavigate, user, onSwitchAccount, onLog
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 16 }}>
 
               <div style={{ border: '1px solid #e8e8e8', borderRadius: 6, padding: '16px 20px' }}>
-                <CalendarWidget />
+                <CalendarWidget onOpenPanel={openPanel} />
               </div>
 
               <div style={{ border: '1px solid #e8e8e8', borderRadius: 6, padding: '16px 20px' }}>
@@ -680,7 +699,7 @@ export default function DashboardPage({ onNavigate, user, onSwitchAccount, onLog
 
       {/* Detail slide panel */}
       <SlidePanel isOpen={panel.type !== null} onClose={closePanel} width={400}>
-        {panel.type === 'mission'    && <MissionDetailPanel    mission={panel.data} />}
+        {panel.type === 'mission'    && <MissionDetailPanel    mission={panel.data} onNavigate={onNavigate} />}
         {panel.type === 'expiration' && <ExpirationDetailPanel alert={panel.data} />}
         {panel.type === 'activity'   && <ActivityDetailPanel   activity={panel.data} />}
         {panel.type === 'itemStatus' && <ItemStatusDetailPanel item={panel.data} />}
