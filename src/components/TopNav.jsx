@@ -175,7 +175,7 @@ const NavSearch = () => (
   </div>
 );
 
-export default function TopNav({ onNavigate, user, onSwitchAccount, onLogout }) {
+export default function TopNav({ onNavigate, user, onSwitchAccount, onLogout, onToggleMobileMenu }) {
   const [notifOpen, setNotifOpen] = useState(false);
 
   return (
@@ -183,13 +183,43 @@ export default function TopNav({ onNavigate, user, onSwitchAccount, onLogout }) 
       <AtlassianNavigation
         label="Mending Kids Inventory"
         primaryItems={[]}
-        renderProductHome={ProductHome}
-        renderSearch={NavSearch}
+        renderProductHome={() => (
+           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+             <button 
+               className="mobile-only"
+               onClick={onToggleMobileMenu}
+               style={{
+                 background: 'none', border: 'none', cursor: 'pointer',
+                 padding: '4px 8px', borderRadius: 4, display: 'none'
+               }}
+             >
+               <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                 <path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+               </svg>
+             </button>
+             <ProductHome />
+           </div>
+        )}
+        renderSearch={() => (
+          <div className="mobile-hide" style={{ padding: '0 8px', minWidth: 240 }}>
+            <Search
+              onClick={() => {}}
+              placeholder="Search..."
+              tooltip="Search ( / )"
+            />
+          </div>
+        )}
         renderNotifications={() => <Notifications badge={NotificationBadge} onClick={() => setNotifOpen(!notifOpen)} tooltip="Notifications" />}
         renderSettings={() => <Settings onClick={() => onNavigate && onNavigate('settings')} tooltip="Settings" />}
         renderProfile={() => <NavProfile user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} />}
       />
       <NotificationsPopover isOpen={notifOpen} onClose={() => setNotifOpen(false)} />
+      
+      <style>{`
+        @media (max-width: 768px) {
+          .mobile-only { display: block !important; }
+        }
+      `}</style>
     </>
   );
 }

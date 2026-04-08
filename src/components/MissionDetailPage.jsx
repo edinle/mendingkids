@@ -182,6 +182,7 @@ function AddItemsPanel({ category = 'ENT', onClose, onAddItemsPage, onNavigate }
 
 export default function MissionDetailPage({ mission, onNavigate, user, onSwitchAccount, onLogout }) {
   const [addPanelOpen, setAddPanel] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const m = mission || { name: 'Mission Name', specialty: 'ENT', location: 'Location Name', timeAway: '4 months away', items: 30 };
 
   const SPECIALTY_COLORS = {
@@ -200,14 +201,24 @@ export default function MissionDetailPage({ mission, onNavigate, user, onSwitchA
   return (
     <PageLayout>
       <TopNavigation isFixed>
-        <TopNav onNavigate={onNavigate} user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} />
+        <TopNav onNavigate={onNavigate} user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} onToggleMobileMenu={() => setMobileMenuOpen(!mobileMenuOpen)} />
       </TopNavigation>
       <Content>
-        <LeftSidebar width={240}>
-          <SideNav active="missions" onNavigate={onNavigate} user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} />
+        <LeftSidebar width={mobileMenuOpen ? '100vw' : 240}>
+          <div className={mobileMenuOpen ? "" : "sidebar-collapsed"}>
+            <SideNav 
+              active="missions" 
+              onNavigate={onNavigate} 
+              user={user} 
+              onSwitchAccount={onSwitchAccount} 
+              onLogout={onLogout}
+              isMobile={mobileMenuOpen}
+              onCloseMobile={() => setMobileMenuOpen(false)}
+            />
+          </div>
         </LeftSidebar>
         <Main>
-          <div style={{ padding: '32px 40px', maxWidth: 1200, margin: '0 auto', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
+          <div className="main-content">
             {/* Main content */}
             <div style={{ flex: 1, overflowY: 'auto', backgroundColor: '#fff' }}>
               {/* Back link and Header */}
@@ -236,29 +247,21 @@ export default function MissionDetailPage({ mission, onNavigate, user, onSwitchA
               </div>
 
               {/* Items table */}
-              <div style={{ border: '1px solid #e8e8e8', borderRadius: 4, overflow: 'hidden' }}>
+              <div className="mobile-stack-table" style={{ border: '1px solid #e8e8e8', borderRadius: 4, overflow: 'hidden' }}>
                 {/* Head */}
-                <div style={{ display: 'grid', gridTemplateColumns: '2fr 1.4fr 1.4fr 80px', padding: '10px 14px', backgroundColor: '#FAFBFC', borderBottom: '1px solid #e8e8e8', gap: 8 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'minmax(200px, 2fr) 1.4fr 1.4fr 80px', padding: '10px 14px', backgroundColor: '#FAFBFC', borderBottom: '1px solid #e8e8e8', gap: 8, overflowX: 'auto' }}>
                   {['Item Description', 'Manufacturing Company', 'Reference Number', 'Qty'].map(h => (
                     <span key={h} style={{ fontSize: 11, fontWeight: 700, color: '#626F86', textTransform: 'uppercase', letterSpacing: '0.04em', display: 'flex', alignItems: 'center', gap: 4 }}>
                       {h}
-                      <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M3 4l2-2 2 2M3 6l2 2 2-2" stroke="#8590A2" strokeWidth="1.2" strokeLinecap="round"/></svg>
                     </span>
                   ))}
                 </div>
                 {/* Rows */}
                 {items.map(item => (
-                  <div key={item.id} style={{ display: 'grid', gridTemplateColumns: '2fr 1.4fr 1.4fr 80px', padding: '10px 14px', gap: 8, alignItems: 'center', borderBottom: '1px solid #f4f4f4' }}>
+                  <div key={item.id} style={{ display: 'grid', gridTemplateColumns: 'minmax(200px, 2fr) 1.4fr 1.4fr 80px', padding: '10px 14px', gap: 8, alignItems: 'center', borderBottom: '1px solid #f4f4f4', overflowX: 'auto' }}>
                     <span style={{ fontSize: 13, color: '#172B4D' }}>{item.description}</span>
-                    <input 
-                      type="text" 
-                      value={item.company} 
-                      onChange={e => handleUpdateItem(item.id, 'company', e.target.value)}
-                      style={{ fontSize: 13, border: '1px solid transparent', padding: '4px 8px', borderRadius: 3, outline: 'none', background: 'transparent' }}
-                      onFocus={e => e.target.style.border = '1px solid #4C9AFF'}
-                      onBlur={e => e.target.style.border = '1px solid transparent'}
-                    />
-                    <span style={{ fontSize: 13, color: '#172B4D' }}>{item.ref}</span>
+                    <span style={{ fontSize: 13, color: '#44546F' }} className="mobile-hide">{item.company}</span>
+                    <span style={{ fontSize: 13, color: '#172B4D' }} className="mobile-hide">{item.ref}</span>
                     <div style={{ display: 'flex', alignItems: 'center' }}>
                       <input 
                         type="number" 

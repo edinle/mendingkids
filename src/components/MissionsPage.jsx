@@ -235,6 +235,7 @@ export default function MissionsPage({ onNavigate, user, onSwitchAccount, onLogo
   const [locationFilter, setLocation]   = useState('');
   const [search, setSearch]             = useState('');
   const [createOpen, setCreateOpen]     = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const filtered = MISSIONS_DATA.filter(m => {
     if (specialtyFilter && m.specialty !== specialtyFilter) return false;
@@ -246,14 +247,24 @@ export default function MissionsPage({ onNavigate, user, onSwitchAccount, onLogo
   return (
     <PageLayout>
       <TopNavigation isFixed>
-        <TopNav onNavigate={onNavigate} user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} />
+        <TopNav onNavigate={onNavigate} user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} onToggleMobileMenu={() => setMobileMenuOpen(!mobileMenuOpen)} />
       </TopNavigation>
       <Content>
-        <LeftSidebar width={240}>
-          <SideNav active="missions" onNavigate={onNavigate} user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} />
+        <LeftSidebar width={mobileMenuOpen ? '100vw' : 240}>
+          <div className={mobileMenuOpen ? "" : "sidebar-collapsed"}>
+            <SideNav 
+              active="missions" 
+              onNavigate={onNavigate} 
+              user={user} 
+              onSwitchAccount={onSwitchAccount} 
+              onLogout={onLogout} 
+              isMobile={mobileMenuOpen}
+              onCloseMobile={() => setMobileMenuOpen(false)}
+            />
+          </div>
         </LeftSidebar>
         <Main>
-          <div style={{ padding: '32px 40px', maxWidth: 1200, margin: '0 auto', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif', minHeight: '100vh', backgroundColor: '#fff' }}>
+          <div className="main-content">
             {/* Header */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
               <h1 style={{ margin: 0, fontSize: 24, fontWeight: 600, color: '#172B4D' }}>Missions</h1>
@@ -330,7 +341,7 @@ export default function MissionsPage({ onNavigate, user, onSwitchAccount, onLogo
             </div>
 
             {/* Cards grid */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
+            <div className="dashboard-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
               {filtered.map(m => (
                 <MissionCard
                   key={m.id}

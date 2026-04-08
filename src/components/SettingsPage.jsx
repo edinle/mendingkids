@@ -405,116 +405,92 @@ function AutomationRules({ onAdd, onEdit }) {
 
 export default function SettingsPage({ onNavigate, user, onSwitchAccount, onLogout }) {
   const [activeTab, setActiveTab] = useState('General configuration');
-  const [isModalOpen, setModalOpen] = useState(null); // null, 'category', 'location', 'automation'
+  const [isModalOpen, setIsModalOpen] = useState(null);
   const [editingItem, setEditingItem] = useState(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  const openModal = (type, item = null) => {
+    setEditingItem(item);
+    setIsModalOpen(type);
+  };
   const closeModal = () => {
-    setModalOpen(null);
+    setIsModalOpen(null);
     setEditingItem(null);
   };
 
   const renderContent = () => {
     switch (activeTab) {
       case 'General configuration': return <GeneralConfig />;
-      case 'Global permissions':    return <GlobalPermissions onAdd={() => setModalOpen('permission')} onEdit={(item) => { setEditingItem(item); setModalOpen('permission'); }} />;
+      case 'Global permissions':    return <GlobalPermissions onAdd={() => openModal('permission')} onEdit={(item) => openModal('permission', item)} />;
       case 'Audit log':             return <AuditLog />;
-      case 'Users':                 return <Users onInvite={() => setModalOpen('invite')} />;
-      case 'Groups':                return <Groups onCreate={() => setModalOpen('group')} onEdit={(item) => { setEditingItem(item); setModalOpen('group'); }} />;
+      case 'Users':                 return <Users onInvite={() => openModal('invite')} />;
+      case 'Groups':                return <Groups onCreate={() => openModal('group')} onEdit={(item) => openModal('group', item)} />;
       case 'Authentication':        return <Authentication />;
-      case 'Categories & Tags':     return <CategoriesTags onAdd={() => setModalOpen('category')} onEdit={(item) => { setEditingItem(item); setModalOpen('category'); }} />;
-      case 'Locations':             return <Locations onAdd={() => setModalOpen('location')} onEdit={(item) => { setEditingItem(item); setModalOpen('location'); }} />;
-      case 'Automation rules':      return <AutomationRules onAdd={() => setModalOpen('automation')} onEdit={(item) => { setEditingItem(item); setModalOpen('automation'); }} />;
+      case 'Categories & Tags':     return <CategoriesTags onAdd={() => openModal('category')} onEdit={(item) => openModal('category', item)} />;
+      case 'Locations':             return <Locations onAdd={() => openModal('location')} onEdit={(item) => openModal('location', item)} />;
+      case 'Automation rules':      return <AutomationRules onAdd={() => openModal('automation')} onEdit={(item) => openModal('automation', item)} />;
       default: return null;
     }
   };
 
   return (
     <PageLayout>
-      <TopNavigation isFixed><TopNav onNavigate={onNavigate} user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} /></TopNavigation>
+      <TopNavigation isFixed>
+        <TopNav onNavigate={onNavigate} user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} onToggleMobileMenu={() => setMobileMenuOpen(!mobileMenuOpen)} />
+      </TopNavigation>
       <Content>
-        <LeftSidebar width={260} id="settings-sidebar" isFixed={true}>
-          <div style={{ 
-            height: '100%', 
-            backgroundColor: token('elevation.surface.sunken', '#F4F5F7'),
-            borderRight: '1px solid ' + token('color.border', '#EBECF0'),
-            display: 'flex',
-            flexDirection: 'column'
-          }}>
-            <div style={{ padding: '24px 16px 16px', borderBottom: '1px solid ' + token('color.border', '#EBECF0') }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
-                {/* MK Purple icon background */}
-                <div style={{ width: 32, height: 32, backgroundColor: '#422670', borderRadius: 3, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="white">
-                    <path d="M14 2H2v12h12V2zM8 12.5a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9zm0-2.5a2 2 0 1 0 0-4 2 2 0 0 0 0 4z" />
-                  </svg>
-                </div>
-                <h2 style={{ fontSize: 16, fontWeight: 600, color: token('color.text', '#172B4D'), margin: 0 }}>
-                  Settings
-                </h2>
+        <LeftSidebar width={mobileMenuOpen ? '100vw' : 240}>
+          <div className={mobileMenuOpen ? "" : "sidebar-collapsed"} style={{ display: 'flex', flexDirection: 'column', height: '100%', borderRight: '1px solid #DFE1E6', backgroundColor: '#F4F5F7' }}>
+            <div style={{ flex: 1, padding: '24px 16px', overflowY: 'auto' }}>
+              <div style={{ padding: '0 8px 16px', borderBottom: '1px solid #DFE1E6', marginBottom: 16 }}>
+                <h2 style={{ margin: 0, fontSize: 16, fontWeight: 600, color: '#172B4D' }}>Administration</h2>
+                <p style={{ margin: '4px 0 0', fontSize: 12, color: '#626F86' }}>System settings</p>
               </div>
-              <button 
-                onClick={() => onNavigate('dashboard')}
-                style={{ 
-                  background: 'none', border: 'none', color: 'var(--ds-text-selected)', cursor: 'pointer', 
-                  fontSize: 14, fontWeight: 500, padding: 0, display: 'flex', alignItems: 'center', gap: 4
-                }}>
-                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                  <path d="M9 11L5 7l4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-                Back to project
-              </button>
-            </div>
 
-            <div style={{ padding: '16px 8px', flex: 1, overflowY: 'auto' }}>
-              {SETTINGS_SECTIONS.map((section, sIdx) => (
-                <div key={sIdx} style={{ marginBottom: 24 }}>
-                  <h3 style={{ 
-                    fontSize: 11, fontWeight: 700, color: token('color.text.subtlest', '#626F86'), 
-                    textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 8, paddingLeft: 12 
-                  }}>
-                    {section.title}
-                  </h3>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                    {section.items.map(item => {
-                      const isActive = activeTab === item;
-                      return (
-                        <button
-                          key={item}
-                          onClick={() => setActiveTab(item)}
-                          style={{
-                            display: 'flex', alignItems: 'center', padding: '8px 12px',
-                            border: 'none', borderRadius: 3, cursor: 'pointer', fontSize: 14, textAlign: 'left', fontFamily: 'inherit',
-                            backgroundColor: isActive ? 'var(--ds-background-selected)' : 'transparent',
-                            color: isActive ? 'var(--ds-text-selected)' : token('color.text', '#172B4D'),
-                            fontWeight: isActive ? 500 : 400,
-                            transition: 'background-color 0.15s ease'
-                          }}
-                          onMouseEnter={(e) => !isActive && (e.currentTarget.style.backgroundColor = token('color.background.neutral.hovered', '#EBECF0'))}
-                          onMouseLeave={(e) => !isActive && (e.currentTarget.style.backgroundColor = 'transparent')}
-                        >
-                          {item}
-                        </button>
-                      );
-                    })}
-                  </div>
+              {SETTINGS_SECTIONS.map((section, idx) => (
+                <div key={idx} style={{ marginBottom: 24 }}>
+                  <h3 style={{ margin: '0 8px 8px', fontSize: 11, fontWeight: 700, color: '#626F86', textTransform: 'uppercase' }}>{section.title}</h3>
+                  {section.items.map(item => (
+                    <div 
+                      key={item}
+                      onClick={() => { setActiveTab(item); if (mobileMenuOpen) setMobileMenuOpen(false); }}
+                      style={{
+                        padding: '8px 12px', borderRadius: 4, fontSize: 14, cursor: 'pointer',
+                        backgroundColor: activeTab === item ? 'rgba(66, 38, 112, 0.08)' : 'transparent',
+                        color: activeTab === item ? '#422670' : '#44546F',
+                        fontWeight: activeTab === item ? 600 : 400,
+                        marginBottom: 2
+                      }}
+                    >
+                      {item}
+                    </div>
+                  ))}
                 </div>
               ))}
             </div>
 
             <div style={{ padding: '16px', borderTop: '1px solid #DFE1E6' }}>
-               <SideNav accountOnly user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} />
+               <SideNav 
+                 accountOnly 
+                 user={user} 
+                 onSwitchAccount={onSwitchAccount} 
+                 onLogout={onLogout} 
+                 isMobile={mobileMenuOpen}
+               />
             </div>
           </div>
         </LeftSidebar>
 
         {/* Main Content */}
         <Main>
-          <div style={{ height: 'calc(100vh - 56px)', overflowY: 'auto' }}>
-            <div style={{ padding: '32px 40px', maxWidth: 900, margin: '0 auto', paddingBottom: 100 }}>
-            <h1 style={{ margin: '0 0 8px', fontSize: 24, fontWeight: 500, color: token('color.text', '#172B4D') }}>
-              {activeTab}
-            </h1>
-            {renderContent()}
+          <div className="main-content">
+            <div style={{ height: 'calc(100vh - 56px)', overflowY: 'auto' }}>
+              <div style={{ padding: '32px 40px', maxWidth: 900, margin: '0 auto', paddingBottom: 100 }}>
+              <h1 style={{ margin: '0 0 8px', fontSize: 24, fontWeight: 500, color: token('color.text', '#172B4D') }}>
+                {activeTab}
+              </h1>
+              {renderContent()}
+              </div>
             </div>
           </div>
         </Main>

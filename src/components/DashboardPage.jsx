@@ -588,6 +588,7 @@ function ItemStatusRow({ item, onClick }) {
 
 export default function DashboardPage({ onNavigate, user, onSwitchAccount, onLogout }) {
   const [panel, setPanel] = useState({ type: null, data: null });
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const openPanel = (type, data) => setPanel({ type, data });
   const closePanel = () => setPanel({ type: null, data: null });
@@ -595,21 +596,26 @@ export default function DashboardPage({ onNavigate, user, onSwitchAccount, onLog
   return (
     <PageLayout>
       <TopNavigation isFixed>
-        <TopNav onNavigate={onNavigate} user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} />
+        <TopNav onNavigate={onNavigate} user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} onToggleMobileMenu={() => setMobileMenuOpen(!mobileMenuOpen)} />
       </TopNavigation>
 
       <Content>
-        <LeftSidebar width={240}>
-          <SideNav active="dashboard" onNavigate={onNavigate} user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} />
+        <LeftSidebar width={mobileMenuOpen ? '100vw' : 240}>
+          <div className={mobileMenuOpen ? "" : "sidebar-collapsed"}>
+            <SideNav 
+              active="dashboard" 
+              onNavigate={onNavigate} 
+              user={user} 
+              onSwitchAccount={onSwitchAccount} 
+              onLogout={onLogout}
+              isMobile={mobileMenuOpen}
+              onCloseMobile={() => setMobileMenuOpen(false)}
+            />
+          </div>
         </LeftSidebar>
 
         <Main>
-          <div style={{
-            padding: '32px 40px', maxWidth: 1200, margin: '0 auto',
-            backgroundColor: '#fff',
-            minHeight: '100vh',
-            fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
-          }}>
+          <div className="main-content">
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
               <h1 style={{ margin: 0, fontSize: 24, fontWeight: 600, color: '#172B4D' }}>
                 Dashboard
@@ -622,7 +628,7 @@ export default function DashboardPage({ onNavigate, user, onSwitchAccount, onLog
             </div>
 
             {/* Top row: Missions + Expiration Alerts */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 0.65fr', gap: 16, marginBottom: 16 }}>
+            <div className="dashboard-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 0.65fr', gap: 16, marginBottom: 16 }}>
 
               <div style={{ border: '1px solid #e8e8e8', borderRadius: 6, padding: '20px 20px 16px' }}>
                 <h2 style={{ margin: '0 0 16px', fontSize: 15, fontWeight: 600, color: '#000' }}>Missions</h2>
@@ -646,7 +652,7 @@ export default function DashboardPage({ onNavigate, user, onSwitchAccount, onLog
             </div>
 
             {/* Bottom row: Calendar + Recent Activity + Item Status Updates */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 16 }}>
+            <div className="dashboard-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 16 }}>
 
               <div style={{ border: '1px solid #e8e8e8', borderRadius: 6, padding: '16px 20px' }}>
                 <CalendarWidget onOpenPanel={openPanel} />

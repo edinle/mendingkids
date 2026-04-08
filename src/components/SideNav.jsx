@@ -25,7 +25,7 @@ const NAV_ITEMS = [
   { id: 'reports', label: 'Reports', Icon: GraphLineIcon },
 ];
 
-export default function SideNav({ active = 'inventory', onNavigate, user, onSwitchAccount, onLogout, accountOnly = false }) {
+export default function SideNav({ active = 'inventory', onNavigate, user, onSwitchAccount, onLogout, accountOnly = false, isMobile = false, onCloseMobile }) {
   const [profileOpen, setProfileOpen] = useState(false);
 
   const accountSwitcher = (
@@ -56,7 +56,7 @@ export default function SideNav({ active = 'inventory', onNavigate, user, onSwit
         <>
           <div onClick={() => setProfileOpen(false)} style={{ position: 'fixed', inset: 0, zIndex: 1000 }} />
           <div style={{
-            position: 'fixed', bottom: 64, left: 16, width: 220,
+            position: 'fixed', bottom: isMobile ? 'auto' : 64, top: isMobile ? 80 : 'auto', left: 16, width: 220,
             backgroundColor: '#fff', borderRadius: 4, zIndex: 1001,
             boxShadow: '0 8px 16px rgba(0,0,0,0.2), 0 0 1px rgba(0,0,0,0.1)',
             padding: '8px 0',
@@ -99,8 +99,13 @@ export default function SideNav({ active = 'inventory', onNavigate, user, onSwit
 
   if (accountOnly) return accountSwitcher;
 
+  const handleNavClick = (id) => {
+    onNavigate?.(id);
+    if (isMobile) onCloseMobile?.();
+  };
+
   return (
-    <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: '#F4F5F7', borderRight: '1px solid #DFE1E6' }}>
+    <div style={{ height: '100%', display: 'flex', flexDirection: 'column', backgroundColor: '#F4F5F7', borderRight: isMobile ? 'none' : '1px solid #DFE1E6' }}>
       <SideNavigation label="Main Navigation" testId="side-navigation">
         <NavigationContent>
           <Section>
@@ -109,7 +114,7 @@ export default function SideNav({ active = 'inventory', onNavigate, user, onSwit
               return (
                 <ButtonItem
                   key={id}
-                  onClick={() => onNavigate?.(id)}
+                  onClick={() => handleNavClick(id)}
                   iconBefore={<Icon label="" size="medium" />}
                   isSelected={isActive}
                 >

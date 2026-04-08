@@ -45,6 +45,7 @@ function StatusBadge({ status }) {
 export default function DonorsPage({ onNavigate, user, onSwitchAccount, onLogout }) {
   const [search, setSearch] = useState('');
   const [users, setUsers] = useState(INITIAL_DONORS);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
   const [formOpen, setFormOpen] = useState(false);
   const [detailOpen, setDetailOpen] = useState(false);
@@ -107,13 +108,23 @@ export default function DonorsPage({ onNavigate, user, onSwitchAccount, onLogout
 
   return (
     <PageLayout>
-      <TopNavigation isFixed><TopNav onNavigate={onNavigate} user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} /></TopNavigation>
+      <TopNavigation isFixed><TopNav onNavigate={onNavigate} user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} onToggleMobileMenu={() => setMobileMenuOpen(!mobileMenuOpen)} /></TopNavigation>
       <Content>
-        <LeftSidebar width={240}>
-          <SideNav active="donors" onNavigate={onNavigate} user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} />
+        <LeftSidebar width={mobileMenuOpen ? '100vw' : 240}>
+          <div className={mobileMenuOpen ? "" : "sidebar-collapsed"}>
+            <SideNav 
+              active="donors" 
+              onNavigate={onNavigate} 
+              user={user} 
+              onSwitchAccount={onSwitchAccount} 
+              onLogout={onLogout}
+              isMobile={mobileMenuOpen}
+              onCloseMobile={() => setMobileMenuOpen(false)}
+            />
+          </div>
         </LeftSidebar>
         <Main>
-          <div style={{ padding: '32px 40px', maxWidth: 1200, margin: '0 auto' }}>
+          <div className="main-content">
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
               <h1 style={{ margin: 0, fontSize: 24, fontWeight: 600, color: token('color.text', '#172B4D') }}>Donors & Partners</h1>
               <button onClick={handleAddUserClick} style={{ height: 32, padding: '0 16px', backgroundColor: '#422670', color: '#fff', border: 'none', borderRadius: 4, fontSize: 14, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit' }}>
@@ -136,7 +147,9 @@ export default function DonorsPage({ onNavigate, user, onSwitchAccount, onLogout
               </div>
             </div>
 
-            <DynamicTable head={HEAD} rows={rows} rowsPerPage={10} defaultPage={1} isFixedSize />
+            <div className="mobile-stack-table">
+              <DynamicTable head={HEAD} rows={rows} rowsPerPage={10} defaultPage={1} isFixedSize />
+            </div>
           </div>
         </Main>
       </Content>

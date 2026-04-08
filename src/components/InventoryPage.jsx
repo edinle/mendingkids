@@ -239,6 +239,7 @@ export default function InventoryPage({ onNavigate, user, onSwitchAccount, onLog
   const [expirationFilter, setExpirationFilter] = useState('');
   const [panel, setPanel] = useState({ isOpen: false });
   const [overview, setOverview] = useState({ isOpen: false, item: null });
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const openAdd = () => setPanel({ isOpen: true });
   const closePanel = () => setPanel({ isOpen: false });
@@ -339,20 +340,30 @@ export default function InventoryPage({ onNavigate, user, onSwitchAccount, onLog
   return (
     <PageLayout>
       <TopNavigation isFixed id="top-navigation" skipLinkTitle="Top Navigation">
-        <TopNav onNavigate={onNavigate} user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} />
+        <TopNav onNavigate={onNavigate} user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} onToggleMobileMenu={() => setMobileMenuOpen(!mobileMenuOpen)} />
       </TopNavigation>
 
       <Content>
         <LeftSidebar
           id="left-sidebar"
           skipLinkTitle="Project Navigation"
-          width={240}
+          width={mobileMenuOpen ? '100vw' : 240}
         >
-          <SideNav active="inventory" onNavigate={onNavigate} user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} />
+          <div className={mobileMenuOpen ? "" : "sidebar-collapsed"}>
+            <SideNav 
+              active="inventory" 
+              onNavigate={onNavigate} 
+              user={user} 
+              onSwitchAccount={onSwitchAccount} 
+              onLogout={onLogout} 
+              isMobile={mobileMenuOpen}
+              onCloseMobile={() => setMobileMenuOpen(false)}
+            />
+          </div>
         </LeftSidebar>
 
         <Main id="main-content" skipLinkTitle="Main Content">
-          <div style={{ padding: '32px 40px', maxWidth: 1200, margin: '0 auto' }}>
+          <div className="main-content">
 
             {/* Page Header */}
             <div style={{

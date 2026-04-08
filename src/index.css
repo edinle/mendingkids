@@ -46,8 +46,63 @@ body {
   --ds-background-neutral-subtle-pressed: rgba(66, 38, 112, 0.16) !important;
   --ds-border-input: #5137a2 !important;
 
-  /* Make sure TopNavigation stretches */
+/* Make sure TopNavigation stretches */
   --nav-layout-width: 100vw;
+  --sidebar-width: 240px;
+}
+
+/* Base Responsive Layout */
+.app-container {
+  display: grid;
+  grid-template-columns: var(--sidebar-width) 1fr;
+  min-height: 100vh;
+}
+
+.main-content {
+  padding: 32px 40px;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Tablet (up to 1024px) */
+@media (max-width: 1024px) {
+  :root {
+    --sidebar-width: 200px;
+  }
+  .main-content {
+    padding: 24px;
+  }
+}
+
+/* Mobile (up to 768px) */
+@media (max-width: 768px) {
+  .app-container {
+    grid-template-columns: 1fr;
+  }
+  .sidebar-collapsed {
+    display: none;
+  }
+  .main-content {
+    padding: 16px;
+  }
+  
+  /* Mobile Header simplification */
+  .mobile-hide {
+    display: none !important;
+  }
+  
+  /* Card optimization */
+  .dashboard-grid {
+    grid-template-columns: 1fr !important;
+  }
+  
+  /* Table optimization */
+  .mobile-stack-table th:not(:first-child):not(:last-child),
+  .mobile-stack-table td:not(:first-child):not(:last-child) {
+    display: none;
+  }
 }
 
 /* Spin animation for loading states */
