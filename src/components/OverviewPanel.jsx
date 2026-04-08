@@ -215,7 +215,7 @@ const tCell = {
 
 // ─── Overview tab ──────────────────────────────────────────────────────────
 
-function OverviewTab({ totalQuantity }) {
+function OverviewTab({ totalQuantity, onAssign }) {
   const hasWarning = SAMPLE_ENTRIES.some(e => e.status === 'danger');
 
   return (
@@ -270,6 +270,7 @@ function OverviewTab({ totalQuantity }) {
           Add Items
         </button>
         <button
+          onClick={onAssign}
           onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#821E42'}
           onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#A12654'}
           style={{
@@ -350,7 +351,7 @@ function OverviewTab({ totalQuantity }) {
   );
 }
 
-OverviewTab.propTypes = { totalQuantity: PropTypes.number };
+OverviewTab.propTypes = { totalQuantity: PropTypes.number, onAssign: PropTypes.func };
 
 // ─── Activity tab ──────────────────────────────────────────────────────────
 
@@ -851,7 +852,7 @@ function iconBtnSt(color) {
 
 // ─── Main Component ─────────────────────────────────────────────────────────
 
-export default function OverviewPanel({ isOpen, onClose, item, onEdit }) {
+export default function OverviewPanel({ isOpen, onClose, item, onEdit, onAssign }) {
   const [tab, setTab]             = useState('Overview');
   const [isFullEdit, setIsFullEdit] = useState(false);
   const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
@@ -964,7 +965,7 @@ export default function OverviewPanel({ isOpen, onClose, item, onEdit }) {
 
           {/* Tab content */}
           <div style={{ paddingTop: 20 }}>
-            {tab === 'Overview'       && <OverviewTab totalQuantity={totalQuantity} />}
+            {tab === 'Overview'       && <OverviewTab totalQuantity={totalQuantity} onAssign={onAssign} />}
             {tab === 'Activity'       && <ActivityTab />}
             {tab === 'Documentation'  && <DocumentationTab />}
             {tab === 'Details'        && (

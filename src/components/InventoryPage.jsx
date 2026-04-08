@@ -18,6 +18,9 @@ import TopNav from './TopNav';
 import SideNav from './SideNav';
 import ItemPanel from './ItemPanel';
 import OverviewPanel from './OverviewPanel';
+import AssignToMissionModal from './AssignToMissionModal';
+import { Section, ButtonItem } from '@atlaskit/menu';
+import Popup from '@atlaskit/popup';
 
 // ── Sample Data ────────────────────────────────────────────────────────────
 // Each item now has: status ('available' or 'in-use'), mission, and realistic locations
@@ -108,6 +111,41 @@ function MissionBadge({ mission }) {
 }
 
 // ── Filter Dropdown ────────────────────────────────────────────────────────
+
+function ActionMenu({ onItemAction }) {
+  const [isOpen, setIsOpen] = useState(false);
+  return (
+    <Popup
+      isOpen={isOpen}
+      onClose={() => setIsOpen(false)}
+      placement="bottom-end"
+      content={() => (
+        <div style={{ minWidth: 160 }}>
+          <Section>
+            <ButtonItem onClick={() => { setIsOpen(false); onItemAction('assign'); }}>Assign to Mission</ButtonItem>
+            <ButtonItem onClick={() => { setIsOpen(false); onItemAction('archive'); }}>Archive</ButtonItem>
+            <ButtonItem 
+              onClick={() => { setIsOpen(false); onItemAction('delete'); }}
+              style={{ color: '#AE2E24' }}
+            >
+              Delete
+            </ButtonItem>
+          </Section>
+        </div>
+      )}
+      trigger={(triggerProps) => (
+        <IconButton
+          {...triggerProps}
+          icon={ShowMoreHorizontalIcon}
+          label="More"
+          appearance="subtle"
+          spacing="compact"
+          onClick={() => setIsOpen(!isOpen)}
+        />
+      )}
+    />
+  );
+}
 
 function FilterOption({ label, isSelected, onClick }) {
   const [hover, setHover] = useState(false);
@@ -239,12 +277,29 @@ export default function InventoryPage({ onNavigate, user, onSwitchAccount, onLog
   const [expirationFilter, setExpirationFilter] = useState('');
   const [panel, setPanel] = useState({ isOpen: false });
   const [overview, setOverview] = useState({ isOpen: false, item: null });
+  const [assignOpen, setAssignOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const openAdd = () => setPanel({ isOpen: true });
   const closePanel = () => setPanel({ isOpen: false });
   const openOverview = (item) => setOverview({ isOpen: true, item });
   const closeOverview = () => setOverview((p) => ({ ...p, isOpen: false }));
+  
+  const handleItemAction = (item, action) => {
+    setSelectedItem(item);
+    if (action === 'assign') {
+      setAssignOpen(true);
+    } else if (action === 'delete') {
+      if (confirm(`Are you sure you want to delete ${item.description}?`)) {
+        setRows(prev => prev.filter(r => r.id !== item.id));
+      }
+    } else if (action === 'archive') {
+      alert(`${item.description} has been archived.`);
+      setRows(prev => prev.filter(r => r.id !== item.id));
+    }
+  };
+
   const handleOverviewEdit = () => {
     closeOverview();
     openAdd();
@@ -315,12 +370,7 @@ export default function InventoryPage({ onNavigate, user, onSwitchAccount, onLog
               spacing="compact"
               onClick={() => openOverview(row)}
             />
-            <IconButton
-              icon={ShowMoreHorizontalIcon}
-              label="More"
-              appearance="subtle"
-              spacing="compact"
-            />
+            <ActionMenu onItemAction={(action) => handleItemAction(row, action)} />
           </span>
         ),
       },
@@ -544,6 +594,17 @@ export default function InventoryPage({ onNavigate, user, onSwitchAccount, onLog
         onClose={closeOverview}
         item={overview.item}
         onEdit={handleOverviewEdit}
+        onAssign={() => { setOverview(p => ({ ...p, isOpen: false })); setAssignOpen(true); setSelectedItem(overview.item); }}
+      />
+
+      <AssignToMissionModal
+        isOpen={assignOpen}
+        onClose={() => setAssignOpen(false)}
+        item={selectedItem}
+        onAssign={(mission, qty) => {
+          alert(`Deploying ${qty} units of ${selectedItem.description} to ${mission.label}`);
+          setAssignOpen(false);
+        }}
       />
     </PageLayout>
   );
