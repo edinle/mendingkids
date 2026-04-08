@@ -106,26 +106,28 @@ export default function SideNav({ active = 'inventory', onNavigate, user, onSwit
 
   return (
     <div style={{ height: '100%', display: 'flex', flexDirection: 'column', backgroundColor: '#F4F5F7', borderRight: isMobile ? 'none' : '1px solid #DFE1E6' }}>
-      <SideNavigation label="Main Navigation" testId="side-navigation">
-        <NavigationContent>
-          <Section>
-            {NAV_ITEMS.map(({ id, label, Icon }) => {
-              const isActive = active === id;
-              return (
-                <ButtonItem
-                  key={id}
-                  onClick={() => handleNavClick(id)}
-                  iconBefore={<Icon label="" size="medium" />}
-                  isSelected={isActive}
-                >
-                  {label}
-                </ButtonItem>
-              );
-            })}
-          </Section>
-        </NavigationContent>
-        {accountSwitcher}
-      </SideNavigation>
+      <div style={{ flex: 1, overflow: 'hidden' }}>
+        <SideNavigation label="Main Navigation" testId="side-navigation">
+          <NavigationContent>
+            <Section>
+              {NAV_ITEMS.map(({ id, label, Icon }) => {
+                const isActive = active === id;
+                return (
+                  <ButtonItem
+                    key={id}
+                    onClick={() => handleNavClick(id)}
+                    iconBefore={<Icon label="" size="medium" />}
+                    isSelected={isActive}
+                  >
+                    {label}
+                  </ButtonItem>
+                );
+              })}
+            </Section>
+          </NavigationContent>
+        </SideNavigation>
+      </div>
+      {accountSwitcher}
     </div>
   );
 }
