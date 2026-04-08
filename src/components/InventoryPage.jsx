@@ -249,7 +249,7 @@ const TABS = [
   { key: 'in-use',    label: 'In Use' },
 ];
 
-export default function InventoryPage({ onNavigate }) {
+export default function InventoryPage({ onNavigate, user, onSwitchAccount, onLogout }) {
   const [search, setSearch] = useState('');
   const [rows, setRows] = useState(INITIAL_ROWS);
   const [activeTab, setActiveTab] = useState('available');
@@ -357,7 +357,7 @@ export default function InventoryPage({ onNavigate }) {
   return (
     <PageLayout>
       <TopNavigation isFixed id="top-navigation" skipLinkTitle="Top Navigation">
-        <TopNav onNavigate={onNavigate} />
+        <TopNav onNavigate={onNavigate} user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} />
       </TopNavigation>
 
       <Content>

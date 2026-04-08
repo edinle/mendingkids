@@ -26,6 +26,13 @@ const SETTINGS_SECTIONS = [
   }
 ];
 
+const MOCK_GROUPS = [
+  { id: '1', name: 'site-admins', members: '3 users', type: 'System defined' },
+  { id: '2', name: 'inventory-managers', members: '12 users', type: 'Custom group' },
+  { id: '3', name: 'external-partners', members: '45 users', type: 'Custom group' },
+  { id: '4', name: 'interns', members: '8 users', type: 'Limited access' },
+];
+
 // Reusable MK Purple Button
 function PrimaryButton({ children, onClick, style }) {
   return (
@@ -225,11 +232,15 @@ function Groups({ onCreate, onEdit }) {
       { key: 'actions', content: '', isSortable: false },
     ],
   };
-  const rows = [
-    { key: '1', cells: [{ content: <strong>site-admins</strong> }, { content: '3 users' }, { content: 'System defined' }, { content: <a href="#" onClick={(e) => { e.preventDefault(); onEdit({ id: '1', name: 'site-admins' }); }} style={{color:'var(--ds-link)'}}>Edit</a> }] },
-    { key: '2', cells: [{ content: <strong>inventory-managers</strong> }, { content: '12 users' }, { content: 'Custom group' }, { content: <a href="#" onClick={(e) => { e.preventDefault(); onEdit({ id: '2', name: 'inventory-managers' }); }} style={{color:'var(--ds-link)'}}>Edit</a> }] },
-    { key: '3', cells: [{ content: <strong>external-partners</strong> }, { content: '45 users' }, { content: 'Custom group' }, { content: <a href="#" onClick={(e) => { e.preventDefault(); onEdit({ id: '3', name: 'external-partners' }); }} style={{color:'var(--ds-link)'}}>Edit</a> }] },
-  ];
+  const rows = MOCK_GROUPS.map(g => ({
+    key: g.id,
+    cells: [
+      { content: <strong>{g.name}</strong> },
+      { content: g.members },
+      { content: g.type },
+      { content: <a href="#" onClick={(e) => { e.preventDefault(); onEdit(g); }} style={{color:'var(--ds-link)'}}>Edit</a> }
+    ],
+  }));
 
   return (
     <>
@@ -382,7 +393,7 @@ function AutomationRules({ onAdd }) {
 
 // ─── Main Component ────────────────────────────────────────────────────────
 
-export default function SettingsPage({ onNavigate }) {
+export default function SettingsPage({ onNavigate, user, onSwitchAccount, onLogout }) {
   const [activeTab, setActiveTab] = useState('General configuration');
   const [isModalOpen, setModalOpen] = useState(null); // null, 'category', 'location', 'automation'
   const [editingItem, setEditingItem] = useState(null);
@@ -409,7 +420,7 @@ export default function SettingsPage({ onNavigate }) {
 
   return (
     <PageLayout>
-      <TopNavigation isFixed><TopNav onNavigate={onNavigate} /></TopNavigation>
+      <TopNavigation isFixed><TopNav onNavigate={onNavigate} user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} /></TopNavigation>
       <Content>
         <div style={{ height: '100%' }}>
           <LeftSidebar width={260} id="settings-sidebar" isFixed={true}>
@@ -591,6 +602,18 @@ export default function SettingsPage({ onNavigate }) {
                   <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#5E6C84', marginBottom: 6 }}>Description</label>
                   <TextField placeholder="Who is in this group?" />
                 </div>
+                {editingItem?.name === 'interns' && (
+                  <div style={{ padding: 16, backgroundColor: '#FFF7E6', border: '1px solid #FFD591', borderRadius: 4 }}>
+                    <h4 style={{ margin: '0 0 8px', color: '#874D00', fontSize: 13 }}>Intern Group Policy</h4>
+                    <p style={{ margin: 0, fontSize: 12, color: '#874D00', lineHeight: 1.5 }}>
+                      Users in this group are <strong>restricted</strong>. All item requests and inventory audits performerd by interns require manual approval by a <code>site-admin</code> before being finalized.
+                    </p>
+                    <div style={{ marginTop: 12 }}>
+                      <Checkbox label="Require admin approval for all requests" defaultChecked isDisabled />
+                      <Checkbox label="Restrict access to mission financial data" defaultChecked />
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>

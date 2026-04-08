@@ -154,7 +154,7 @@ export default function AddItemsPage({ mission, onNavigate }) {
   return (
     <PageLayout>
       <TopNavigation isFixed>
-        <TopNav onNavigate={onNavigate} />
+        <TopNav onNavigate={onNavigate} user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} />
       </TopNavigation>
       <Content>
         <LeftSidebar width={240}>

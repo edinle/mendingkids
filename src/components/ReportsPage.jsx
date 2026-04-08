@@ -12,7 +12,7 @@ const REPORT_TYPES = [
   { id: 'donor-receipts', title: 'Donor Contribution Summaries', desc: 'Summarized records of items donated by specific partners over a specific timeframe.', icon: '🤝' },
 ];
 
-export default function ReportsPage({ onNavigate }) {
+export default function ReportsPage({ onNavigate, user, onSwitchAccount, onLogout }) {
   const [downloading, setDownloading] = useState(null);
 
   const handleDownload = (id) => {
@@ -26,7 +26,7 @@ export default function ReportsPage({ onNavigate }) {
 
   return (
     <PageLayout>
-      <TopNavigation isFixed><TopNav onNavigate={onNavigate} /></TopNavigation>
+      <TopNavigation isFixed><TopNav onNavigate={onNavigate} user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} /></TopNavigation>
       <Content>
         <LeftSidebar width={240} id="reports-sidebar" isFixed><SideNav active="reports" onNavigate={onNavigate} /></LeftSidebar>
         <Main>

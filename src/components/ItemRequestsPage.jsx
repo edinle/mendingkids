@@ -56,7 +56,7 @@ function PriorityBadge({ priority }) {
   );
 }
 
-export default function ItemRequestsPage({ onNavigate }) {
+export default function ItemRequestsPage({ onNavigate, user, onSwitchAccount, onLogout }) {
   const [search, setSearch] = useState('');
   const [requests, setRequests] = useState(INITIAL_REQUESTS);
   
@@ -104,7 +104,7 @@ export default function ItemRequestsPage({ onNavigate }) {
 
   return (
     <PageLayout>
-      <TopNavigation isFixed><TopNav onNavigate={onNavigate} /></TopNavigation>
+      <TopNavigation isFixed><TopNav onNavigate={onNavigate} user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} /></TopNavigation>
       <Content>
         <LeftSidebar width={240}><SideNav active="requests" onNavigate={onNavigate} /></LeftSidebar>
         <Main>

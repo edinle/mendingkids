@@ -533,7 +533,7 @@ function ItemStatusRow({ item, onClick }) {
 
 // ─── Main Page ─────────────────────────────────────────────────────────────
 
-export default function DashboardPage({ onNavigate }) {
+export default function DashboardPage({ onNavigate, user, onSwitchAccount, onLogout }) {
   const [panel, setPanel] = useState({ type: null, data: null });
 
   const openPanel = (type, data) => setPanel({ type, data });
@@ -542,7 +542,7 @@ export default function DashboardPage({ onNavigate }) {
   return (
     <PageLayout>
       <TopNavigation isFixed>
-        <TopNav onNavigate={onNavigate} />
+        <TopNav onNavigate={onNavigate} user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} />
       </TopNavigation>
 
       <Content>

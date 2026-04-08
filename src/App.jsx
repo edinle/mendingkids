@@ -12,10 +12,19 @@ import ReportsPage       from './components/ReportsPage';
 import { PageLayout, Content, Main, LeftSidebar, TopNavigation } from '@atlaskit/page-layout';
 import TopNav  from './components/TopNav';
 import SideNav from './components/SideNav';
+import LoginPage from './components/LoginPage';
+import SlidePanel from './components/SlidePanel';
 
-const PlaceholderPage = ({ title, onNavigate, id }) => (
+const PlaceholderPage = ({ title, onNavigate, id, user, onSwitchAccount, onLogout }) => (
   <PageLayout>
-    <TopNavigation isFixed><TopNav onNavigate={onNavigate} /></TopNavigation>
+    <TopNavigation isFixed>
+      <TopNav 
+        onNavigate={onNavigate} 
+        user={user} 
+        onSwitchAccount={onSwitchAccount} 
+        onLogout={onLogout} 
+      />
+    </TopNavigation>
     <Content>
       <LeftSidebar width={240} id="app-sidebar" isFixed={false}>
         <SideNav active={id} onNavigate={onNavigate} />
@@ -37,24 +46,70 @@ const PlaceholderPage = ({ title, onNavigate, id }) => (
 );
 
 export default function App() {
-  // nav = { page: string, params?: any }
+  const [user, setUser] = useState(null);
   const [nav, setNav] = useState({ page: 'missions' });
+  const [showInternRestricted, setShowInternRestricted] = useState(false);
 
-  // onNavigate(page, params?) — params carries mission object etc.
   const onNavigate = (page, params) => setNav({ page, params });
+  
+  const onLogin = (userData) => {
+    setUser(userData);
+    setNav({ page: 'dashboard' });
+  };
+
+  const onLogout = () => {
+    setUser(null);
+  };
+
+  const onSwitchAccount = (role) => {
+    if (role === 'Intern') {
+      setUser({ ...user, name: 'Intern User', role: 'Intern', email: 'intern@mendingkids.org' });
+      setShowInternRestricted(true);
+    } else {
+      setUser({ ...user, name: 'Admin User', role: 'Administrator', email: 'admin@mendingkids.org' });
+      setShowInternRestricted(false);
+    }
+  };
+
+  if (!user) {
+    return <LoginPage onLogin={onLogin} />;
+  }
 
   return (
     <>
-      {nav.page === 'dashboard'      && <DashboardPage      onNavigate={onNavigate} />}
-      {nav.page === 'inventory'      && <InventoryPage      onNavigate={onNavigate} />}
-      {nav.page === 'missions'       && <MissionsPage       onNavigate={onNavigate} />}
-      {nav.page === 'mission-detail' && <MissionDetailPage  mission={nav.params}  onNavigate={onNavigate} />}
-      {nav.page === 'add-items'      && <AddItemsPage       mission={nav.params}  onNavigate={onNavigate} />}
-      {nav.page === 'donors'         && <DonorsPage         onNavigate={onNavigate} />}
-      {nav.page === 'requests'       && <ItemRequestsPage   onNavigate={onNavigate} />}
-      {nav.page === 'volunteers'     && <PlaceholderPage title="Volunteers"        onNavigate={onNavigate} id="volunteers" />}
-      {nav.page === 'reports'        && <ReportsPage        onNavigate={onNavigate} />}
-      {nav.page === 'settings'       && <SettingsPage       onNavigate={onNavigate} />}
+      {user.role === 'Intern' && showInternRestricted && (
+        <SlidePanel isOpen={showInternRestricted} onClose={() => setShowInternRestricted(false)}>
+          <div style={{ padding: 32 }}>
+            <div style={{ padding: 20, backgroundColor: '#DEEBFF', borderRadius: 4, display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+              <span style={{ fontSize: 20 }}>ℹ️</span>
+              <div>
+                <h4 style={{ margin: '0 0 4px', color: '#0747A6' }}>Intern Account Mode</h4>
+                <p style={{ margin: 0, fontSize: 13, color: '#0747A6', lineHeight: 1.5 }}>
+                  You are now viewing the system as an <strong>Intern</strong>. 
+                  Some actions will require approval and your data access is restricted to assigned missions.
+                </p>
+              </div>
+            </div>
+            <button 
+              onClick={() => setShowInternRestricted(false)}
+              style={{ marginTop: 24, padding: '8px 16px', backgroundColor: '#422670', color: '#fff', border: 'none', borderRadius: 4, cursor: 'pointer', fontWeight: 600 }}
+            >
+              Continue as Intern
+            </button>
+          </div>
+        </SlidePanel>
+      )}
+
+      {nav.page === 'dashboard'      && <DashboardPage      onNavigate={onNavigate} user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} />}
+      {nav.page === 'inventory'      && <InventoryPage      onNavigate={onNavigate} user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} />}
+      {nav.page === 'missions'       && <MissionsPage       onNavigate={onNavigate} user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} />}
+      {nav.page === 'mission-detail' && <MissionDetailPage  mission={nav.params}  onNavigate={onNavigate} user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} />}
+      {nav.page === 'add-items'      && <AddItemsPage       mission={nav.params}  onNavigate={onNavigate} user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} />}
+      {nav.page === 'donors'         && <DonorsPage         onNavigate={onNavigate} user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} />}
+      {nav.page === 'requests'       && <ItemRequestsPage   onNavigate={onNavigate} user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} />}
+      {nav.page === 'volunteers'     && <PlaceholderPage title="Volunteers" onNavigate={onNavigate} id="volunteers" user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} />}
+      {nav.page === 'reports'        && <ReportsPage        onNavigate={onNavigate} user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} />}
+      {nav.page === 'settings'       && <SettingsPage       onNavigate={onNavigate} user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} />}
     </>
   );
 }

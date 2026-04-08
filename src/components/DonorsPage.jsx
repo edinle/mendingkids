@@ -42,7 +42,7 @@ function StatusBadge({ status }) {
   );
 }
 
-export default function DonorsPage({ onNavigate }) {
+export default function DonorsPage({ onNavigate, user, onSwitchAccount, onLogout }) {
   const [search, setSearch] = useState('');
   const [users, setUsers] = useState(INITIAL_DONORS);
   
@@ -107,7 +107,7 @@ export default function DonorsPage({ onNavigate }) {
 
   return (
     <PageLayout>
-      <TopNavigation isFixed><TopNav onNavigate={onNavigate} /></TopNavigation>
+      <TopNavigation isFixed><TopNav onNavigate={onNavigate} user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} /></TopNavigation>
       <Content>
         <LeftSidebar width={240}><SideNav active="donors" onNavigate={onNavigate} /></LeftSidebar>
         <Main>

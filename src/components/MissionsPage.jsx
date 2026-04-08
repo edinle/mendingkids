@@ -232,7 +232,7 @@ const DotsIcon = () => (
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
-export default function MissionsPage({ onNavigate }) {
+export default function MissionsPage({ onNavigate, user, onSwitchAccount, onLogout }) {
   const [tab, setTab]                   = useState('current');
   const [specialtyFilter, setSpecialty] = useState('');
   const [locationFilter, setLocation]   = useState('');
@@ -249,7 +249,7 @@ export default function MissionsPage({ onNavigate }) {
   return (
     <PageLayout>
       <TopNavigation isFixed>
-        <TopNav onNavigate={onNavigate} />
+        <TopNav onNavigate={onNavigate} user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} />
       </TopNavigation>
       <Content>
         <LeftSidebar width={240}>

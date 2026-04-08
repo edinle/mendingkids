@@ -100,20 +100,70 @@ const NavSettings = () => (
   <Settings onClick={() => {}} tooltip="Settings" />
 );
 
-const NavProfile = () => (
-  <Profile
-    icon={() => (
-      <span style={{
-        width: 24, height: 24, borderRadius: '50%',
-        backgroundColor: '#6554C0',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        fontSize: 11, fontWeight: 600, color: '#fff',
-      }}>U</span>
-    )}
-    onClick={() => {}}
-    tooltip="Your profile"
-  />
-);
+const NavProfile = ({ user, onSwitchAccount, onLogout }) => {
+  const [profileOpen, setProfileOpen] = useState(false);
+  return (
+    <div style={{ position: 'relative' }}>
+      <Profile
+        icon={() => (
+          <span style={{
+            width: 24, height: 24, borderRadius: '50%',
+            backgroundColor: '#6554C0',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: 11, fontWeight: 600, color: '#fff', cursor: 'pointer'
+          }}>{user?.name?.charAt(0).toUpperCase()}</span>
+        )}
+        onClick={() => setProfileOpen(!profileOpen)}
+        tooltip="Your profile"
+      />
+      {profileOpen && (
+        <>
+          <div onClick={() => setProfileOpen(false)} style={{ position: 'fixed', inset: 0, zIndex: 300 }} />
+          <div style={{
+            position: 'absolute', top: 32, right: 0, width: 200,
+            backgroundColor: '#fff', borderRadius: 4, zIndex: 301,
+            boxShadow: '0 8px 12px rgba(9,30,66,0.15), 0 1px 2px rgba(9,30,66,0.31)',
+            padding: '8px 0'
+          }}>
+            <div style={{ padding: '8px 16px', borderBottom: '1px solid #F4F5F7' }}>
+              <p style={{ margin: 0, fontSize: 11, fontWeight: 600, color: '#6B778C', textTransform: 'uppercase' }}>Atlassian account</p>
+              <p style={{ margin: '4px 0 0', fontSize: 14, fontWeight: 500, color: '#172B4D' }}>{user?.name}</p>
+              <p style={{ margin: 0, fontSize: 12, color: '#5E6C84' }}>{user?.email}</p>
+            </div>
+            <div style={{ padding: '8px 0' }}>
+              <div 
+                onClick={() => { setProfileOpen(false); onSwitchAccount('Administrator'); }}
+                style={{ padding: '8px 16px', fontSize: 14, cursor: 'pointer', color: '#172B4D', transition: 'background 0.1s' }}
+                onMouseEnter={e => e.currentTarget.style.backgroundColor = '#F4F5F7'}
+                onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}
+              >
+                Switch to Admin
+              </div>
+              <div 
+                onClick={() => { setProfileOpen(false); onSwitchAccount('Intern'); }}
+                style={{ padding: '8px 16px', fontSize: 14, cursor: 'pointer', color: '#172B4D', transition: 'background 0.1s' }}
+                onMouseEnter={e => e.currentTarget.style.backgroundColor = '#F4F5F7'}
+                onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}
+              >
+                Switch to Intern
+              </div>
+            </div>
+            <div style={{ padding: '8px 0', borderTop: '1px solid #F4F5F7' }}>
+              <div 
+                onClick={onLogout}
+                style={{ padding: '8px 16px', fontSize: 14, cursor: 'pointer', color: '#172B4D', transition: 'background 0.1s' }}
+                onMouseEnter={e => e.currentTarget.style.backgroundColor = '#F4F5F7'}
+                onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}
+              >
+                Log out
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  );
+};
 
 const NavSearch = () => (
   <div style={{ padding: '0 8px', minWidth: 240 }}>
@@ -125,7 +175,7 @@ const NavSearch = () => (
   </div>
 );
 
-export default function TopNav({ onNavigate }) {
+export default function TopNav({ onNavigate, user, onSwitchAccount, onLogout }) {
   const [notifOpen, setNotifOpen] = useState(false);
 
   return (
@@ -137,7 +187,7 @@ export default function TopNav({ onNavigate }) {
         renderSearch={NavSearch}
         renderNotifications={() => <Notifications badge={NotificationBadge} onClick={() => setNotifOpen(!notifOpen)} tooltip="Notifications" />}
         renderSettings={() => <Settings onClick={() => onNavigate && onNavigate('settings')} tooltip="Settings" />}
-        renderProfile={NavProfile}
+        renderProfile={() => <NavProfile user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} />}
       />
       <NotificationsPopover isOpen={notifOpen} onClose={() => setNotifOpen(false)} />
     </>
