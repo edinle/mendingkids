@@ -146,7 +146,7 @@ function MissionCard({ mission, onClick }) {
         onClick={e => e.stopPropagation()}
       >
         <span style={{ fontSize: 12, color: '#626F86' }}>
-          {mission.items} items · {mission.people} people
+          {mission.item_count || 0} items · {mission.people_count || 0} people
         </span>
         <div ref={menuRef} style={{ position: 'relative' }}>
           <button

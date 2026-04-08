@@ -181,15 +181,32 @@ function AddItemsPanel({ category = 'ENT', onClose, onAddItemsPage, onNavigate }
 // ─── Main Detail Page ─────────────────────────────────────────────────────────
 
 export default function MissionDetailPage({ mission, onNavigate, user, onSwitchAccount, onLogout }) {
+  const [activeTab, setTab] = useState('items');
   const [addPanelOpen, setAddPanel] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  
   const m = mission || { name: 'Mission Name', specialty: 'ENT', location: 'Location Name', timeAway: '4 months away', items: 30 };
 
   const SPECIALTY_COLORS = {
-    ENT: { bg: '#1a7f37', text: '#fff' }, Cardiac: { bg: '#1561cc', text: '#fff' },
-    General: { bg: '#cf4f27', text: '#fff' }, Ortho: { bg: '#0e7490', text: '#fff' },
-    Plastics: { bg: '#6d28d9', text: '#fff' }, Infections: { bg: '#be185d', text: '#fff' },
+    'Plastics': { bg: '#F3F0FF', text: '#5E4DB2' },
+    'Ortho':    { bg: '#E9F2FF', text: '#0055CC' },
+    'Cardiac':  { bg: '#FFF3EB', text: '#974F0C' },
+    'General':  { bg: '#E3FCEF', text: '#006644' },
   };
+
+  function SpecialtyBadge({ specialty }) {
+    const c = (specialty && SPECIALTY_COLORS[specialty]) || { bg: '#DFE1E6', text: '#44546F' };
+    return (
+      <span style={{
+        display: 'inline-flex', alignItems: 'center',
+        padding: '2px 10px', borderRadius: 999,
+        backgroundColor: c.bg, color: c.text,
+        fontSize: 11, fontWeight: 500, whiteSpace: 'nowrap',
+      }}>
+        {specialty || 'General'}
+      </span>
+    );
+  }
 
   const [items, setItems] = useState(MISSION_ITEMS);
 
@@ -239,42 +256,102 @@ export default function MissionDetailPage({ mission, onNavigate, user, onSwitchA
               </div>
 
               <p style={{ margin: '0 0 2px', fontSize: 14, color: '#44546F' }}>{m.location || 'Location Name'}</p>
-              <p style={{ margin: '0 0 20px', fontSize: 13, color: '#626F86' }}>{m.timeAway || '4 months away'}</p>
-
-              {/* Items count */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-                <span style={{ fontSize: 13, color: '#626F86', fontWeight: 500 }}>{m.items || items.length} items</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
+                <p style={{ margin: 0, fontSize: 13, color: '#626F86' }}>{m.timeAway || '4 months away'}</p>
+                <div style={{ width: 4, height: 4, borderRadius: '50%', backgroundColor: '#C1C7D0' }} />
+                <SpecialtyBadge specialty={m.specialty} />
               </div>
 
-              {/* Items table */}
-              <div className="mobile-stack-table" style={{ border: '1px solid #e8e8e8', borderRadius: 4, overflow: 'hidden' }}>
-                {/* Head */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'minmax(200px, 2fr) 1.4fr 1.4fr 80px', padding: '10px 14px', backgroundColor: '#FAFBFC', borderBottom: '1px solid #e8e8e8', gap: 8, overflowX: 'auto' }}>
-                  {['Item Description', 'Manufacturing Company', 'Reference Number', 'Qty'].map(h => (
-                    <span key={h} style={{ fontSize: 11, fontWeight: 700, color: '#626F86', textTransform: 'uppercase', letterSpacing: '0.04em', display: 'flex', alignItems: 'center', gap: 4 }}>
-                      {h}
+              {/* Tabs */}
+              <div style={{ display: 'flex', borderBottom: '1px solid #e8e8e8', marginBottom: 16 }}>
+                {[
+                  { key: 'items', label: 'Items', count: m.item_count || items.length },
+                  { key: 'people', label: 'People', count: m.people_count || 8 }
+                ].map(t => (
+                  <button
+                    key={t.key}
+                    onClick={() => setTab(t.key)}
+                    style={{
+                      padding: '10px 16px', border: 'none', background: 'transparent',
+                      fontSize: 14, cursor: 'pointer', fontFamily: 'inherit',
+                      color: activeTab === t.key ? '#172B4D' : '#626F86',
+                      fontWeight: activeTab === t.key ? 600 : 400,
+                      borderBottom: activeTab === t.key ? '2px solid #172B4D' : '2px solid transparent',
+                      marginBottom: -1,
+                      display: 'flex', alignItems: 'center', gap: 6
+                    }}
+                  >
+                    {t.label}
+                    <span style={{ 
+                      fontSize: 11, padding: '1px 6px', borderRadius: 10, 
+                      backgroundColor: activeTab === t.key ? '#F3F0FF' : '#F4F5F7',
+                      color: activeTab === t.key ? '#422670' : '#626F86'
+                    }}>
+                      {t.count}
                     </span>
-                  ))}
-                </div>
-                {/* Rows */}
-                {items.map(item => (
-                  <div key={item.id} style={{ display: 'grid', gridTemplateColumns: 'minmax(200px, 2fr) 1.4fr 1.4fr 80px', padding: '10px 14px', gap: 8, alignItems: 'center', borderBottom: '1px solid #f4f4f4', overflowX: 'auto' }}>
-                    <span style={{ fontSize: 13, color: '#172B4D' }}>{item.description}</span>
-                    <span style={{ fontSize: 13, color: '#44546F' }} className="mobile-hide">{item.company}</span>
-                    <span style={{ fontSize: 13, color: '#172B4D' }} className="mobile-hide">{item.ref}</span>
-                    <div style={{ display: 'flex', alignItems: 'center' }}>
-                      <input 
-                        type="number" 
-                        value={item.qty || ''} 
-                        onChange={e => handleUpdateItem(item.id, 'qty', parseInt(e.target.value) || 0)}
-                        style={{ width: 60, fontSize: 13, border: '1px solid transparent', padding: '4px 8px', borderRadius: 3, outline: 'none', background: 'transparent', fontWeight: 600 }}
-                        onFocus={e => e.target.style.border = '1px solid #4C9AFF'}
-                        onBlur={e => e.target.style.border = '1px solid transparent'}
-                      />
-                    </div>
-                  </div>
+                  </button>
                 ))}
               </div>
+
+              {activeTab === 'items' ? (
+                /* Items table */
+                <div className="mobile-stack-table" style={{ border: '1px solid #e8e8e8', borderRadius: 4, overflow: 'hidden' }}>
+                  {/* Head */}
+                  <div style={{ display: 'grid', gridTemplateColumns: 'minmax(200px, 2fr) 1.4fr 1.4fr 80px', padding: '10px 14px', backgroundColor: '#FAFBFC', borderBottom: '1px solid #e8e8e8', gap: 8, overflowX: 'auto' }}>
+                    {['Item Description', 'Manufacturing Company', 'Reference Number', 'Qty'].map(h => (
+                      <span key={h} style={{ fontSize: 11, fontWeight: 700, color: '#626F86', textTransform: 'uppercase', letterSpacing: '0.04em', display: 'flex', alignItems: 'center', gap: 4 }}>
+                        {h}
+                      </span>
+                    ))}
+                  </div>
+                  {/* Rows */}
+                  {items.map(item => (
+                    <div key={item.id} style={{ display: 'grid', gridTemplateColumns: 'minmax(200px, 2fr) 1.4fr 1.4fr 80px', padding: '10px 14px', gap: 8, alignItems: 'center', borderBottom: '1px solid #f4f4f4', overflowX: 'auto' }}>
+                      <span style={{ fontSize: 13, color: '#172B4D' }}>{item.description}</span>
+                      <span style={{ fontSize: 13, color: '#44546F' }} className="mobile-hide">{item.company}</span>
+                      <span style={{ fontSize: 13, color: '#172B4D' }} className="mobile-hide">{item.ref}</span>
+                      <div style={{ display: 'flex', alignItems: 'center' }}>
+                        <input 
+                          type="number" 
+                          value={item.qty || ''} 
+                          onChange={e => handleUpdateItem(item.id, 'qty', parseInt(e.target.value) || 0)}
+                          style={{ width: 60, fontSize: 13, border: '1px solid transparent', padding: '4px 8px', borderRadius: 3, outline: 'none', background: 'transparent', fontWeight: 600 }}
+                          onFocus={e => e.target.style.border = '1px solid #4C9AFF'}
+                          onBlur={e => e.target.style.border = '1px solid transparent'}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                /* People table */
+                <div className="mobile-stack-table" style={{ border: '1px solid #e8e8e8', borderRadius: 4, overflow: 'hidden' }}>
+                  {/* Head */}
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr auto', padding: '10px 14px', backgroundColor: '#FAFBFC', borderBottom: '1px solid #e8e8e8', gap: 8 }}>
+                    {['Name', 'Role', 'Email', 'Actions'].map(h => (
+                      <span key={h} style={{ fontSize: 11, fontWeight: 700, color: '#626F86', textTransform: 'uppercase', letterSpacing: '0.04em' }}>{h}</span>
+                    ))}
+                  </div>
+                  {/* Demo People */}
+                  {[
+                    { id: 1, name: 'Dr. Sarah Jenkins', role: 'Lead Surgeon', email: 's.jenkins@hospital.org' },
+                    { id: 2, name: 'Mark Thompson', role: 'Coordinator', email: 'm.thompson@mendingkids.org' },
+                    { id: 3, name: 'Elena Rodriguez', role: 'Nurse Practitioner', email: 'elena.r@health.gov' },
+                  ].map(person => (
+                    <div key={person.id} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr auto', padding: '12px 14px', gap: 8, alignItems: 'center', borderBottom: '1px solid #f4f4f4' }}>
+                      <span style={{ fontSize: 13, fontWeight: 500, color: '#172B4D' }}>{person.name}</span>
+                      <span style={{ fontSize: 13, color: '#44546F' }}>{person.role}</span>
+                      <span style={{ fontSize: 13, color: '#44546F' }}>{person.email}</span>
+                      <button style={{ background: 'none', border: 'none', color: '#626F86', cursor: 'pointer' }}>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+                      </button>
+                    </div>
+                  ))}
+                  <div style={{ padding: '12px 14px', textAlign: 'center' }}>
+                    <button style={{ background: 'none', border: '1px dashed #C1C7D0', borderRadius: 4, padding: '8px 16px', width: '100%', color: '#626F86', cursor: 'pointer', fontSize: 13 }}>+ Add Person</button>
+                  </div>
+                </div>
+              )}
             </div>
 
             <SlidePanel isOpen={addPanelOpen} onClose={() => setAddPanel(false)} width={400}>
