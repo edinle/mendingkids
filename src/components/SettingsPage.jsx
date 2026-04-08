@@ -443,8 +443,27 @@ export default function SettingsPage({ onNavigate, user, onSwitchAccount, onLogo
           <div className={mobileMenuOpen ? "" : "sidebar-collapsed"} style={{ display: 'flex', flexDirection: 'column', height: '100%', borderRight: '1px solid #DFE1E6', backgroundColor: '#F4F5F7' }}>
             <div style={{ flex: 1, padding: '24px 16px', overflowY: 'auto' }}>
               <div style={{ padding: '0 8px 16px', borderBottom: '1px solid #DFE1E6', marginBottom: 16 }}>
-                <h2 style={{ margin: 0, fontSize: 16, fontWeight: 600, color: '#172B4D' }}>Administration</h2>
-                <p style={{ margin: '4px 0 0', fontSize: 12, color: '#626F86' }}>System settings</p>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+                  <div style={{ width: 32, height: 32, backgroundColor: '#422670', borderRadius: 3, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="white">
+                      <path d="M14 2H2v12h12V2zM8 12.5a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9zm0-2.5a2 2 0 1 0 0-4 2 2 0 0 0 0 4z" />
+                    </svg>
+                  </div>
+                  <h2 style={{ fontSize: 16, fontWeight: 600, color: '#172B4D', margin: 0 }}>
+                    Settings
+                  </h2>
+                </div>
+                <button 
+                  onClick={() => onNavigate('dashboard')}
+                  style={{ 
+                    background: 'none', border: 'none', color: 'var(--ds-link)', cursor: 'pointer', 
+                    fontSize: 14, fontWeight: 500, padding: 0, display: 'flex', alignItems: 'center', gap: 4
+                  }}>
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                    <path d="M9 11L5 7l4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  Back to project
+                </button>
               </div>
 
               {SETTINGS_SECTIONS.map((section, idx) => (
