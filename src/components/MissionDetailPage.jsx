@@ -3,7 +3,9 @@ import { PageLayout, Content, Main, LeftSidebar, TopNavigation } from '@atlaskit
 import TopNav from './TopNav';
 import SideNav from './SideNav';
 import SlidePanel from './SlidePanel';
+import CreateMissionPanel from './CreateMissionPanel';
 import DeleteConfirmationModal from './DeleteConfirmationModal';
+import { FilterDropdown } from './MissionsPage';
 
 // ─── Mock items for a mission ─────────────────────────────────────────────────
 
@@ -64,7 +66,9 @@ function QtyBadge({ qty, flag }) {
 
 // ─── Add Items Panel (right side) ────────────────────────────────────────────
 
-function AddItemsPanel({ category = 'ENT', onClose, onAddItemsPage, onNavigate }) {
+// ─── Add Items Panel (right side) ────────────────────────────────────────────
+
+function AddItemsPanel({ category = 'ENT', onClose, onNavigate }) {
   const [search,   setSearch]   = useState('');
   const [selected, setSelected] = useState({});
   const [activeChip, setChip]   = useState(null);
@@ -78,26 +82,20 @@ function AddItemsPanel({ category = 'ENT', onClose, onAddItemsPage, onNavigate }
 
   return (
     <div style={{
-      width: 320, flexShrink: 0,
-      borderLeft: '1px solid #e8e8e8',
+      width: '100%', flex: 1,
       display: 'flex', flexDirection: 'column',
       height: '100%', backgroundColor: '#fff',
     }}>
       {/* Panel header */}
-      <div style={{ padding: '16px 20px 12px', borderBottom: '1px solid #e8e8e8', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h3 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: '#000' }}>Add Items</h3>
-        <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#626F86', display: 'flex' }}>
-          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-            <path d="M4 4l10 10M14 4L4 14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-          </svg>
-        </button>
+      <div style={{ padding: '12px 20px 12px 48px', borderBottom: '1px solid #e8e8e8', display: 'flex', alignItems: 'center', height: 53, boxSizing: 'border-box', backgroundColor: '#fff' }}>
+        <h3 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: token('color.text', '#172B4D') }}>Add Items</h3>
       </div>
 
       {/* Body */}
-      <div style={{ flex: 1, overflowY: 'auto', padding: '14px 20px' }}>
+      <div style={{ flex: 1, overflowY: 'auto', padding: '24px' }}>
         {/* Search */}
-        <div style={{ position: 'relative', marginBottom: 12 }}>
-          <span style={{ position: 'absolute', left: 8, top: '50%', transform: 'translateY(-50%)', color: '#8590A2', display: 'flex' }}>
+        <div style={{ position: 'relative', marginBottom: 20 }}>
+          <span style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: '#626F86', display: 'flex', pointerEvents: 'none' }}>
             <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
               <circle cx="7" cy="7" r="5" stroke="currentColor" strokeWidth="1.5"/>
               <path d="M11 11l3 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
@@ -106,22 +104,22 @@ function AddItemsPanel({ category = 'ENT', onClose, onAddItemsPage, onNavigate }
           <input
             type="text" placeholder="Search"
             value={search} onChange={e => setSearch(e.target.value)}
-            style={{ width: '100%', height: 34, paddingLeft: 28, paddingRight: 8, border: '1px solid #d9d9d9', borderRadius: 4, fontSize: 13, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' }}
+            style={{ width: '100%', height: 36, paddingLeft: 32, paddingRight: 10, border: `1px solid ${token('color.border', '#DFE1E6')}`, borderRadius: 3, fontSize: 14, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box', backgroundColor: token('elevation.surface.sunken', '#F4F5F7') }}
           />
         </div>
 
         {/* Category chips */}
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 14 }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 24 }}>
           {CATEGORY_CHIPS.map(chip => (
             <button
               key={chip}
               onClick={() => setChip(c => c === chip ? null : chip)}
               style={{
-                padding: '3px 10px', borderRadius: 999, border: 'none', cursor: 'pointer',
-                backgroundColor: activeChip === chip ? (CHIP_COLORS[chip] || '#e8e8e8') : (CHIP_COLORS[chip] || '#e8e8e8'),
-                color: CHIP_TEXT[chip] || '#172B4D',
-                fontSize: 12, fontWeight: 500, fontFamily: 'inherit',
-                outline: activeChip === chip ? `2px solid ${CHIP_TEXT[chip]}` : 'none',
+                padding: '4px 12px', borderRadius: 12, border: 'none', cursor: 'pointer',
+                backgroundColor: activeChip === chip ? CHIP_TEXT[chip] : (CHIP_COLORS[chip] || '#e8e8e8'),
+                color: activeChip === chip ? '#fff' : (CHIP_TEXT[chip] || '#172B4D'),
+                fontSize: 12, fontWeight: 600, fontFamily: 'inherit',
+                transition: 'all 0.2s',
               }}
             >
               {chip}
@@ -130,8 +128,8 @@ function AddItemsPanel({ category = 'ENT', onClose, onAddItemsPage, onNavigate }
         </div>
 
         {/* Recommended section */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-          <h4 style={{ margin: 0, fontSize: 13, fontWeight: 600, color: '#000' }}>Recommended for {category}</h4>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+          <h4 style={{ margin: 0, fontSize: 14, fontWeight: 600, color: '#172B4D' }}>Recommended for {category}</h4>
           <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
             <button onClick={() => setPage(p => Math.max(1, p - 1))} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#626F86', padding: '2px', display: 'flex' }}>
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9 3L5 7l4 4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/></svg>
@@ -144,42 +142,40 @@ function AddItemsPanel({ category = 'ENT', onClose, onAddItemsPage, onNavigate }
         </div>
 
         {/* Compact table */}
-        <div style={{ border: '1px solid #e8e8e8', borderRadius: 4, overflow: 'hidden' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '28px 1fr auto', padding: '6px 10px', backgroundColor: '#FAFBFC', borderBottom: '1px solid #e8e8e8', gap: 8 }}>
-            {['', 'Item Description', 'Company'].map((h, i) => (
-              <span key={i} style={{ fontSize: 11, fontWeight: 700, color: '#626F86', textTransform: 'uppercase', letterSpacing: '0.03em' }}>{h}</span>
-            ))}
+        <div style={{ border: `1px solid ${token('color.border', '#DFE1E6')}`, borderRadius: 4, overflow: 'hidden' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '32px 1fr 100px', padding: '8px 12px', backgroundColor: '#FAFBFC', borderBottom: `1px solid ${token('color.border', '#DFE1E6')}`, gap: 8 }}>
+            <span style={{ fontSize: 11, fontWeight: 700, color: '#626F86', textTransform: 'uppercase' }}></span>
+            <span style={{ fontSize: 11, fontWeight: 700, color: '#626F86', textTransform: 'uppercase' }}>Item Description</span>
+            <span style={{ fontSize: 11, fontWeight: 700, color: '#626F86', textTransform: 'uppercase' }}>Company</span>
           </div>
           {filtered.map(item => (
             <div key={item.id} style={{
-              display: 'grid', gridTemplateColumns: '28px 1fr auto',
-              padding: '7px 10px', gap: 8, alignItems: 'center',
+              display: 'grid', gridTemplateColumns: '32px 1fr 100px',
+              padding: '10px 12px', gap: 8, alignItems: 'center',
               borderBottom: '1px solid #f4f4f4',
               backgroundColor: selected[item.id] ? '#F8F6FF' : '#fff',
             }}>
-              <input type="checkbox" checked={!!selected[item.id]} onChange={() => toggle(item.id)} style={{ width: 14, height: 14, cursor: 'pointer', accentColor: '#422670' }} />
-              <span style={{ fontSize: 12, color: '#172B4D', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.description}</span>
-              <span style={{ fontSize: 11, color: '#626F86' }}>{item.company}</span>
+              <input type="checkbox" checked={!!selected[item.id]} onChange={() => toggle(item.id)} style={{ width: 16, height: 16, cursor: 'pointer', accentColor: '#422670' }} />
+              <span style={{ fontSize: 13, color: '#172B4D', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.description}</span>
+              <span style={{ fontSize: 12, color: '#626F86' }}>{item.company}</span>
             </div>
           ))}
         </div>
       </div>
 
       {/* Footer */}
-      <div style={{ padding: '12px 20px', borderTop: '1px solid #e8e8e8', display: 'flex', justifyContent: 'space-between' }}>
-        <button onClick={onClose} style={{ height: 34, padding: '0 14px', border: '1px solid #d9d9d9', borderRadius: 4, background: '#fff', cursor: 'pointer', fontSize: 13, fontFamily: 'inherit' }}>Cancel</button>
+      <div style={{ padding: '16px 24px', borderTop: `1px solid ${token('color.border', 'rgba(9,30,66,0.14)')}`, display: 'flex', justifyContent: 'flex-end', gap: 12, backgroundColor: '#fff' }}>
+        <button onClick={onClose} style={{ height: 36, padding: '0 16px', border: '1px solid #d9d9d9', borderRadius: 4, background: '#fff', cursor: 'pointer', fontSize: 14, fontFamily: 'inherit' }}>Cancel</button>
         <button
           onClick={() => onNavigate && onNavigate('add-items', { category })}
-          style={{ height: 34, padding: '0 14px', border: 'none', borderRadius: 4, background: '#422670', color: '#fff', cursor: 'pointer', fontSize: 13, fontFamily: 'inherit', fontWeight: 500 }}
+          style={{ height: 36, padding: '0 16px', border: 'none', borderRadius: 4, background: '#422670', color: '#fff', cursor: 'pointer', fontSize: 14, fontFamily: 'inherit', fontWeight: 600 }}
         >
-          Add Item
+          Add Selected
         </button>
       </div>
     </div>
   );
 }
-
-// ─── Main Detail Page ─────────────────────────────────────────────────────────
 
 function AddPersonPanel({ onClose, onAdd }) {
   const [name, setName] = useState('');
@@ -187,30 +183,27 @@ function AddPersonPanel({ onClose, onAdd }) {
   const [email, setEmail] = useState('');
 
   return (
-    <div style={{ width: 320, display: 'flex', flexDirection: 'column', height: '100%', backgroundColor: '#fff', borderLeft: '1px solid #e8e8e8' }}>
-      <div style={{ padding: '16px 20px', borderBottom: '1px solid #e8e8e8', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h3 style={{ margin: 0, fontSize: 18, fontWeight: 700 }}>Add Person</h3>
-        <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
-          <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M4 4l10 10M14 4L4 14" stroke="#626F86" strokeWidth="1.5" strokeLinecap="round"/></svg>
-        </button>
+    <div style={{ width: '100%', display: 'flex', flexDirection: 'column', height: '100%', backgroundColor: '#fff' }}>
+      <div style={{ padding: '12px 20px 12px 48px', borderBottom: '1px solid #e8e8e8', display: 'flex', alignItems: 'center', height: 53, boxSizing: 'border-box' }}>
+        <h3 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: token('color.text', '#172B4D') }}>Add Person</h3>
       </div>
-      <div style={{ flex: 1, padding: '20px' }}>
-        <div style={{ marginBottom: 16 }}>
-          <label style={{ display: 'block', fontSize: 13, fontWeight: 600, marginBottom: 4 }}>Full Name</label>
-          <input type="text" value={name} onChange={e => setName(e.target.value)} style={{ width: '100%', height: 34, border: '1px solid #d9d9d9', borderRadius: 4, padding: '0 8px' }} />
+      <div style={{ flex: 1, padding: '24px', overflowY: 'auto' }}>
+        <div style={{ marginBottom: 20 }}>
+          <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#44546F', marginBottom: 4 }}>Full Name</label>
+          <input type="text" value={name} onChange={e => setName(e.target.value)} style={{ width: '100%', height: 36, border: `1px solid ${token('color.border', '#DFE1E6')}`, borderRadius: 3, padding: '0 10px', fontSize: 14, outline: 'none' }} placeholder="e.g. Dr. Meredith Grey" />
         </div>
-        <div style={{ marginBottom: 16 }}>
-          <label style={{ display: 'block', fontSize: 13, fontWeight: 600, marginBottom: 4 }}>Role</label>
-          <input type="text" value={role} onChange={e => setRole(e.target.value)} style={{ width: '100%', height: 34, border: '1px solid #d9d9d9', borderRadius: 4, padding: '0 8px' }} />
+        <div style={{ marginBottom: 20 }}>
+          <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#44546F', marginBottom: 4 }}>Role</label>
+          <input type="text" value={role} onChange={e => setRole(e.target.value)} style={{ width: '100%', height: 36, border: `1px solid ${token('color.border', '#DFE1E6')}`, borderRadius: 3, padding: '0 10px', fontSize: 14, outline: 'none' }} placeholder="e.g. Lead Surgeon" />
         </div>
-        <div style={{ marginBottom: 16 }}>
-          <label style={{ display: 'block', fontSize: 13, fontWeight: 600, marginBottom: 4 }}>Email</label>
-          <input type="email" value={email} onChange={e => setEmail(e.target.value)} style={{ width: '100%', height: 34, border: '1px solid #d9d9d9', borderRadius: 4, padding: '0 8px' }} />
+        <div style={{ marginBottom: 20 }}>
+          <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#44546F', marginBottom: 4 }}>Email</label>
+          <input type="email" value={email} onChange={e => setEmail(e.target.value)} style={{ width: '100%', height: 36, border: `1px solid ${token('color.border', '#DFE1E6')}`, borderRadius: 3, padding: '0 10px', fontSize: 14, outline: 'none' }} placeholder="email@hospital.org" />
         </div>
       </div>
-      <div style={{ padding: '12px 20px', borderTop: '1px solid #e8e8e8', display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
-        <button onClick={onClose} style={{ height: 34, padding: '0 12px', background: '#fff', border: '1px solid #d9d9d9', borderRadius: 4, cursor: 'pointer' }}>Cancel</button>
-        <button onClick={() => { onAdd({ name, role, email }); onClose(); }} style={{ height: 34, padding: '0 12px', background: '#422670', color: '#fff', border: 'none', borderRadius: 4, cursor: 'pointer' }}>Save Person</button>
+      <div style={{ padding: '16px 24px', borderTop: `1px solid ${token('color.border', 'rgba(9,30,66,0.14)')}`, display: 'flex', justifyContent: 'flex-end', gap: 12, backgroundColor: '#fff' }}>
+        <button onClick={onClose} style={{ height: 36, padding: '0 16px', background: '#fff', border: '1px solid #d9d9d9', borderRadius: 4, cursor: 'pointer', fontSize: 14 }}>Cancel</button>
+        <button onClick={() => { onAdd({ name, role, email }); onClose(); }} style={{ height: 36, padding: '0 16px', background: '#422670', color: '#fff', border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 14, fontWeight: 600 }}>Save Person</button>
       </div>
     </div>
   );
@@ -376,19 +369,33 @@ export default function MissionDetailPage({ mission, onNavigate, user, onSwitchA
               {activeTab === 'items' ? (
                 /* Items View */
                 <>
-                  <div style={{ display: 'flex', gap: 8, marginBottom: 16, alignItems: 'center' }}>
-                    <div style={{ position: 'relative', flex: '0 1 240px' }}>
-                      <span style={{ position: 'absolute', left: 8, top: '50%', transform: 'translateY(-50%)', color: '#8590A2', display: 'flex' }}>
-                        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="5" stroke="currentColor" strokeWidth="1.5"/><path d="M11 11l3 3" stroke="currentColor" strokeWidth="1.5"/></svg>
-                      </span>
-                      <input 
-                        type="text" placeholder="Search supplies..." 
-                        value={itemSearch} onChange={e => setItemSearch(e.target.value)}
-                        style={{ width: '100%', height: 32, paddingLeft: 28, border: '1px solid #d9d9d9', borderRadius: 4, fontSize: 13, outline: 'none' }}
-                      />
+                    <div style={{ display: 'flex', gap: 8, marginBottom: 16, alignItems: 'center', flexWrap: 'wrap' }}>
+                      {/* Search bar */}
+                      <div style={{ position: 'relative', width: 280, flexShrink: 0 }}>
+                        <span style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: '#626F86', display: 'flex', pointerEvents: 'none' }}>
+                          <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+                            <circle cx="7" cy="7" r="5" stroke="currentColor" strokeWidth="1.5"/>
+                            <path d="M11 11l3 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                          </svg>
+                        </span>
+                        <input 
+                          type="text" 
+                          placeholder="Search supplies..." 
+                          value={itemSearch} 
+                          onChange={e => setItemSearch(e.target.value)}
+                          style={{ 
+                            width: '100%', height: 32, paddingLeft: 32, paddingRight: 10,
+                            border: `1px solid ${token('color.border', '#DFE1E6')}`, borderRadius: 3, 
+                            fontSize: 14, fontFamily: 'inherit', outline: 'none',
+                            backgroundColor: token('elevation.surface.sunken', '#F4F5F7'),
+                          }}
+                        />
+                      </div>
+                      <div style={{ display: 'flex', gap: 8 }}>
+                        <FilterDropdown label="Category" options={['Syringes', 'Patches', 'Chest Tubes', 'Bandages']} selected={null} onSelect={() => {}} />
+                        <FilterDropdown label="Company" options={['Abbott', 'Nipro', 'Swann-Morton', 'Masimo', 'B. Braun']} selected={null} onSelect={() => {}} />
+                      </div>
                     </div>
-                    <button style={{ height: 32, padding: '0 12px', background: '#fff', border: '1px solid #d9d9d9', borderRadius: 4, fontSize: 13, cursor: 'pointer' }}>Filter</button>
-                  </div>
 
                   <div className="mobile-stack-table" style={{ border: '1px solid #e8e8e8', borderRadius: 4, overflow: 'hidden' }}>
                     <div style={{ display: 'grid', gridTemplateColumns: 'minmax(200px, 2fr) 1.2fr 1.2fr 60px 40px', padding: '10px 14px', backgroundColor: '#FAFBFC', borderBottom: '1px solid #e8e8e8', gap: 8 }}>
@@ -418,8 +425,8 @@ export default function MissionDetailPage({ mission, onNavigate, user, onSwitchA
               ) : (
                 /* People View */
                 <>
-                  <div style={{ display: 'flex', gap: 8, marginBottom: 16, alignItems: 'center' }}>
-                    <div style={{ position: 'relative', flex: '0 1 240px' }}>
+                  <div style={{ display: 'flex', gap: 8, marginBottom: 16, alignItems: 'center', flexWrap: 'wrap' }}>
+                    <div style={{ position: 'relative', flex: '1 1 240px', minWidth: 200 }}>
                       <span style={{ position: 'absolute', left: 8, top: '50%', transform: 'translateY(-50%)', color: '#8590A2', display: 'flex' }}>
                         <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="5" stroke="currentColor" strokeWidth="1.5"/><path d="M11 11l3 3" stroke="currentColor" strokeWidth="1.5"/></svg>
                       </span>
@@ -429,7 +436,7 @@ export default function MissionDetailPage({ mission, onNavigate, user, onSwitchA
                         style={{ width: '100%', height: 32, paddingLeft: 28, border: '1px solid #d9d9d9', borderRadius: 4, fontSize: 13, outline: 'none' }}
                       />
                     </div>
-                    <button style={{ height: 32, padding: '0 12px', background: '#fff', border: '1px solid #d9d9d9', borderRadius: 4, fontSize: 13, cursor: 'pointer' }}>Filter</button>
+                    <FilterDropdown label="Role" options={['Surgeon', 'Nurse', 'Coordinator', 'Specialist']} selected={null} onSelect={() => {}} />
                   </div>
 
                   <div className="mobile-stack-table" style={{ border: '1px solid #e8e8e8', borderRadius: 4, overflow: 'hidden' }}>
@@ -462,16 +469,15 @@ export default function MissionDetailPage({ mission, onNavigate, user, onSwitchA
               )}
             </div>
 
-            <SlidePanel isOpen={addPanelOpen} onClose={() => setAddPanel(false)} width={400}>
+            <SlidePanel isOpen={addPanelOpen} onClose={() => setAddPanel(false)} width={480}>
               <AddItemsPanel
                 category={m.specialty || 'ENT'}
-                mission={m}
                 onClose={() => setAddPanel(false)}
                 onNavigate={onNavigate}
               />
             </SlidePanel>
 
-            <SlidePanel isOpen={personPanelOpen} onClose={() => setPersonPanel(false)} width={400}>
+            <SlidePanel isOpen={personPanelOpen} onClose={() => setPersonPanel(false)} width={480}>
               <AddPersonPanel 
                 onClose={() => setPersonPanel(false)} 
                 onAdd={handleAddPerson}
@@ -489,6 +495,14 @@ export default function MissionDetailPage({ mission, onNavigate, user, onSwitchA
           </div>
         </Main>
       </Content>
+      <DeleteConfirmationModal
+        isOpen={!!deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={handleConfirmDelete}
+        title={deleteTarget?.type === 'item' ? 'Remove Item' : 'Remove Person'}
+        message={deleteTarget?.type === 'item' ? 'Are you sure you want to remove item' : 'Are you sure you want to remove person'}
+        itemName={deleteTarget?.type === 'item' ? deleteTarget.data.description : deleteTarget.data.name}
+      />
     </PageLayout>
   );
 }

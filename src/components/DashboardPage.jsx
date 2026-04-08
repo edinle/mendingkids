@@ -414,14 +414,14 @@ function MissionDetailPanel({ mission, onNavigate }) {
   if (!mission) return null;
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-      <div style={{ padding: '24px 24px 16px', borderBottom: '1px solid #E8E8E8' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
-          <h2 style={{ margin: 0, fontSize: 20, fontWeight: 600, color: '#172B4D' }}>{mission.name}</h2>
-          <CategoryBadge label={mission.category} color={mission.categoryColor} />
-        </div>
-        <StatusBadge status={mission.status} />
+      <div style={{ padding: '12px 20px 12px 48px', borderBottom: '1px solid #E8E8E8', display: 'flex', alignItems: 'center', height: 53, boxSizing: 'border-box' }}>
+        <h2 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: '#172B4D' }}>{mission.name}</h2>
       </div>
       <div style={{ flex: 1, overflowY: 'auto', padding: 24 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+          <StatusBadge status={mission.status} />
+          <CategoryBadge label={mission.category} color={mission.categoryColor} />
+        </div>
         <DetailField label="Location" value={mission.location} />
         <DetailField label="Coordinator" value={mission.coordinator} />
         <DetailField label="Volunteers" value={mission.volunteers} />
@@ -459,14 +459,14 @@ function ExpirationDetailPanel({ alert }) {
   if (!alert) return null;
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-      <div style={{ padding: '24px 24px 16px', borderBottom: '1px solid #E8E8E8' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-          <WarningIcon color="#FF991F" />
-          <h2 style={{ margin: 0, fontSize: 18, fontWeight: 600, color: '#172B4D' }}>Expiration Alert</h2>
-        </div>
-        <p style={{ margin: 0, fontSize: 14, color: '#44546F' }}>{alert.text} ({alert.date})</p>
+      <div style={{ padding: '12px 20px 12px 48px', borderBottom: '1px solid #E8E8E8', display: 'flex', alignItems: 'center', height: 53, boxSizing: 'border-box' }}>
+        <h2 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: '#172B4D' }}>Expiration Alert</h2>
       </div>
       <div style={{ flex: 1, overflowY: 'auto', padding: 24 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+          <WarningIcon color="#FF991F" />
+          <p style={{ margin: 0, fontSize: 14, color: '#44546F' }}>{alert.text} ({alert.date})</p>
+        </div>
         <DetailField label="Item" value={alert.item} />
         <DetailField label="Quantity" value={alert.qty} />
         <DetailField label="Location" value={alert.location} />
@@ -485,13 +485,14 @@ function ActivityDetailPanel({ activity }) {
   if (!activity) return null;
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-      <div style={{ padding: '24px 24px 16px', borderBottom: '1px solid #E8E8E8' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
-          <UserAvatar initials={activity.initials} />
-          <h2 style={{ margin: 0, fontSize: 18, fontWeight: 600, color: '#172B4D' }}>Activity Detail</h2>
-        </div>
+      <div style={{ padding: '12px 20px 12px 48px', borderBottom: '1px solid #E8E8E8', display: 'flex', alignItems: 'center', height: 53, boxSizing: 'border-box' }}>
+        <h2 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: '#172B4D' }}>Activity Detail</h2>
       </div>
       <div style={{ flex: 1, overflowY: 'auto', padding: 24 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+          <UserAvatar initials={activity.initials} />
+          <span style={{ fontSize: 14, color: '#44546F' }}>{activity.time}</span>
+        </div>
         <DetailField label="Action" value={activity.text} />
         <DetailField label="Time" value={activity.time} />
         <DetailField label="User" value={activity.initials} />
@@ -504,11 +505,11 @@ function ItemStatusDetailPanel({ item }) {
   if (!item) return null;
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-      <div style={{ padding: '24px 24px 16px', borderBottom: '1px solid #E8E8E8' }}>
-        <h2 style={{ margin: '0 0 8px', fontSize: 18, fontWeight: 600, color: '#172B4D' }}>{item.name}</h2>
-        <span style={{ fontSize: 13, fontWeight: 600, color: item.statusColor }}>{item.qty} {item.status}</span>
+      <div style={{ padding: '12px 20px 12px 48px', borderBottom: '1px solid #E8E8E8', display: 'flex', alignItems: 'center', height: 53, boxSizing: 'border-box' }}>
+        <h2 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: '#172B4D' }}>{item.name}</h2>
       </div>
       <div style={{ flex: 1, overflowY: 'auto', padding: 24 }}>
+        <span style={{ fontSize: 13, fontWeight: 600, color: item.statusColor, display: 'block', marginBottom: 16 }}>{item.qty} {item.status}</span>
         <DetailField label="Item Name" value={item.name} />
         <DetailField label="Quantity" value={item.qty} />
         <DetailField label="Status" value={item.status} />

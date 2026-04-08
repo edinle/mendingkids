@@ -9,10 +9,12 @@ export default function RequestDetailPanel({ isOpen, onClose, request, onUpdateS
 
   return (
     <SlidePanel isOpen={isOpen} onClose={onClose} width={480}>
-      <div style={{ padding: '32px 24px', flex: 1, overflowY: 'auto' }}>
-        <h2 style={{ margin: '0 0 8px', fontSize: 24, fontWeight: 700, color: token('color.text', '#172B4D') }}>
+      <div style={{ padding: '12px 20px 12px 48px', borderBottom: '1px solid #e8e8e8', display: 'flex', alignItems: 'center', height: 53, boxSizing: 'border-box' }}>
+        <h2 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: token('color.text', '#172B4D') }}>
           {request.id}
         </h2>
+      </div>
+      <div style={{ padding: '20px 24px', flex: 1, overflowY: 'auto' }}>
         <p style={{ margin: '0 0 24px', fontSize: 14, color: '#626F86' }}>Requested by {request.requester}</p>
         
         {request.status === 'Pending' && (

@@ -112,8 +112,10 @@ function MissionBadge({ mission }) {
 
 // ── Filter Dropdown ────────────────────────────────────────────────────────
 
-function ActionMenu({ onItemAction }) {
+function ActionMenu({ item, onItemAction }) {
   const [isOpen, setIsOpen] = useState(false);
+  const status = item?.status;
+
   return (
     <Popup
       isOpen={isOpen}
@@ -122,7 +124,7 @@ function ActionMenu({ onItemAction }) {
       content={() => (
         <div style={{ minWidth: 160 }}>
           <Section>
-            {onItemAction && onItemAction.status === 'archived' ? (
+            {status === 'archived' ? (
               <ButtonItem onClick={() => { setIsOpen(false); onItemAction('restore'); }}>Restore Item</ButtonItem>
             ) : (
               <>
@@ -289,7 +291,7 @@ export default function InventoryPage({ onNavigate, user, onSwitchAccount, onLog
   const [assignOpen, setAssignOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [confirmModal, setConfirmModal] = useState({ isOpen: false, item: null, action: null });
   const [missions, setMissions] = useState([]);
 
   useEffect(() => {
@@ -340,33 +342,39 @@ export default function InventoryPage({ onNavigate, user, onSwitchAccount, onLog
   const openOverview = (item) => setOverview({ isOpen: true, item });
   const closeOverview = () => setOverview((p) => ({ ...p, isOpen: false }));
   
-  const handleItemAction = async (item, action) => {
+  const handleItemAction = (item, action) => {
     setSelectedItem(item);
     if (action === 'assign') {
       setAssignOpen(true);
     } else if (action === 'new-entry' || action === 'add-shipment') {
       openAdd(item);
     } else if (action === 'delete') {
-      if (confirm(`Are you sure you want to delete ${item.description}?`)) {
-        const { error } = await supabase.from('shipments').delete().eq('id', item.id);
-        if (!error) fetchInventory();
-      }
+      setConfirmModal({ isOpen: true, item, action: 'delete' });
     } else if (action === 'archive') {
-      const { error } = await supabase.from('shipments').update({ status: 'archived' }).eq('id', item.id);
-      if (!error) fetchInventory();
+      setConfirmModal({ isOpen: true, item, action: 'archive' });
     } else if (action === 'restore') {
-      const { error } = await supabase.from('shipments').update({ status: 'available' }).eq('id', item.id);
-      if (!error) fetchInventory();
-    } else if (action === 'delete') {
-      setDeleteTarget(item);
+      setConfirmModal({ isOpen: true, item, action: 'restore' });
     }
   };
 
-  const handleConfirmDelete = async () => {
-    if (!deleteTarget) return;
-    const { error } = await supabase.from('shipments').delete().eq('id', deleteTarget.id);
-    if (!error) fetchInventory();
-    setDeleteTarget(null);
+  const handleExecuteModalAction = async () => {
+    const { item, action } = confirmModal;
+    if (!item) return;
+
+    try {
+      if (action === 'delete') {
+        await supabase.from('shipments').delete().eq('id', item.id);
+      } else if (action === 'archive') {
+        await supabase.from('shipments').update({ status: 'archived' }).eq('id', item.id);
+      } else if (action === 'restore') {
+        await supabase.from('shipments').update({ status: 'available' }).eq('id', item.id);
+      }
+      fetchInventory();
+    } catch (err) {
+      console.error(`Action ${action} failed:`, err);
+    } finally {
+      setConfirmModal({ isOpen: false, item: null, action: null });
+    }
   };
 
   const handleOverviewEdit = () => {
@@ -439,7 +447,7 @@ export default function InventoryPage({ onNavigate, user, onSwitchAccount, onLog
               spacing="compact"
               onClick={() => openOverview(row)}
             />
-            <ActionMenu onItemAction={(action) => action === 'status' ? row : handleItemAction(row, action)} />
+            <ActionMenu item={row} onItemAction={(action) => handleItemAction(row, action)} />
           </span>
         ),
       },
@@ -683,12 +691,26 @@ export default function InventoryPage({ onNavigate, user, onSwitchAccount, onLog
       />
 
       <DeleteConfirmationModal
-        isOpen={!!deleteTarget}
-        onClose={() => setDeleteTarget(null)}
-        onConfirm={handleConfirmDelete}
-        title="Delete Item"
-        message="Are you sure you want to delete"
-        itemName={deleteTarget?.description}
+        isOpen={confirmModal.isOpen}
+        onClose={() => setConfirmModal({ isOpen: false, item: null, action: null })}
+        onConfirm={handleExecuteModalAction}
+        title={
+          confirmModal.action === 'archive' ? 'Archive Item' :
+          confirmModal.action === 'restore' ? 'Restore Item' :
+          'Delete Item'
+        }
+        message={
+          confirmModal.action === 'archive' ? 'Are you sure you want to archive' :
+          confirmModal.action === 'restore' ? 'Are you sure you want to restore' :
+          'Are you sure you want to delete'
+        }
+        itemName={confirmModal.item?.description}
+        appearance={confirmModal.action === 'restore' ? 'primary' : 'danger'}
+        confirmLabel={
+          confirmModal.action === 'archive' ? 'Archive' :
+          confirmModal.action === 'restore' ? 'Restore' :
+          'Delete'
+        }
       />
     </PageLayout>
   );

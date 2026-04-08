@@ -31,18 +31,18 @@ export default function SlidePanel({ isOpen, onClose, children, width = 480 }) {
         <button
           onClick={onClose}
           style={{
-            position: 'absolute', top: 16, left: -48,
-            width: 32, height: 32, borderRadius: '50%',
+            position: 'absolute', top: 12, left: 12,
+            width: 28, height: 28, borderRadius: 4,
             backgroundColor: 'transparent', border: 'none',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            cursor: 'pointer', color: '#fff',
-            transition: 'background-color 0.2s', zIndex: 10,
+            cursor: 'pointer', color: '#626F86',
+            transition: 'background-color 0.2s', zIndex: 100,
           }}
-          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.2)'}
+          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(9,30,66,0.08)'}
           onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
           aria-label="Close panel"
         >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <line x1="18" y1="6" x2="6" y2="18"></line>
             <line x1="6" y1="6" x2="18" y2="18"></line>
           </svg>

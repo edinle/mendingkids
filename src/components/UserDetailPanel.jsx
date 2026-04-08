@@ -10,18 +10,20 @@ export default function UserDetailPanel({ isOpen, onClose, user, onEdit }) {
 
   return (
     <SlidePanel isOpen={isOpen} onClose={onClose} width={480}>
-      <div style={{ padding: '32px 24px', flex: 1, overflowY: 'auto' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 32 }}>
-          <div style={{ width: 64, height: 64, backgroundColor: '#422670', color: '#fff', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28, fontWeight: 'bold' }}>
-            {user.name.charAt(0)}
-          </div>
-          <div>
-            <h2 style={{ margin: '0 0 4px', fontSize: 24, fontWeight: 700, color: token('color.text', '#172B4D') }}>
-              {user.name}
-            </h2>
-            <p style={{ margin: 0, fontSize: 14, color: '#626F86' }}>{user.email}</p>
-          </div>
+        <div style={{ padding: '12px 20px 12px 48px', borderBottom: '1px solid #e8e8e8', display: 'flex', alignItems: 'center', height: 53, boxSizing: 'border-box' }}>
+          <h2 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: token('color.text', '#172B4D') }}>
+            {user.name}
+          </h2>
         </div>
+        <div style={{ padding: '24px', flex: 1, overflowY: 'auto' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 32 }}>
+            <div style={{ width: 64, height: 64, backgroundColor: '#422670', color: '#fff', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28, fontWeight: 'bold' }}>
+              {user.name.charAt(0)}
+            </div>
+            <div>
+              <p style={{ margin: 0, fontSize: 14, color: '#626F86' }}>{user.email}</p>
+            </div>
+          </div>
 
         <div style={{ display: 'flex', gap: 12, marginBottom: 32 }}>
           <button onClick={() => onEdit(user)} style={{ flex: 1, padding: '8px 16px', backgroundColor: '#422670', color: '#fff', border: 'none', borderRadius: 4, fontSize: 14, fontWeight: 500, cursor: 'pointer' }}>

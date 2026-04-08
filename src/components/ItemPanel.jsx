@@ -572,29 +572,6 @@ function Step3({ s1, s2 }) {
 
 Step3.propTypes = { s1: PropTypes.object, s2: PropTypes.object };
 
-// ─── Close button ───────────────────────────────────────────────────────────
-
-function CloseButton({ onClose }) {
-  return (
-    <button
-      onClick={onClose}
-      style={{
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        width: 32, height: 32, borderRadius: 4,
-        border: 'none', background: 'transparent', cursor: 'pointer',
-        color: token('color.text', '#172B4D'),
-      }}
-      aria-label="Close"
-    >
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-        <path d="M3 3l10 10M13 3L3 13" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-      </svg>
-    </button>
-  );
-}
-
-CloseButton.propTypes = { onClose: PropTypes.func };
-
 // ─── Main Component ─────────────────────────────────────────────────────────
 
 const STEP_TITLES = {
@@ -686,14 +663,19 @@ export default function ItemPanel({ isOpen, onClose, onSave, baseItem }) {
     <SlidePanel isOpen={isOpen} onClose={handleClose}>
 
       {/* ── Header ────────────────────────────────────────────────── */}
-      <div style={{ padding: '16px 20px 0', flexShrink: 0 }}>
-        <CloseButton onClose={handleClose} />
+      <div style={{ padding: '12px 20px 12px 48px', borderBottom: '1px solid #e8e8e8', display: 'flex', alignItems: 'center', height: 53, boxSizing: 'border-box', backgroundColor: '#fff' }}>
+        <h2 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: token('color.text', '#172B4D') }}>
+          {STEP_TITLES[step]}
+        </h2>
+      </div>
 
+      <div style={{ padding: '0 24px', backgroundColor: '#fff' }}>
         {/* Step progress bar */}
         <div style={{
-          height: 3, marginTop: 12,
+          height: 3,
           backgroundColor: 'rgba(9,30,66,0.08)',
           borderRadius: 2, overflow: 'hidden',
+          marginTop: -1,
         }}>
           <div style={{
             height: '100%',

@@ -891,18 +891,24 @@ export default function OverviewPanel({ isOpen, onClose, item, onEdit, onAssign,
   return (
     <SlidePanel isOpen={isOpen} onClose={handleClose}>
       <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+        {/* Header */}
+        <div style={{ padding: '12px 20px 12px 48px', borderBottom: '1px solid #e8e8e8', display: 'flex', alignItems: 'center', height: 53, boxSizing: 'border-box', backgroundColor: '#fff' }}>
+          <h2 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: token('color.text', '#172B4D') }}>
+            {itemName}
+          </h2>
+        </div>
 
         {/* Scrollable content */}
         <div style={{
           flex: 1, overflowY: 'auto',
           backgroundColor: token('elevation.surface.sunken', '#F8F8F8'),
-          padding: '0 24px 24px',
+          padding: '24px',
         }}>
 
           {/* Header badges */}
           <div style={{
             display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-            paddingTop: 12, marginBottom: 8,
+            marginBottom: 16,
           }}>
             <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
               <button
@@ -945,16 +951,10 @@ export default function OverviewPanel({ isOpen, onClose, item, onEdit, onAssign,
             </span>
           </div>
 
-          {/* Title */}
+          {/* Subtitle */}
           <div style={{ marginBottom: 16 }}>
-            <h2 style={{
-              margin: 0, fontSize: 24, fontWeight: 700, lineHeight: '28px',
-              color: token('color.text', '#172B4D'),
-            }}>
-              {itemName}
-            </h2>
             <p style={{
-              margin: '4px 0 0', fontSize: 14,
+              margin: 0, fontSize: 14,
               color: token('color.text.subtle', '#505258'),
             }}>
               {refNumber} · {location}

@@ -29,21 +29,8 @@ export default function AssignToMissionPanel({ isOpen, onClose, item, onAssign }
     <SlidePanel isOpen={isOpen} onClose={onClose}>
       <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
         {/* Header */}
-        <div style={{ padding: '24px 24px 12px', flexShrink: 0 }}>
-          <button
-            onClick={onClose}
-            style={{
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              width: 32, height: 32, borderRadius: 4,
-              border: 'none', background: 'transparent', cursor: 'pointer',
-              color: token('color.text', '#172B4D'), marginBottom: 12
-            }}
-          >
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path d="M3 3l10 10M13 3L3 13" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-            </svg>
-          </button>
-          <h2 style={{ margin: 0, fontSize: 24, fontWeight: 700, color: '#172B4D' }}>
+        <div style={{ padding: '12px 20px 12px 48px', borderBottom: '1px solid #e8e8e8', display: 'flex', alignItems: 'center', height: 53, boxSizing: 'border-box', backgroundColor: '#fff' }}>
+          <h2 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: token('color.text', '#172B4D') }}>
             Assign to Mission
           </h2>
         </div>

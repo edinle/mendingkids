@@ -30,7 +30,7 @@ function SpecialtyBadge({ specialty }) {
   );
 }
 
-function FilterDropdown({ label, options, selected, onSelect }) {
+export function FilterDropdown({ label, options, selected, onSelect }) {
   const [open, setOpen] = useState(false);
   const ref  = useRef(null);
   useEffect(() => {
@@ -65,9 +65,32 @@ function FilterDropdown({ label, options, selected, onSelect }) {
           boxShadow: '0 4px 16px rgba(9,30,66,0.16)',
           zIndex: 100,
         }}>
-          <DropItem label="All" active={!selected} onClick={() => { onSelect(''); setOpen(false); }} />
+          <button
+            onClick={() => { onSelect(''); setOpen(false); }}
+            style={{
+              display: 'block', width: '100%', padding: '7px 12px', border: 'none',
+              background: !selected ? '#F3F0FF' : 'transparent',
+              color: !selected ? '#422670' : '#172B4D',
+              fontSize: 13, fontFamily: 'inherit', textAlign: 'left',
+              fontWeight: !selected ? 600 : 400, cursor: 'pointer',
+            }}
+          >
+            All
+          </button>
           {options.map(o => (
-            <DropItem key={o} label={o} active={selected === o} onClick={() => { onSelect(o); setOpen(false); }} />
+            <button
+              key={o}
+              onClick={() => { onSelect(o); setOpen(false); }}
+              style={{
+                display: 'block', width: '100%', padding: '7px 12px', border: 'none',
+                background: selected === o ? '#F3F0FF' : 'transparent',
+                color: selected === o ? '#422670' : '#172B4D',
+                fontSize: 13, fontFamily: 'inherit', textAlign: 'left',
+                fontWeight: selected === o ? 600 : 400, cursor: 'pointer',
+              }}
+            >
+              {o}
+            </button>
           ))}
         </div>
       )}
@@ -336,13 +359,10 @@ export default function MissionsPage({ onNavigate, user, onSwitchAccount, onLogo
             </div>
 
             {/* Filter row */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20, gap: 12 }}>
-              <div style={{ display: 'flex', gap: 8 }}>
-                <FilterDropdown label="Specialty" options={allSpecialties} selected={specialtyFilter} onSelect={setSpecialty} />
-                <FilterDropdown label="Location"  options={allLocations}   selected={locationFilter}  onSelect={setLocation}  />
-              </div>
-              <div style={{ position: 'relative', display: 'flex', alignItems: 'center', flex: '0 1 300px' }}>
-                <span style={{ position: 'absolute', left: 8, color: '#8590A2', display: 'flex' }}>
+            <div style={{ display: 'flex', gap: 12, marginBottom: 20, alignItems: 'center' }}>
+              {/* Fixed Search Bar */}
+              <div style={{ position: 'relative', display: 'flex', alignItems: 'center', width: 280, flexShrink: 0 }}>
+                <span style={{ position: 'absolute', left: 10, color: '#626F86', display: 'flex' }}>
                   <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
                     <circle cx="7" cy="7" r="5" stroke="currentColor" strokeWidth="1.5" />
                     <path d="M11 11l3 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
@@ -354,11 +374,18 @@ export default function MissionsPage({ onNavigate, user, onSwitchAccount, onLogo
                   value={search}
                   onChange={e => setSearch(e.target.value)}
                   style={{
-                    height: 32, paddingLeft: 28, paddingRight: 10,
-                    border: '1px solid #d9d9d9', borderRadius: 4,
-                    fontSize: 13, fontFamily: 'inherit', width: '100%', outline: 'none',
+                    width: '100%', height: 32, paddingLeft: 32, paddingRight: 10,
+                    border: `1px solid ${token('color.border', '#DFE1E6')}`, borderRadius: 3,
+                    fontSize: 14, fontFamily: 'inherit', outline: 'none',
+                    backgroundColor: token('elevation.surface.sunken', '#F4F5F7'),
                   }}
                 />
+              </div>
+
+              {/* Filter Dropdowns */}
+              <div style={{ display: 'flex', gap: 8 }}>
+                <FilterDropdown label="Specialty" options={allSpecialties} selected={specialtyFilter} onSelect={setSpecialty} />
+                <FilterDropdown label="Location"  options={allLocations}   selected={locationFilter}  onSelect={setLocation}  />
               </div>
             </div>
 

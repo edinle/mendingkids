@@ -86,12 +86,9 @@ function Step1({ form, setForm, onCancel, onNext }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       {/* Header */}
-      <div style={{ padding: '20px 24px 16px', borderBottom: '1px solid #e8e8e8' }}>
-        <button onClick={onCancel} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, marginBottom: 12, color: '#44546F', display: 'flex', alignItems: 'center', gap: 6 }}>
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 3L5 8l5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-        </button>
-        <h2 style={{ margin: '0 0 4px', fontSize: 22, fontWeight: 700, color: '#000' }}>New Mission</h2>
-        <p style={{ margin: 0, fontSize: 12, color: '#626F86' }}>* indicates a required field</p>
+      {/* Header */}
+      <div style={{ padding: '12px 20px 12px 48px', borderBottom: '1px solid #e8e8e8', display: 'flex', alignItems: 'center', height: 53, boxSizing: 'border-box' }}>
+        <h2 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: '#000' }}>New Mission</h2>
       </div>
 
       {/* Form body */}
@@ -240,12 +237,9 @@ function Step2({ form, onCancel, onBack, onSkip }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       {/* Header */}
-      <div style={{ padding: '20px 24px 16px', borderBottom: '1px solid #e8e8e8' }}>
-        <button onClick={onBack} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, marginBottom: 12, color: '#44546F', display: 'flex', alignItems: 'center', gap: 6 }}>
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 3L5 8l5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-        </button>
-        <h2 style={{ margin: '0 0 6px', fontSize: 22, fontWeight: 700, color: '#000' }}>Add Suggested Items</h2>
-        <p style={{ margin: 0, fontSize: 13, color: '#626F86' }}>Choose from Items in current inventory to quickly add</p>
+      {/* Header */}
+      <div style={{ padding: '12px 20px 12px 48px', borderBottom: '1px solid #e8e8e8', display: 'flex', alignItems: 'center', height: 53, boxSizing: 'border-box' }}>
+        <h2 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: '#000' }}>Add Suggested Items</h2>
       </div>
 
       {/* Body */}

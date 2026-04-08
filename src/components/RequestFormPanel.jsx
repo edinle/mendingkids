@@ -42,10 +42,12 @@ export default function RequestFormPanel({ isOpen, onClose, onSave }) {
 
   return (
     <SlidePanel isOpen={isOpen} onClose={onClose} width={400}>
-      <div style={{ padding: '24px', flex: 1, overflowY: 'auto' }}>
-        <h2 style={{ margin: '0 0 24px', fontSize: 24, fontWeight: 700, color: token('color.text', '#172B4D') }}>
+      <div style={{ padding: '12px 20px 12px 48px', borderBottom: '1px solid #e8e8e8', display: 'flex', alignItems: 'center', height: 53, boxSizing: 'border-box' }}>
+        <h2 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: token('color.text', '#172B4D') }}>
           New Item Request
         </h2>
+      </div>
+      <div style={{ padding: '24px', flex: 1, overflowY: 'auto' }}>
         
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <div>
