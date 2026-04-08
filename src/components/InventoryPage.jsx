@@ -574,7 +574,7 @@ export default function InventoryPage({ onNavigate, user, onSwitchAccount, onLog
                 {isInUse && (
                   <FilterDropdown
                     label="Mission"
-                    options={MISSIONS}
+                    options={missions}
                     selected={missionFilter}
                     onSelect={setMissionFilter}
                   />
