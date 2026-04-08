@@ -34,6 +34,7 @@ const INITIAL_ROWS = [
   { id: 16, description: 'ECG Monitoring Lead Set (3-Lead)',     company: '3M',            reference: '2268-3',              quantity: 100,  status: 'in-use',    mission: 'Benin Cleft Lip & Palate', location: 'Benin Kit #1',       expiration: '08 Aug 2027' },
   { id: 17, description: 'Micro-Aire Drill Saw Blade',           company: 'Stryker',       reference: 'SR-2102',             quantity: 15,   status: 'in-use',    mission: 'Guatemala Orthopedic 2026', location: 'Mission Crate B',    expiration: '12 Jan 2028' },
   { id: 18, description: 'Pediatric Endotracheal Tube 4.0',      company: 'Covidien',      reference: '85743',               quantity: 30,   status: 'in-use',    mission: 'Tanzania Cardiac Relief', location: 'Cardiac Case #4',    expiration: '30 Sep 2026' },
+  { id: 19, description: 'Surgical Gloves (Size 7.5)',           company: 'Ansell',        reference: '5789324',             quantity: 100,  status: 'archived',  mission: '',                      location: 'Old Storage B',        expiration: '01 Jan 2024' },
 ];
 
 // Mission list extracted from data
@@ -62,6 +63,18 @@ const IN_USE_HEAD = {
     { key: 'mission',     content: 'Mission',                isSortable: true, width: 14 },
     { key: 'location',    content: 'Location',               isSortable: true, width: 12 },
     { key: 'expiration',  content: 'Expiration Date',        isSortable: true, width: 11 },
+    { key: 'actions',     content: 'Actions',                                  width: 10 },
+  ],
+};
+
+const ARCHIVED_HEAD = {
+  cells: [
+    { key: 'description', content: 'Item Description',      isSortable: true, width: 22 },
+    { key: 'company',     content: 'Manufacturing Company',  isSortable: true, width: 15 },
+    { key: 'reference',   content: 'Reference Number',       isSortable: true, width: 14 },
+    { key: 'quantity',    content: 'Quantity',                isSortable: true, width: 10 },
+    { key: 'location',    content: 'Last Location',          isSortable: true, width: 14 },
+    { key: 'expiration',  content: 'Expiration Date',        isSortable: true, width: 14 },
     { key: 'actions',     content: 'Actions',                                  width: 10 },
   ],
 };
@@ -122,8 +135,14 @@ function ActionMenu({ onItemAction }) {
       content={() => (
         <div style={{ minWidth: 160 }}>
           <Section>
-            <ButtonItem onClick={() => { setIsOpen(false); onItemAction('assign'); }}>Assign to Mission</ButtonItem>
-            <ButtonItem onClick={() => { setIsOpen(false); onItemAction('archive'); }}>Archive</ButtonItem>
+            {onItemAction && onItemAction.status === 'archived' ? (
+              <ButtonItem onClick={() => { setIsOpen(false); onItemAction('restore'); }}>Restore Item</ButtonItem>
+            ) : (
+              <>
+                <ButtonItem onClick={() => { setIsOpen(false); onItemAction('assign'); }}>Assign to Mission</ButtonItem>
+                <ButtonItem onClick={() => { setIsOpen(false); onItemAction('archive'); }}>Archive</ButtonItem>
+              </>
+            )}
             <ButtonItem 
               onClick={() => { setIsOpen(false); onItemAction('delete'); }}
               style={{ color: '#AE2E24' }}
@@ -267,6 +286,7 @@ function parseDate(str) {
 const TABS = [
   { key: 'available', label: 'Available' },
   { key: 'in-use',    label: 'In Use' },
+  { key: 'archived',  label: 'Archived' },
 ];
 
 export default function InventoryPage({ onNavigate, user, onSwitchAccount, onLogout }) {
@@ -295,8 +315,9 @@ export default function InventoryPage({ onNavigate, user, onSwitchAccount, onLog
         setRows(prev => prev.filter(r => r.id !== item.id));
       }
     } else if (action === 'archive') {
-      alert(`${item.description} has been archived.`);
-      setRows(prev => prev.filter(r => r.id !== item.id));
+      setRows(prev => prev.map(r => r.id === item.id ? { ...r, status: 'archived' } : r));
+    } else if (action === 'restore') {
+      setRows(prev => prev.map(r => r.id === item.id ? { ...r, status: 'available' } : r));
     }
   };
 
@@ -370,7 +391,7 @@ export default function InventoryPage({ onNavigate, user, onSwitchAccount, onLog
               spacing="compact"
               onClick={() => openOverview(row)}
             />
-            <ActionMenu onItemAction={(action) => handleItemAction(row, action)} />
+            <ActionMenu onItemAction={(action) => action === 'status' ? row : handleItemAction(row, action)} />
           </span>
         ),
       },
@@ -386,6 +407,7 @@ export default function InventoryPage({ onNavigate, user, onSwitchAccount, onLog
   // Count items per tab
   const availableCount = rows.filter(r => r.status === 'available').length;
   const inUseCount = rows.filter(r => r.status === 'in-use').length;
+  const archivedCount = rows.filter(r => r.status === 'archived').length;
 
   return (
     <PageLayout>
@@ -489,7 +511,7 @@ export default function InventoryPage({ onNavigate, user, onSwitchAccount, onLog
                         backgroundColor: isActive ? '#F3F0FF' : '#F1F2F4',
                         color: isActive ? '#422670' : '#626F86',
                       }}>
-                        {count}
+                      {tab.key === 'available' ? availableCount : tab.key === 'in-use' ? inUseCount : archivedCount}
                       </span>
                       {isActive && (
                         <span style={{
@@ -554,7 +576,7 @@ export default function InventoryPage({ onNavigate, user, onSwitchAccount, onLog
 
             {/* Table */}
             <DynamicTable
-              head={isInUse ? IN_USE_HEAD : AVAILABLE_HEAD}
+              head={activeTab === 'in-use' ? IN_USE_HEAD : activeTab === 'archived' ? ARCHIVED_HEAD : AVAILABLE_HEAD}
               rows={tableRows}
               rowsPerPage={15}
               defaultPage={1}
