@@ -251,7 +251,7 @@ export default function MissionsPage({ onNavigate, user, onSwitchAccount, onLogo
       </TopNavigation>
       <Content>
         <LeftSidebar width={mobileMenuOpen ? '100vw' : 240}>
-          <div className={mobileMenuOpen ? "" : "sidebar-collapsed"}>
+          <div className={mobileMenuOpen ? "" : "sidebar-collapsed"} style={{ height: 'calc(100vh - 56px)' }}>
             <SideNav 
               active="missions" 
               onNavigate={onNavigate} 

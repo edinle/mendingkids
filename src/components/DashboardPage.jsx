@@ -601,7 +601,7 @@ export default function DashboardPage({ onNavigate, user, onSwitchAccount, onLog
 
       <Content>
         <LeftSidebar width={mobileMenuOpen ? '100vw' : 240}>
-          <div className={mobileMenuOpen ? "" : "sidebar-collapsed"}>
+          <div className={mobileMenuOpen ? "" : "sidebar-collapsed"} style={{ height: 'calc(100vh - 56px)' }}>
             <SideNav 
               active="dashboard" 
               onNavigate={onNavigate} 

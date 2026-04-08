@@ -349,7 +349,7 @@ export default function InventoryPage({ onNavigate, user, onSwitchAccount, onLog
           skipLinkTitle="Project Navigation"
           width={mobileMenuOpen ? '100vw' : 240}
         >
-          <div className={mobileMenuOpen ? "" : "sidebar-collapsed"}>
+          <div className={mobileMenuOpen ? "" : "sidebar-collapsed"} style={{ height: 'calc(100vh - 56px)' }}>
             <SideNav 
               active="inventory" 
               onNavigate={onNavigate} 

@@ -111,7 +111,7 @@ export default function DonorsPage({ onNavigate, user, onSwitchAccount, onLogout
       <TopNavigation isFixed><TopNav onNavigate={onNavigate} user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} onToggleMobileMenu={() => setMobileMenuOpen(!mobileMenuOpen)} /></TopNavigation>
       <Content>
         <LeftSidebar width={mobileMenuOpen ? '100vw' : 240}>
-          <div className={mobileMenuOpen ? "" : "sidebar-collapsed"}>
+          <div className={mobileMenuOpen ? "" : "sidebar-collapsed"} style={{ height: 'calc(100vh - 48px)' }}>
             <SideNav 
               active="donors" 
               onNavigate={onNavigate} 
