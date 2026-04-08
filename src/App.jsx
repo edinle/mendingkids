@@ -85,9 +85,10 @@ export default function App() {
         setUserProfile(data);
       } else {
         // Create profile if missing
+        const { data: { user } } = await supabase.auth.getUser();
         const newProfile = {
           id: id,
-          name: email.split('@')[0],
+          name: user?.user_metadata?.full_name || email.split('@')[0],
           email: email,
           role: 'Administrator'
         };

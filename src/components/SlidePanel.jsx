@@ -31,7 +31,7 @@ export default function SlidePanel({ isOpen, onClose, children, width = 480 }) {
         <button
           onClick={onClose}
           style={{
-            position: 'absolute', top: 12, left: 12,
+            position: 'absolute', top: 13, left: 10,
             width: 28, height: 28, borderRadius: 4,
             backgroundColor: 'transparent', border: 'none',
             display: 'flex', alignItems: 'center', justifyContent: 'center',

@@ -88,11 +88,12 @@ ALTER TABLE public.activity_log ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.donors ENABLE ROW LEVEL SECURITY;
 
 -- Simple RLS Policy: Allow all authenticated users to read and write (for prototype phase)
-CREATE POLICY "Allow authenticated read" ON public.profiles FOR SELECT USING (true);
-CREATE POLICY "Allow authenticated read" ON public.missions FOR SELECT USING (true);
-CREATE POLICY "Allow authenticated read" ON public.inventory FOR SELECT USING (true);
-CREATE POLICY "Allow authenticated read" ON public.shipments FOR SELECT USING (true);
-CREATE POLICY "Allow authenticated read" ON public.requests FOR SELECT USING (true);
-CREATE POLICY "Allow authenticated read" ON public.activity_log FOR SELECT USING (true);
-CREATE POLICY "Allow authenticated read" ON public.donors FOR SELECT USING (true);
+-- Simple RLS Policy: Allow all authenticated users to read and write (for prototype phase)
+CREATE POLICY "Allow authenticated all" ON public.profiles FOR ALL TO authenticated USING (true) WITH CHECK (true);
+CREATE POLICY "Allow authenticated all" ON public.missions FOR ALL TO authenticated USING (true) WITH CHECK (true);
+CREATE POLICY "Allow authenticated all" ON public.inventory FOR ALL TO authenticated USING (true) WITH CHECK (true);
+CREATE POLICY "Allow authenticated all" ON public.shipments FOR ALL TO authenticated USING (true) WITH CHECK (true);
+CREATE POLICY "Allow authenticated all" ON public.requests FOR ALL TO authenticated USING (true) WITH CHECK (true);
+CREATE POLICY "Allow authenticated all" ON public.activity_log FOR ALL TO authenticated USING (true) WITH CHECK (true);
+CREATE POLICY "Allow authenticated all" ON public.donors FOR ALL TO authenticated USING (true) WITH CHECK (true);
 

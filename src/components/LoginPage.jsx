@@ -4,26 +4,49 @@ import TextField from '@atlaskit/textfield';
 import { token } from '@atlaskit/tokens';
 
 export default function LoginPage() {
+  const [mode, setMode] = useState('login'); // 'login' or 'signup'
   const [email, setEmail] = useState('');
+  const [fullName, setFullName] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setLoading(true);
     
-    if (!email || !password) {
-      setError('Please enter both email and password.');
+    if (!email || !password || (mode === 'signup' && !fullName)) {
+      setError('Please fill in all fields.');
+      setLoading(false);
       return;
     }
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (error) {
-      setError(error.message);
+    try {
+      if (mode === 'login') {
+        const { error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: {
+              full_name: fullName,
+            }
+          }
+        });
+        if (error) throw error;
+        alert('Verification email sent! Please check your inbox.');
+        setMode('login');
+      }
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -43,9 +66,20 @@ export default function LoginPage() {
         width: 400, padding: '32px 40px', backgroundColor: '#fff', 
         borderRadius: 3, boxShadow: '0 10px 20px rgba(0,0,0,0.1)' 
       }}>
-        <h2 style={{ fontSize: 20, fontWeight: 600, color: '#172B4D', margin: '0 0 24px', textAlign: 'center' }}>Log in to your account</h2>
+        <h2 style={{ fontSize: 20, fontWeight: 600, color: '#172B4D', margin: '0 0 24px', textAlign: 'center' }}>
+          {mode === 'login' ? 'Log in to your account' : 'Create an account'}
+        </h2>
         
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          {mode === 'signup' && (
+            <div>
+              <TextField 
+                placeholder="Enter full name" 
+                value={fullName} 
+                onChange={e => setFullName(e.target.value)} 
+              />
+            </div>
+          )}
           <div>
             <TextField 
               placeholder="Enter email address" 
@@ -66,20 +100,40 @@ export default function LoginPage() {
 
           <button 
             type="submit"
+            disabled={loading}
             style={{ 
               backgroundColor: '#422670', color: '#fff', border: 'none', 
               borderRadius: 3, padding: '10px', fontSize: 14, fontWeight: 600, 
-              cursor: 'pointer', marginTop: 8 
+              cursor: loading ? 'not-allowed' : 'pointer', marginTop: 8,
+              opacity: loading ? 0.7 : 1
             }}
           >
-            Log in
+            {loading ? 'Processing...' : (mode === 'login' ? 'Log in' : 'Sign up')}
           </button>
         </form>
 
         <div style={{ marginTop: 24, paddingTop: 24, borderTop: '1px solid #DFE1E6', textAlign: 'center' }}>
-          <a href="#" style={{ color: '#0052CC', fontSize: 14, textDecoration: 'none' }}>Can't log in?</a>
-          <span style={{ margin: '0 8px', color: '#8590A2' }}>•</span>
-          <a href="#" style={{ color: '#0052CC', fontSize: 14, textDecoration: 'none' }}>Create an account</a>
+          {mode === 'login' ? (
+            <>
+              <a href="#" style={{ color: '#0052CC', fontSize: 14, textDecoration: 'none' }}>Can't log in?</a>
+              <span style={{ margin: '0 8px', color: '#8590A2' }}>•</span>
+              <a 
+                href="#" 
+                onClick={(e) => { e.preventDefault(); setMode('signup'); setError(''); }}
+                style={{ color: '#0052CC', fontSize: 14, textDecoration: 'none' }}
+              >
+                Create an account
+              </a>
+            </>
+          ) : (
+            <a 
+              href="#" 
+              onClick={(e) => { e.preventDefault(); setMode('login'); setError(''); }}
+              style={{ color: '#0052CC', fontSize: 14, textDecoration: 'none' }}
+            >
+              Already have an account? Log in
+            </a>
+          )}
         </div>
       </div>
 
