@@ -8,10 +8,15 @@ import CreateMissionPanel from './CreateMissionPanel';
 // ── Data Handling ────────────────────────────────────────────────────────────
 // Missions data is now fetched from Supabase.
 
-// ─── Shared primitives ───────────────────────────────────────────────────────
+const SPECIALTY_COLORS = {
+  'Plastics': { bg: '#F3F0FF', text: '#5E4DB2' },
+  'Ortho':    { bg: '#E9F2FF', text: '#0055CC' },
+  'Cardiac':  { bg: '#FFF3EB', text: '#974F0C' },
+  'General':  { bg: '#E3FCEF', text: '#006644' },
+};
 
 function SpecialtyBadge({ specialty }) {
-  const c = SPECIALTY_COLORS[specialty] || { bg: '#626F86', text: '#fff' };
+  const c = (specialty && SPECIALTY_COLORS[specialty]) || { bg: '#DFE1E6', text: '#44546F' };
   return (
     <span style={{
       display: 'inline-flex', alignItems: 'center',
@@ -19,7 +24,7 @@ function SpecialtyBadge({ specialty }) {
       backgroundColor: c.bg, color: c.text,
       fontSize: 11, fontWeight: 500, whiteSpace: 'nowrap',
     }}>
-      {specialty}
+      {specialty || 'General'}
     </span>
   );
 }
