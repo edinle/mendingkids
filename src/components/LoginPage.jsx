@@ -66,9 +66,14 @@ export default function LoginPage() {
         width: 400, padding: '32px 40px', backgroundColor: '#fff', 
         borderRadius: 3, boxShadow: '0 10px 20px rgba(0,0,0,0.1)' 
       }}>
-        <h2 style={{ fontSize: 20, fontWeight: 600, color: '#172B4D', margin: '0 0 24px', textAlign: 'center' }}>
-          {mode === 'login' ? 'Log in to your account' : 'Create an account'}
+        <h2 style={{ fontSize: 20, fontWeight: 600, color: '#172B4D', margin: '0 0 8px', textAlign: 'center' }}>
+          {mode === 'login' ? 'Log in to your account' : 'Request access'}
         </h2>
+        <p style={{ fontSize: 13, color: '#626F86', margin: '0 0 24px', textAlign: 'center' }}>
+          {mode === 'login' 
+            ? 'Enter your credentials to continue' 
+            : 'Fill out the form below to request an account. An administrator will review your request.'}
+        </p>
         
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           {mode === 'signup' && (
@@ -108,7 +113,7 @@ export default function LoginPage() {
               opacity: loading ? 0.7 : 1
             }}
           >
-            {loading ? 'Processing...' : (mode === 'login' ? 'Log in' : 'Sign up')}
+            {loading ? 'Processing...' : (mode === 'login' ? 'Log in' : 'Submit Request')}
           </button>
         </form>
 
@@ -122,7 +127,7 @@ export default function LoginPage() {
                 onClick={(e) => { e.preventDefault(); setMode('signup'); setError(''); }}
                 style={{ color: '#0052CC', fontSize: 14, textDecoration: 'none' }}
               >
-                Create an account
+                Request an account
               </a>
             </>
           ) : (

@@ -141,6 +141,34 @@ export default function App() {
     );
   }
 
+  if (userProfile.status === 'Pending') {
+    return (
+      <div style={{ 
+        height: '100vh', width: '100vw', display: 'flex', flexDirection: 'column', 
+        alignItems: 'center', justifyContent: 'center', backgroundColor: '#F4F5F7',
+        textAlign: 'center', padding: 20
+      }}>
+        <div style={{ width: 64, height: 64, backgroundColor: '#422670', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 24 }}>
+          <span style={{ color: '#fff', fontWeight: 'bold', fontSize: 32 }}>MK</span>
+        </div>
+        <h1 style={{ fontSize: 28, fontWeight: 700, color: '#172B4D', margin: '0 0 12px' }}>Approval Pending</h1>
+        <p style={{ fontSize: 16, color: '#626F86', maxWidth: 480, lineHeight: 1.5, margin: '0 0 32px' }}>
+          Thank you for requesting access to Mending Kids. Your account (<strong>{userProfile.email}</strong>) is currently being reviewed by an administrator. You will be able to access the dashboard once approved.
+        </p>
+        <button 
+          onClick={onLogout}
+          style={{ 
+            backgroundColor: '#fff', color: '#172B4D', border: '1px solid #DFE1E6', 
+            borderRadius: 3, padding: '10px 24px', fontSize: 14, fontWeight: 600, 
+            cursor: 'pointer'
+          }}
+        >
+          Log out
+        </button>
+      </div>
+    );
+  }
+
   const user = {
     ...userProfile,
     id: session.user.id,

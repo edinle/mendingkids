@@ -4,6 +4,7 @@ CREATE TABLE IF NOT EXISTS public.profiles (
   name TEXT NOT NULL,
   email TEXT NOT NULL,
   role TEXT DEFAULT 'Intern',
+  status TEXT DEFAULT 'Pending',
   initials TEXT,
   last_active TIMESTAMPTZ DEFAULT NOW(),
   created_at TIMESTAMPTZ DEFAULT NOW()

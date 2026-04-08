@@ -24,7 +24,7 @@ const SETTINGS_SECTIONS = [
   },
   {
     title: 'User Management',
-    items: ['Users', 'Groups', 'Authentication']
+    items: ['Users', 'Access Requests', 'Groups', 'Authentication']
   },
   {
     title: 'Inventory Settings',
@@ -261,7 +261,7 @@ function Users({ onInvite, onEdit }) {
         initials: u.initials,
         role: u.role,
         lastActive: u.last_active ? new Date(u.last_active).toLocaleString() : 'Never',
-        status: 'Active',
+        status: u.status || 'Active',
         groups: u.user_groups?.map(ug => ug.groups.name) || []
       }));
       setUsers(mapped);
@@ -300,7 +300,15 @@ function Users({ onInvite, onEdit }) {
       { content: u.email },
       { content: u.groups.join(', ') || <span style={{color: '#626F86'}}>No groups</span> },
       { content: u.lastActive },
-      { content: <span style={{color: '#1a7f37', fontWeight: 600, fontSize: 12}}>{u.status}</span> },
+      { content: (
+        <span style={{
+          backgroundColor: u.status === 'Active' ? '#E3FCEF' : u.status === 'Pending' ? '#FFF0B3' : '#FFEBE6',
+          color: u.status === 'Active' ? '#006644' : u.status === 'Pending' ? '#856606' : '#BF2600',
+          padding: '2px 8px', borderRadius: 3, fontSize: 12, fontWeight: 600
+        }}>
+          {u.status}
+        </span>
+      ) },
       { content: <a href="#" onClick={(e) => { e.preventDefault(); onEdit(u); }} style={{color:'var(--ds-link)'}}>Edit</a> }
     ],
   }));
@@ -434,6 +442,80 @@ function Groups({ onCreate, onEdit }) {
       </div>
 
       <DynamicTable head={head} rows={rows} rowsPerPage={10} defaultPage={1} isLoading={loading} />
+    </>
+  );
+}
+
+function AccessRequests() {
+  const [requests, setRequests] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchRequests();
+  }, []);
+
+  const fetchRequests = async () => {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('status', 'Pending');
+    
+    if (error) console.error(error);
+    else setRequests(data);
+    setLoading(false);
+  };
+
+  const handleAction = async (id, newStatus) => {
+    const { error } = await supabase
+      .from('profiles')
+      .update({ status: newStatus })
+      .eq('id', id);
+    
+    if (error) alert(error.message);
+    else fetchRequests();
+  };
+
+  const head = {
+    cells: [
+      { key: 'name', content: 'Name' },
+      { key: 'email', content: 'Email' },
+      { key: 'date', content: 'Requested' },
+      { key: 'actions', content: '' },
+    ],
+  };
+
+  const rows = requests.map(r => ({
+    key: r.id,
+    cells: [
+      { content: <strong>{r.name}</strong> },
+      { content: r.email },
+      { content: new Date(r.created_at).toLocaleDateString() },
+      { content: (
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button 
+            onClick={() => handleAction(r.id, 'Active')}
+            style={{ padding: '4px 12px', backgroundColor: '#E3FCEF', color: '#006644', border: '1px solid #006644', borderRadius: 3, cursor: 'pointer', fontSize: 12, fontWeight: 600 }}
+          >
+            Approve
+          </button>
+          <button 
+            onClick={() => handleAction(r.id, 'Denied')}
+            style={{ padding: '4px 12px', backgroundColor: '#FFEBE6', color: '#BF2600', border: '1px solid #BF2600', borderRadius: 3, cursor: 'pointer', fontSize: 12, fontWeight: 600 }}
+          >
+            Deny
+          </button>
+        </div>
+      ) }
+    ]
+  }));
+
+  return (
+    <>
+      <p style={{ color: token('color.text.subtle', '#5E6C84'), fontSize: 14, marginBottom: 20 }}>
+        Review and approve access requests from new personnel.
+      </p>
+      <DynamicTable head={head} rows={rows} isLoading={loading} />
     </>
   );
 }
@@ -707,6 +789,7 @@ export default function SettingsPage({ onNavigate, user, onSwitchAccount, onLogo
       case 'Global permissions':    return <GlobalPermissions onAdd={() => openModal('permission')} onEdit={(item) => openModal('permission', item)} />;
       case 'Audit log':             return <AuditLog />;
       case 'Users':                 return <Users onInvite={() => openModal('invite')} onEdit={(item) => openModal('invite', item)} />;
+      case 'Access Requests':       return <AccessRequests />;
       case 'Groups':                return <Groups onCreate={() => openModal('group')} onEdit={(item) => openModal('group', item)} />;
       case 'Authentication':        return <Authentication />;
       case 'Categories & Tags':     return <CategoriesTags onAdd={() => openModal('category')} onEdit={(item) => openModal('category', item)} />;
