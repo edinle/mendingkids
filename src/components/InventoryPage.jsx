@@ -139,7 +139,7 @@ function ActionMenu({ onItemAction }) {
               <ButtonItem onClick={() => { setIsOpen(false); onItemAction('restore'); }}>Restore Item</ButtonItem>
             ) : (
               <>
-                <ButtonItem onClick={() => { setIsOpen(false); onItemAction('add-shipment'); }}>New Entry</ButtonItem>
+                <ButtonItem onClick={() => { setIsOpen(false); onItemAction('new-entry'); }}>New Entry</ButtonItem>
                 <ButtonItem onClick={() => { setIsOpen(false); onItemAction('assign'); }}>Assign to Mission</ButtonItem>
                 <ButtonItem onClick={() => { setIsOpen(false); onItemAction('archive'); }}>Archive</ButtonItem>
               </>
@@ -311,7 +311,7 @@ export default function InventoryPage({ onNavigate, user, onSwitchAccount, onLog
     setSelectedItem(item);
     if (action === 'assign') {
       setAssignOpen(true);
-    } else if (action === 'add-shipment') {
+    } else if (action === 'new-entry' || action === 'add-shipment') {
       openAdd(item);
     } else if (action === 'delete') {
       if (confirm(`Are you sure you want to delete ${item.description}?`)) {
@@ -485,7 +485,10 @@ export default function InventoryPage({ onNavigate, user, onSwitchAccount, onLog
               <div style={{ display: 'flex' }}>
                 {TABS.map((tab) => {
                   const isActive = activeTab === tab.key;
-                  const count = tab.key === 'available' ? availableCount : inUseCount;
+                  const count = 
+                    tab.key === 'available' ? availableCount : 
+                    tab.key === 'in-use' ? inUseCount : 
+                    archivedCount;
                   return (
                     <button
                       key={tab.key}
