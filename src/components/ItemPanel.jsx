@@ -604,10 +604,23 @@ const STEP_TITLES = {
 
 const TOTAL_STEPS = 3;
 
-export default function ItemPanel({ isOpen, onClose, onSave }) {
+export default function ItemPanel({ isOpen, onClose, onSave, baseItem }) {
   const [step, setStep] = useState(1);
   const [s1, setS1] = useState(INIT_S1);
   const [s2, setS2] = useState(INIT_S2);
+
+  // Use effect to handle pre-filling when based on an existing item
+  useState(() => {
+    if (baseItem) {
+      setS1(prev => ({
+        ...prev,
+        description: baseItem.description || '',
+        company: baseItem.company || '',
+        referenceNum: baseItem.reference || '',
+        shelfLife: baseItem.shelfLife || '',
+      }));
+    }
+  }, [baseItem]);
 
   const reset = () => {
     setStep(1);
@@ -730,6 +743,7 @@ ItemPanel.propTypes = {
   isOpen:  PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
   onSave:  PropTypes.func,
+  baseItem: PropTypes.object,
 };
 
 // ─── Footer button styles ───────────────────────────────────────────────────

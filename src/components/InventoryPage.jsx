@@ -139,6 +139,7 @@ function ActionMenu({ onItemAction }) {
               <ButtonItem onClick={() => { setIsOpen(false); onItemAction('restore'); }}>Restore Item</ButtonItem>
             ) : (
               <>
+                <ButtonItem onClick={() => { setIsOpen(false); onItemAction('add-shipment'); }}>Add Shipment</ButtonItem>
                 <ButtonItem onClick={() => { setIsOpen(false); onItemAction('assign'); }}>Assign to Mission</ButtonItem>
                 <ButtonItem onClick={() => { setIsOpen(false); onItemAction('archive'); }}>Archive</ButtonItem>
               </>
@@ -295,14 +296,14 @@ export default function InventoryPage({ onNavigate, user, onSwitchAccount, onLog
   const [activeTab, setActiveTab] = useState('available');
   const [missionFilter, setMissionFilter] = useState('');
   const [expirationFilter, setExpirationFilter] = useState('');
-  const [panel, setPanel] = useState({ isOpen: false });
+  const [panel, setPanel] = useState({ isOpen: false, baseItem: null });
   const [overview, setOverview] = useState({ isOpen: false, item: null });
   const [assignOpen, setAssignOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const openAdd = () => setPanel({ isOpen: true });
-  const closePanel = () => setPanel({ isOpen: false });
+  const openAdd = (baseItem = null) => setPanel({ isOpen: true, baseItem });
+  const closePanel = () => setPanel({ ...panel, isOpen: false });
   const openOverview = (item) => setOverview({ isOpen: true, item });
   const closeOverview = () => setOverview((p) => ({ ...p, isOpen: false }));
   
@@ -310,6 +311,8 @@ export default function InventoryPage({ onNavigate, user, onSwitchAccount, onLog
     setSelectedItem(item);
     if (action === 'assign') {
       setAssignOpen(true);
+    } else if (action === 'add-shipment') {
+      openAdd(item);
     } else if (action === 'delete') {
       if (confirm(`Are you sure you want to delete ${item.description}?`)) {
         setRows(prev => prev.filter(r => r.id !== item.id));
@@ -379,10 +382,10 @@ export default function InventoryPage({ onNavigate, user, onSwitchAccount, onLog
           <span style={{ display: 'flex', gap: 4 }} onClick={(e) => e.stopPropagation()}>
             <IconButton
               icon={AddIcon}
-              label="Add"
+              label="Add Shipment"
               appearance="subtle"
               spacing="compact"
-              onClick={() => openAdd()}
+              onClick={() => openAdd(row)}
             />
             <IconButton
               icon={EditIcon}
@@ -609,6 +612,7 @@ export default function InventoryPage({ onNavigate, user, onSwitchAccount, onLog
         isOpen={panel.isOpen}
         onClose={closePanel}
         onSave={handleSave}
+        baseItem={panel.baseItem}
       />
 
       <OverviewPanel
