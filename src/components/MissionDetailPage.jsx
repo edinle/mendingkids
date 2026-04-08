@@ -238,6 +238,20 @@ export default function MissionDetailPage({ mission, onNavigate, user, onSwitchA
     'General':  { bg: '#E3FCEF', text: '#006644' },
   };
 
+  function SpecialtyBadge({ specialty }) {
+    const c = (specialty && SPECIALTY_COLORS[specialty]) || { bg: '#DFE1E6', text: '#44546F' };
+    return (
+      <span style={{
+        display: 'inline-flex', alignItems: 'center',
+        padding: '2px 10px', borderRadius: 999,
+        backgroundColor: c.bg, color: c.text,
+        fontSize: 11, fontWeight: 500, whiteSpace: 'nowrap',
+      }}>
+        {specialty || 'General'}
+      </span>
+    );
+  }
+
   const [items, setItems] = useState(MISSION_ITEMS);
   const [people, setPeople] = useState([
     { id: 1, name: 'Dr. Sarah Jenkins', role: 'Lead Surgeon', email: 's.jenkins@hospital.org' },
