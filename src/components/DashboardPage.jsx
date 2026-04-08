@@ -429,12 +429,22 @@ function MissionDetailPanel({ mission, onNavigate }) {
         <DetailField label="Date" value={mission.date} />
         <DetailField label="Pending Action" value={mission.action} />
       </div>
-      <div style={{ padding: '16px 24px', borderTop: '1px solid #E8E8E8', backgroundColor: '#fff' }}>
+      <div style={{ padding: '16px 24px', borderTop: '1px solid #E8E8E8', backgroundColor: '#fff', display: 'flex', flexDirection: 'column', gap: 8 }}>
         <button
-          onClick={() => onNavigate('missions')}
+          onClick={() => onNavigate('mission-detail', mission)}
           style={{
             width: '100%', height: 40, backgroundColor: '#422670', color: '#fff',
             border: 'none', borderRadius: 4, fontSize: 14, fontWeight: 600,
+            cursor: 'pointer', fontFamily: 'inherit'
+          }}
+        >
+          Go to Mission Details
+        </button>
+        <button
+          onClick={() => onNavigate('missions')}
+          style={{
+            width: '100%', height: 40, backgroundColor: 'transparent', color: '#44546F',
+            border: '1px solid #DFE1E6', borderRadius: 4, fontSize: 14, fontWeight: 500,
             cursor: 'pointer', fontFamily: 'inherit'
           }}
         >
@@ -634,7 +644,7 @@ export default function DashboardPage({ onNavigate, user, onSwitchAccount, onLog
                 <h2 style={{ margin: '0 0 16px', fontSize: 15, fontWeight: 600, color: '#000' }}>Missions</h2>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                   {MISSIONS.map((m) => (
-                    <MissionCard key={m.id} mission={m} onClick={(m) => openPanel('mission', m)} />
+                    <MissionCard key={m.id} mission={m} onClick={(mission) => onNavigate('mission-detail', mission)} />
                   ))}
                 </div>
                 <Pagination current={1} total={10} compact />
