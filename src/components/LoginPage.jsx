@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { supabase } from '../utils/supabase';
 import TextField from '@atlaskit/textfield';
 import { token } from '@atlaskit/tokens';
+import Modal, { ModalTransition, ModalHeader, ModalTitle, ModalBody, ModalFooter } from '@atlaskit/modal-dialog';
+import Button from '@atlaskit/button/new';
 
 export default function LoginPage() {
   const [mode, setMode] = useState('login'); // 'login' or 'signup'
@@ -10,6 +12,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -36,12 +39,12 @@ export default function LoginPage() {
           options: {
             data: {
               full_name: fullName,
+              status: 'Pending'
             }
           }
         });
         if (error) throw error;
-        alert('Verification email sent! Please check your inbox.');
-        setMode('login');
+        setIsSuccessModalOpen(true);
       }
     } catch (err) {
       setError(err.message);
@@ -145,6 +148,26 @@ export default function LoginPage() {
       <div style={{ marginTop: 32, textAlign: 'center' }}>
         <p style={{ fontSize: 12, color: '#626F86' }}>Privacy Policy • Terms of Service</p>
       </div>
+
+      <ModalTransition>
+        {isSuccessModalOpen && (
+          <Modal onClose={() => { setIsSuccessModalOpen(false); setMode('login'); }}>
+            <ModalHeader>
+              <ModalTitle>Request Submitted</ModalTitle>
+            </ModalHeader>
+            <ModalBody>
+              <p>Your request for an account has been received and is waiting for administrator approval.</p>
+              <p>You will receive an email once your account is active.</p>
+            </ModalBody>
+            <ModalFooter>
+              <Button appearance="primary" onClick={() => { setIsSuccessModalOpen(false); setMode('login'); }}>
+                Return to Login
+              </Button>
+            </ModalFooter>
+          </Modal>
+        )}
+      </ModalTransition>
     </div>
   );
 }
+

@@ -348,6 +348,8 @@ const EMPTY_FORM = { name: '', description: '', date: '', category: '', location
 export default function CreateMissionPanel({ isOpen, onClose }) {
   const [step, setStep] = useState(1);
   const [form, setForm] = useState(EMPTY_FORM);
+  const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   const handleClose = () => { onClose(); setStep(1); setForm(EMPTY_FORM); };
   const handleNext  = () => setStep(2);
@@ -368,14 +370,36 @@ export default function CreateMissionPanel({ isOpen, onClose }) {
       handleClose();
     } catch (err) {
       console.error('Failed to create mission:', err);
-      alert('Failed to create mission');
+      setErrorMessage(err.message || 'Failed to create mission');
+      setIsErrorModalOpen(true);
     }
   };
 
   return (
-    <SlidePanel isOpen={isOpen} onClose={handleClose} width={420}>
-      {step === 1 && <Step1 form={form} setForm={setForm} onCancel={handleClose} onNext={handleNext} />}
-      {step === 2 && <Step2 form={form} onCancel={handleClose} onBack={handleBack} onSkip={handleSkip} />}
-    </SlidePanel>
+    <>
+      <SlidePanel isOpen={isOpen} onClose={handleClose} width={420}>
+        {step === 1 && <Step1 form={form} setForm={setForm} onCancel={handleClose} onNext={handleNext} />}
+        {step === 2 && <Step2 form={form} onCancel={handleClose} onBack={handleBack} onSkip={handleSkip} />}
+      </SlidePanel>
+
+      <ModalTransition>
+        {isErrorModalOpen && (
+          <Modal onClose={() => setIsErrorModalOpen(false)}>
+            <ModalHeader>
+              <ModalTitle>Error Creating Mission</ModalTitle>
+            </ModalHeader>
+            <ModalBody>
+              <p>{errorMessage}</p>
+            </ModalBody>
+            <ModalFooter>
+              <Button appearance="danger" onClick={() => setIsErrorModalOpen(false)}>
+                Close
+              </Button>
+            </ModalFooter>
+          </Modal>
+        )}
+      </ModalTransition>
+    </>
   );
 }
+

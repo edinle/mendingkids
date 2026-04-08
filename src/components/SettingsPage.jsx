@@ -141,7 +141,7 @@ function GeneralConfig() {
         </section>
 
         <div style={{ paddingTop: 16, display: 'flex', gap: 8 }}>
-          <PrimaryButton onClick={() => alert('Settings saved successfully.')}>Save configuration</PrimaryButton>
+          <PrimaryButton onClick={() => { setAlertModalContent({ title: 'Success', body: 'Settings saved successfully.' }); setIsAlertModalOpen(true); }}>Save configuration</PrimaryButton>
           <SubtleButton>Cancel</SubtleButton>
         </div>
       </div>
@@ -673,6 +673,8 @@ export default function SettingsPage({ onNavigate, user, onSwitchAccount, onLogo
   const [editingItem, setEditingItem] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showWarning, setShowWarning] = useState(false);
+  const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
+  const [alertModalContent, setAlertModalContent] = useState({ title: '', body: '' });
 
   // Form states
   const [formData, setFormData] = useState({
@@ -774,7 +776,11 @@ export default function SettingsPage({ onNavigate, user, onSwitchAccount, onLogo
       }
     } catch (err) {
       console.error('Failed to save user (internal catch):', err);
-      alert(`Failed to save user: ${err.message || 'Unknown error'}. Check console for details.`);
+      setAlertModalContent({ 
+        title: 'Error', 
+        body: `Failed to save user: ${err.message || 'Unknown error'}. Check console for details.` 
+      });
+      setIsAlertModalOpen(true);
     }
   };
 
@@ -880,6 +886,24 @@ export default function SettingsPage({ onNavigate, user, onSwitchAccount, onLogo
           </div>
         </Main>
       </Content>
+
+      <ModalTransition>
+        {isAlertModalOpen && (
+          <Modal onClose={() => setIsAlertModalOpen(false)}>
+            <ModalHeader>
+              <ModalTitle>{alertModalContent.title}</ModalTitle>
+            </ModalHeader>
+            <ModalBody>
+              <p>{alertModalContent.body}</p>
+            </ModalBody>
+            <ModalFooter>
+              <Button appearance="primary" onClick={() => setIsAlertModalOpen(false)}>
+                Close
+              </Button>
+            </ModalFooter>
+          </Modal>
+        )}
+      </ModalTransition>
 
       <SlidePanel isOpen={!!isModalOpen} onClose={closeModal} width={540}>
         <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
