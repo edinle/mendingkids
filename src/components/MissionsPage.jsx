@@ -253,13 +253,13 @@ export default function MissionsPage({ onNavigate, user, onSwitchAccount, onLogo
       </TopNavigation>
       <Content>
         <LeftSidebar width={240}>
-          <SideNav active="missions" onNavigate={onNavigate} />
+          <SideNav active="missions" onNavigate={onNavigate} user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} />
         </LeftSidebar>
         <Main>
           <div style={{ padding: '32px 40px', maxWidth: 1200, margin: '0 auto', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif', minHeight: '100vh', backgroundColor: '#fff' }}>
             {/* Header */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-              <h1 style={{ margin: 0, fontSize: 24, fontWeight: 600, color: '#172B4D' }}>Missions Tracking</h1>
+              <h1 style={{ margin: 0, fontSize: 24, fontWeight: 600, color: '#172B4D' }}>Missions</h1>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <button
                   onClick={() => setCreateOpen(true)}

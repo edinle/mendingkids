@@ -126,7 +126,7 @@ function TableRow({ item, checked, onToggle, showCheck = true }) {
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
-export default function AddItemsPage({ mission, onNavigate }) {
+export default function AddItemsPage({ mission, onNavigate, user, onSwitchAccount, onLogout }) {
   const [itemTypeFilter, setItemType] = useState('');
   const [companyFilter,  setCompany]  = useState('');
   const [search,         setSearch]   = useState('');
@@ -158,7 +158,7 @@ export default function AddItemsPage({ mission, onNavigate }) {
       </TopNavigation>
       <Content>
         <LeftSidebar width={240}>
-          <SideNav active="missions" onNavigate={onNavigate} />
+          <SideNav active="missions" onNavigate={onNavigate} user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} />
         </LeftSidebar>
         <Main>
           <div style={{ padding: '32px 40px', maxWidth: 1200, margin: '0 auto', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>

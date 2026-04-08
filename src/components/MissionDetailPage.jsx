@@ -179,7 +179,7 @@ function AddItemsPanel({ category = 'ENT', onClose, onAddItemsPage, onNavigate }
 
 // ─── Main Detail Page ─────────────────────────────────────────────────────────
 
-export default function MissionDetailPage({ mission, onNavigate }) {
+export default function MissionDetailPage({ mission, onNavigate, user, onSwitchAccount, onLogout }) {
   const [addPanelOpen, setAddPanel] = useState(false);
   const m = mission || { name: 'Mission Name', specialty: 'ENT', location: 'Location Name', timeAway: '4 months away', items: 30 };
 
@@ -197,7 +197,7 @@ export default function MissionDetailPage({ mission, onNavigate }) {
       </TopNavigation>
       <Content>
         <LeftSidebar width={240}>
-          <SideNav active="missions" onNavigate={onNavigate} />
+          <SideNav active="missions" onNavigate={onNavigate} user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} />
         </LeftSidebar>
         <Main>
           <div style={{ padding: '32px 40px', maxWidth: 1200, margin: '0 auto', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>

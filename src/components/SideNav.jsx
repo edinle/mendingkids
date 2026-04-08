@@ -18,7 +18,7 @@ import FolderIcon from '@atlaskit/icon/core/folder-open';
 const NAV_ITEMS = [
   { id: 'dashboard', label: 'Dashboard', Icon: DashboardIcon },
   { id: 'inventory', label: 'Inventory Management', Icon: InventoryIcon },
-  { id: 'missions', label: 'Missions Tracking', Icon: GlobeIcon },
+  { id: 'missions', label: 'Missions', Icon: GlobeIcon },
   { id: 'donors', label: 'Donors & Partners', Icon: GroupIcon },
   { id: 'requests', label: 'Item Requests', Icon: MediaIcon },
   { id: 'volunteers', label: 'Volunteers', Icon: GroupIcon },
