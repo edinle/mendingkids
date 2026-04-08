@@ -207,7 +207,7 @@ const tHeader = {
 };
 
 const tCell = {
-  padding: '0 8px', height: 40,
+  padding: '12px 8px',
   borderBottom: `1px solid ${token('color.border', 'rgba(9,30,66,0.06)')}`,
   fontSize: 13, color: token('color.text', '#172B4D'),
   verticalAlign: 'middle',

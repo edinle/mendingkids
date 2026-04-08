@@ -111,3 +111,14 @@ body {
 }
 
 /* Row hover handled by DynamicTable */
+
+/* Global Table Spacing Overrides for Atlaskit DynamicTable */
+[data-testid="dynamic-table--table-row"] td {
+  padding-top: 12px !important;
+  padding-bottom: 12px !important;
+}
+
+[data-testid="dynamic-table--table-head"] th {
+  padding-top: 12px !important;
+  padding-bottom: 12px !important;
+}
