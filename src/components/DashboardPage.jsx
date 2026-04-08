@@ -322,38 +322,79 @@ function CalendarDay({ day, events, isToday }) {
 }
 
 function CalendarWidget() {
+  const [hoveredDay, setHoveredDay] = useState(null);
   return (
     <div>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-        <div style={{ display: 'flex', gap: 2 }}>
-          <NavBtn label="«" />
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+        <span style={{ fontSize: 15, fontWeight: 600, color: '#000' }}>{CALENDAR.month}</span>
+        <div style={{ display: 'flex', gap: 4 }}>
           <NavBtn label="‹" />
-        </div>
-        <span style={{ fontSize: 14, fontWeight: 600, color: '#000' }}>{CALENDAR.month}</span>
-        <div style={{ display: 'flex', gap: 2 }}>
           <NavBtn label="›" />
-          <NavBtn label="»" />
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', textAlign: 'center', marginBottom: 4 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', textAlign: 'center', marginBottom: 8 }}>
         {CALENDAR.days.map((d) => (
-          <span key={d} style={{ fontSize: 11, fontWeight: 600, color: '#626F86', padding: '4px 0' }}>{d}</span>
+          <span key={d} style={{ fontSize: 11, fontWeight: 700, color: '#626F86', padding: '4px 0', textTransform: 'uppercase' }}>{d}</span>
         ))}
       </div>
 
-      {CALENDAR.weeks.map((week, wi) => (
-        <div key={wi} style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)' }}>
-          {week.map((day, di) => (
-            <CalendarDay
-              key={di}
-              day={day}
-              events={day ? CALENDAR.events[day] : null}
-              isToday={day === CALENDAR.today}
-            />
-          ))}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '1px', backgroundColor: '#EBECF0', border: '1px solid #EBECF0', borderRadius: 4, overflow: 'hidden' }}>
+        {CALENDAR.weeks.map((week, wi) => (
+          week.map((day, di) => {
+            const isToday = day === CALENDAR.today;
+            const events = day ? CALENDAR.events[day] : null;
+            return (
+              <div
+                key={`${wi}-${di}`}
+                onMouseEnter={() => setHoveredDay(day)}
+                onMouseLeave={() => setHoveredDay(null)}
+                style={{
+                  height: 48,
+                  backgroundColor: day ? (isToday ? '#F4F5FF' : '#fff') : '#FBFBFC',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  position: 'relative',
+                  cursor: day ? 'pointer' : 'default',
+                }}
+              >
+                {day && (
+                  <>
+                    <span style={{
+                      fontSize: 13,
+                      fontWeight: isToday ? 700 : 400,
+                      color: isToday ? '#422670' : '#172B4D',
+                      marginBottom: 4,
+                    }}>
+                      {day}
+                    </span>
+                    {events && (
+                      <div style={{ display: 'flex', gap: 2 }}>
+                        {events.map((c, i) => (
+                          <div key={i} style={{ width: 4, height: 4, borderRadius: '50%', backgroundColor: c }} />
+                        ))}
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+            );
+          })
+        ))}
+      </div>
+      
+      <div style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: '#1561cc' }} />
+          <span style={{ fontSize: 12, color: '#44546F' }}>Cardiac Mission Briefing</span>
         </div>
-      ))}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: '#d63c8a' }} />
+          <span style={{ fontSize: 12, color: '#44546F' }}>Infections Supplies Audit</span>
+        </div>
+      </div>
     </div>
   );
 }
@@ -547,7 +588,7 @@ export default function DashboardPage({ onNavigate, user, onSwitchAccount, onLog
 
       <Content>
         <LeftSidebar width={240}>
-          <SideNav active="dashboard" onNavigate={onNavigate} />
+          <SideNav active="dashboard" onNavigate={onNavigate} user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} />
         </LeftSidebar>
 
         <Main>
