@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { token } from '@atlaskit/tokens';
 import { supabase } from '../utils/supabase';
 import { PageLayout, Content, Main, LeftSidebar, TopNavigation } from '@atlaskit/page-layout';
 import TopNav from './TopNav';

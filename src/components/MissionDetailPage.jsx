@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { token } from '@atlaskit/tokens';
 import { PageLayout, Content, Main, LeftSidebar, TopNavigation } from '@atlaskit/page-layout';
 import TopNav from './TopNav';
 import SideNav from './SideNav';
