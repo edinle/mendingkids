@@ -4,6 +4,7 @@ import { PageLayout, Content, Main, LeftSidebar, TopNavigation } from '@atlaskit
 import TopNav from './TopNav';
 import SideNav from './SideNav';
 import CreateMissionPanel from './CreateMissionPanel';
+import DeleteConfirmationModal from './DeleteConfirmationModal';
 
 // ── Data Handling ────────────────────────────────────────────────────────────
 // Missions data is now fetched from Supabase.
@@ -135,7 +136,7 @@ function MissionCard({ mission, onClick }) {
       {/* Row 3: dates */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 14 }}>
         {mission.overdue
-          ? <><OverdueIcon /><span style={{ fontSize: 13, color: '#c62828', fontWeight: 500 }}>{mission.dates}</span></>
+          ? <><OverdueIcon /><span style={{ fontSize: 13, color: '#c62828', fontWeight: 500 }}>{mission.days_away ? `${mission.days_away} days away` : mission.dates}</span></>
           : <><ClockIcon /><span style={{ fontSize: 13, color: '#44546F' }}>{mission.dates}</span></>
         }
       </div>
@@ -161,17 +162,23 @@ function MissionCard({ mission, onClick }) {
           </button>
           {menuOpen && (
             <div style={{
-              position: 'absolute', right: 0, top: '100%', marginTop: 4,
+              position: 'absolute', right: 0, bottom: '100%', marginBottom: 4,
               background: '#fff', border: '1px solid #e8e8e8', borderRadius: 4,
               boxShadow: '0 4px 12px rgba(9,30,66,0.12)', zIndex: 50, minWidth: 140,
             }}>
               {['View', 'Edit', 'Archive', 'Delete'].map(action => (
-                <button key={action} style={{
-                  display: 'block', width: '100%', padding: '8px 14px',
-                  border: 'none', background: 'transparent', textAlign: 'left',
-                  fontSize: 13, cursor: 'pointer', fontFamily: 'inherit',
-                  color: action === 'Delete' ? '#c62828' : '#172B4D',
-                }}>{action}</button>
+                <button 
+                  key={action} 
+                  onClick={() => {
+                    if (action === 'Delete') mission.onDelete(mission);
+                    setMenuOpen(false);
+                  }}
+                  style={{
+                    display: 'block', width: '100%', padding: '8px 14px',
+                    border: 'none', background: 'transparent', textAlign: 'left',
+                    fontSize: 13, cursor: 'pointer', fontFamily: 'inherit',
+                    color: action === 'Delete' ? '#c62828' : '#172B4D',
+                  }}>{action}</button>
               ))}
             </div>
           )}
@@ -220,6 +227,7 @@ export default function MissionsPage({ onNavigate, user, onSwitchAccount, onLogo
   const [locationFilter, setLocation]   = useState('');
   const [search, setSearch]             = useState('');
   const [createOpen, setCreateOpen]     = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const [missions, setMissions] = useState([]);
@@ -228,6 +236,19 @@ export default function MissionsPage({ onNavigate, user, onSwitchAccount, onLogo
   useEffect(() => {
     fetchMissions();
   }, [tab]);
+
+  const handleConfirmDelete = async () => {
+    if (!deleteTarget) return;
+    try {
+      const { error } = await supabase.from('missions').delete().eq('id', deleteTarget.id);
+      if (error) throw error;
+      setMissions(prev => prev.filter(m => m.id !== deleteTarget.id));
+      setDeleteTarget(null);
+    } catch (err) {
+      console.error('Delete failed:', err);
+      alert('Failed to delete mission');
+    }
+  };
 
   const fetchMissions = async () => {
     setLoading(true);
@@ -315,12 +336,12 @@ export default function MissionsPage({ onNavigate, user, onSwitchAccount, onLogo
             </div>
 
             {/* Filter row */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20, gap: 12 }}>
               <div style={{ display: 'flex', gap: 8 }}>
                 <FilterDropdown label="Specialty" options={allSpecialties} selected={specialtyFilter} onSelect={setSpecialty} />
                 <FilterDropdown label="Location"  options={allLocations}   selected={locationFilter}  onSelect={setLocation}  />
               </div>
-              <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+              <div style={{ position: 'relative', display: 'flex', alignItems: 'center', flex: '0 1 300px' }}>
                 <span style={{ position: 'absolute', left: 8, color: '#8590A2', display: 'flex' }}>
                   <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
                     <circle cx="7" cy="7" r="5" stroke="currentColor" strokeWidth="1.5" />
@@ -329,23 +350,15 @@ export default function MissionsPage({ onNavigate, user, onSwitchAccount, onLogo
                 </span>
                 <input
                   type="text"
-                  placeholder="Placeholder"
+                  placeholder="Search missions..."
                   value={search}
                   onChange={e => setSearch(e.target.value)}
                   style={{
                     height: 32, paddingLeft: 28, paddingRight: 10,
                     border: '1px solid #d9d9d9', borderRadius: 4,
-                    fontSize: 13, fontFamily: 'inherit', width: 180, outline: 'none',
+                    fontSize: 13, fontFamily: 'inherit', width: '100%', outline: 'none',
                   }}
                 />
-                <button style={{
-                  height: 32, padding: '0 12px', marginLeft: 4,
-                  border: '1px solid #d9d9d9', borderRadius: 4,
-                  background: '#fff', cursor: 'pointer',
-                  fontSize: 13, fontFamily: 'inherit', color: '#172B4D',
-                }}>
-                  Search
-                </button>
               </div>
             </div>
 
@@ -354,7 +367,7 @@ export default function MissionsPage({ onNavigate, user, onSwitchAccount, onLogo
               {filtered.map(m => (
                 <MissionCard
                   key={m.id}
-                  mission={m}
+                  mission={{ ...m, onDelete: setDeleteTarget }}
                   onClick={() => onNavigate('mission-detail', m)}
                 />
               ))}
@@ -367,6 +380,14 @@ export default function MissionsPage({ onNavigate, user, onSwitchAccount, onLogo
         isOpen={createOpen}
         onClose={() => setCreateOpen(false)}
         onNavigate={onNavigate}
+      />
+      <DeleteConfirmationModal
+        isOpen={!!deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={handleConfirmDelete}
+        title="Delete Mission"
+        message="Are you sure you want to delete this mission?"
+        itemName={deleteTarget?.name}
       />
     </PageLayout>
   );

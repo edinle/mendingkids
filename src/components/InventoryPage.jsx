@@ -20,6 +20,7 @@ import SideNav from './SideNav';
 import ItemPanel from './ItemPanel';
 import OverviewPanel from './OverviewPanel';
 import AssignToMissionPanel from './AssignToMissionPanel';
+import DeleteConfirmationModal from './DeleteConfirmationModal';
 import { Section, ButtonItem } from '@atlaskit/menu';
 import Popup from '@atlaskit/popup';
 
@@ -288,6 +289,7 @@ export default function InventoryPage({ onNavigate, user, onSwitchAccount, onLog
   const [assignOpen, setAssignOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState(null);
   const [missions, setMissions] = useState([]);
 
   useEffect(() => {
@@ -355,7 +357,16 @@ export default function InventoryPage({ onNavigate, user, onSwitchAccount, onLog
     } else if (action === 'restore') {
       const { error } = await supabase.from('shipments').update({ status: 'available' }).eq('id', item.id);
       if (!error) fetchInventory();
+    } else if (action === 'delete') {
+      setDeleteTarget(item);
     }
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteTarget) return;
+    const { error } = await supabase.from('shipments').delete().eq('id', deleteTarget.id);
+    if (!error) fetchInventory();
+    setDeleteTarget(null);
   };
 
   const handleOverviewEdit = () => {
@@ -669,6 +680,15 @@ export default function InventoryPage({ onNavigate, user, onSwitchAccount, onLog
           alert(`Deploying ${qty} units of ${selectedItem.description} to ${mission.label}`);
           setAssignOpen(false);
         }}
+      />
+
+      <DeleteConfirmationModal
+        isOpen={!!deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={handleConfirmDelete}
+        title="Delete Item"
+        message="Are you sure you want to delete"
+        itemName={deleteTarget?.description}
       />
     </PageLayout>
   );

@@ -3,6 +3,7 @@ import { PageLayout, Content, Main, LeftSidebar, TopNavigation } from '@atlaskit
 import TopNav from './TopNav';
 import SideNav from './SideNav';
 import SlidePanel from './SlidePanel';
+import DeleteConfirmationModal from './DeleteConfirmationModal';
 
 // ─── Mock items for a mission ─────────────────────────────────────────────────
 
@@ -218,10 +219,12 @@ function AddPersonPanel({ onClose, onAdd }) {
 // ─── Main Detail Page ─────────────────────────────────────────────────────────
 
 export default function MissionDetailPage({ mission, onNavigate, user, onSwitchAccount, onLogout }) {
-  const [activeTab, setTab] = useState('items');
+  const [tab, setTab] = useState('items');
+  const [activeTab, setActiveTab] = useState('items');
   const [addPanelOpen, setAddPanel] = useState(false);
   const [personPanelOpen, setPersonPanel] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState(null);
   
   const [itemSearch, setItemSearch] = useState('');
   const [peopleSearch, setPeopleSearch] = useState('');
@@ -235,20 +238,6 @@ export default function MissionDetailPage({ mission, onNavigate, user, onSwitchA
     'General':  { bg: '#E3FCEF', text: '#006644' },
   };
 
-  function SpecialtyBadge({ specialty }) {
-    const c = (specialty && SPECIALTY_COLORS[specialty]) || { bg: '#DFE1E6', text: '#44546F' };
-    return (
-      <span style={{
-        display: 'inline-flex', alignItems: 'center',
-        padding: '2px 10px', borderRadius: 999,
-        backgroundColor: c.bg, color: c.text,
-        fontSize: 11, fontWeight: 500, whiteSpace: 'nowrap',
-      }}>
-        {specialty || 'General'}
-      </span>
-    );
-  }
-
   const [items, setItems] = useState(MISSION_ITEMS);
   const [people, setPeople] = useState([
     { id: 1, name: 'Dr. Sarah Jenkins', role: 'Lead Surgeon', email: 's.jenkins@hospital.org' },
@@ -256,16 +245,21 @@ export default function MissionDetailPage({ mission, onNavigate, user, onSwitchA
     { id: 3, name: 'Elena Rodriguez', role: 'Nurse Practitioner', email: 'elena.r@health.gov' },
   ]);
 
-  const handleDeleteItem = (id) => {
-    if (confirm('Deallocate this item from the mission?')) {
-      setItems(prev => prev.filter(i => i.id !== id));
-    }
+  const handleDeleteItem = (item) => {
+    setDeleteTarget({ type: 'item', data: item });
   };
 
-  const handleDeletePerson = (id) => {
-    if (confirm('Remove this person from the mission?')) {
-      setPeople(prev => prev.filter(p => p.id !== id));
+  const handleDeletePerson = (person) => {
+    setDeleteTarget({ type: 'person', data: person });
+  };
+
+  const handleConfirmDelete = () => {
+    if (deleteTarget.type === 'item') {
+      setItems(prev => prev.filter(i => i.id !== deleteTarget.data.id));
+    } else {
+      setPeople(prev => prev.filter(p => p.id !== deleteTarget.data.id));
     }
+    setDeleteTarget(null);
   };
 
   const handleAddPerson = (newP) => {
@@ -338,11 +332,11 @@ export default function MissionDetailPage({ mission, onNavigate, user, onSwitchA
               <div style={{ display: 'flex', borderBottom: '1px solid #e8e8e8', marginBottom: 16 }}>
                 {[
                   { key: 'items', label: 'Items', count: m.item_count || items.length },
-                  { key: 'people', label: 'People', count: m.people_count || 8 }
+                  { key: 'people', label: 'People', count: m.people_count || people.length }
                 ].map(t => (
                   <button
                     key={t.key}
-                    onClick={() => setTab(t.key)}
+                    onClick={() => { setTab(t.key); setActiveTab(t.key); }}
                     style={{
                       padding: '10px 16px', border: 'none', background: 'transparent',
                       fontSize: 14, cursor: 'pointer', fontFamily: 'inherit',
@@ -368,18 +362,18 @@ export default function MissionDetailPage({ mission, onNavigate, user, onSwitchA
               {activeTab === 'items' ? (
                 /* Items View */
                 <>
-                  <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
-                    <div style={{ position: 'relative', flex: 1 }}>
+                  <div style={{ display: 'flex', gap: 8, marginBottom: 16, alignItems: 'center' }}>
+                    <div style={{ position: 'relative', flex: '0 1 240px' }}>
                       <span style={{ position: 'absolute', left: 8, top: '50%', transform: 'translateY(-50%)', color: '#8590A2', display: 'flex' }}>
                         <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="5" stroke="currentColor" strokeWidth="1.5"/><path d="M11 11l3 3" stroke="currentColor" strokeWidth="1.5"/></svg>
                       </span>
                       <input 
-                        type="text" placeholder="Search items..." 
+                        type="text" placeholder="Search supplies..." 
                         value={itemSearch} onChange={e => setItemSearch(e.target.value)}
                         style={{ width: '100%', height: 32, paddingLeft: 28, border: '1px solid #d9d9d9', borderRadius: 4, fontSize: 13, outline: 'none' }}
                       />
                     </div>
-                    <button style={{ height: 32, padding: '0 12px', background: '#fff', border: '1px solid #d9d9d9', borderRadius: 4, fontSize: 13 }}>Filter</button>
+                    <button style={{ height: 32, padding: '0 12px', background: '#fff', border: '1px solid #d9d9d9', borderRadius: 4, fontSize: 13, cursor: 'pointer' }}>Filter</button>
                   </div>
 
                   <div className="mobile-stack-table" style={{ border: '1px solid #e8e8e8', borderRadius: 4, overflow: 'hidden' }}>
@@ -399,7 +393,7 @@ export default function MissionDetailPage({ mission, onNavigate, user, onSwitchA
                           style={{ width: 50, border: '1px solid transparent', padding: '2px 4px', fontSize: 13, fontWeight: 600 }}
                         />
                         <button 
-                          onClick={() => handleDeleteItem(item.id)}
+                          onClick={() => handleDeleteItem(item)}
                           style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#626F86', padding: 4 }}>
                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
                         </button>
@@ -410,18 +404,18 @@ export default function MissionDetailPage({ mission, onNavigate, user, onSwitchA
               ) : (
                 /* People View */
                 <>
-                  <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
-                    <div style={{ position: 'relative', flex: 1 }}>
+                  <div style={{ display: 'flex', gap: 8, marginBottom: 16, alignItems: 'center' }}>
+                    <div style={{ position: 'relative', flex: '0 1 240px' }}>
                       <span style={{ position: 'absolute', left: 8, top: '50%', transform: 'translateY(-50%)', color: '#8590A2', display: 'flex' }}>
                         <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="5" stroke="currentColor" strokeWidth="1.5"/><path d="M11 11l3 3" stroke="currentColor" strokeWidth="1.5"/></svg>
                       </span>
                       <input 
-                        type="text" placeholder="Search people..." 
+                        type="text" placeholder="Search team..." 
                         value={peopleSearch} onChange={e => setPeopleSearch(e.target.value)}
                         style={{ width: '100%', height: 32, paddingLeft: 28, border: '1px solid #d9d9d9', borderRadius: 4, fontSize: 13, outline: 'none' }}
                       />
                     </div>
-                    <button style={{ height: 32, padding: '0 12px', background: '#fff', border: '1px solid #d9d9d9', borderRadius: 4, fontSize: 13 }}>Filter</button>
+                    <button style={{ height: 32, padding: '0 12px', background: '#fff', border: '1px solid #d9d9d9', borderRadius: 4, fontSize: 13, cursor: 'pointer' }}>Filter</button>
                   </div>
 
                   <div className="mobile-stack-table" style={{ border: '1px solid #e8e8e8', borderRadius: 4, overflow: 'hidden' }}>
@@ -436,7 +430,7 @@ export default function MissionDetailPage({ mission, onNavigate, user, onSwitchA
                         <span style={{ fontSize: 13, color: '#44546F' }}>{person.role}</span>
                         <span style={{ fontSize: 13, color: '#44546F' }}>{person.email}</span>
                         <button 
-                          onClick={() => handleDeletePerson(person.id)}
+                          onClick={() => handleDeletePerson(person)}
                           style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#626F86', padding: 4 }}>
                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
                         </button>
@@ -469,6 +463,15 @@ export default function MissionDetailPage({ mission, onNavigate, user, onSwitchA
                 onAdd={handleAddPerson}
               />
             </SlidePanel>
+
+            <DeleteConfirmationModal
+              isOpen={!!deleteTarget}
+              onClose={() => setDeleteTarget(null)}
+              onConfirm={handleConfirmDelete}
+              title={`Remove ${deleteTarget?.type === 'item' ? 'Item' : 'Person'}`}
+              message={`Are you sure you want to remove this ${deleteTarget?.type === 'item' ? 'item from the mission allocation' : 'person from the team'}`}
+              itemName={deleteTarget?.data?.description || deleteTarget?.data?.name}
+            />
           </div>
         </Main>
       </Content>
