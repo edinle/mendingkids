@@ -5,7 +5,7 @@ import Textfield from '@atlaskit/textfield';
 import Select from '@atlaskit/select';
 import SlidePanel from './SlidePanel';
 import Modal, { ModalTransition, ModalHeader, ModalTitle, ModalBody, ModalFooter } from '@atlaskit/modal-dialog';
-import Button from '@atlaskit/button/new';
+import Button from '@atlaskit/button';
 
 const PRIORITY_OPTIONS = [
   { label: 'High', value: 'High' },

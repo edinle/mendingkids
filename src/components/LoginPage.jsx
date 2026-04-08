@@ -3,7 +3,7 @@ import { supabase } from '../utils/supabase';
 import TextField from '@atlaskit/textfield';
 import { token } from '@atlaskit/tokens';
 import Modal, { ModalTransition, ModalHeader, ModalTitle, ModalBody, ModalFooter } from '@atlaskit/modal-dialog';
-import Button from '@atlaskit/button/new';
+import Button from '@atlaskit/button';
 
 export default function LoginPage() {
   const [mode, setMode] = useState('login'); // 'login' or 'signup'

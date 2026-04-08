@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
 import { supabase } from '../utils/supabase';
 import SlidePanel from './SlidePanel';
+import Modal, { ModalTransition, ModalHeader, ModalTitle, ModalBody, ModalFooter } from '@atlaskit/modal-dialog';
+import Button from '@atlaskit/button';
 
 // ─── Sample inventory for suggested items ─────────────────────────────────────
 
