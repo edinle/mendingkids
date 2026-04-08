@@ -624,41 +624,75 @@ export default function SettingsPage({ onNavigate, user, onSwitchAccount, onLogo
     }
 
     try {
-      // In a real app, we would use supabase.auth or a specialized edge function
-      // For this prototype, we'll simulate the save to public.profiles
-      const { data, error } = await supabase
-        .from('profiles')
-        .upsert({
-          id: editingItem?.id || undefined,
-          name: formData.name,
-          email: formData.email,
-          role: formData.role,
-          initials: formData.name.split(' ').map(n => n[0]).join('').toUpperCase()
-        })
-        .select();
+      console.log('Saving user data:', formData, 'Editing:', editingItem);
+      
+      const payload = {
+        name: formData.name,
+        email: formData.email,
+        role: formData.role,
+        initials: formData.name ? formData.name.split(' ').map(n => n[0]).join('').toUpperCase() : '??'
+      };
 
-      if (error) throw error;
+      let result;
+      if (editingItem) {
+        // Update existing profile
+        result = await supabase
+          .from('profiles')
+          .update(payload)
+          .eq('id', editingItem.id)
+          .select();
+      } else {
+        // Create new profile
+        result = await supabase
+          .from('profiles')
+          .insert(payload)
+          .select();
+      }
 
-      // Handle group assignments
+      const { data, error } = result;
+
+      if (error) {
+        console.error('Supabase error saving profile:', error);
+        throw error;
+      }
+
       if (data?.[0]) {
         const userId = data[0].id;
+        console.log('Profile saved successfully, ID:', userId);
+
+        // Handle group assignments
         // 1. Delete old groups
         await supabase.from('user_groups').delete().eq('user_id', userId);
+        
         // 2. Add new groups
-        if (formData.groups.length > 0) {
-          const { data: groupsData } = await supabase.from('groups').select('id, name').in('name', formData.groups.map(g => g.label));
-          const inserts = groupsData.map(g => ({ user_id: userId, group_id: g.id }));
-          await supabase.from('user_groups').insert(inserts);
+        if (formData.groups && formData.groups.length > 0) {
+          const groupNames = formData.groups.map(g => g.label);
+          console.log('Assigning groups:', groupNames);
+          
+          const { data: groupsData, error: groupFetchError } = await supabase
+            .from('groups')
+            .select('id, name')
+            .in('name', groupNames);
+
+          if (groupFetchError) throw groupFetchError;
+
+          if (groupsData && groupsData.length > 0) {
+            const inserts = groupsData.map(g => ({ user_id: userId, group_id: g.id }));
+            const { error: groupInsertError } = await supabase.from('user_groups').insert(inserts);
+            if (groupInsertError) throw groupInsertError;
+          }
         }
       }
 
       closeModal();
       setShowWarning(false);
-      // Refresh current view if needed (User list)
-      window.location.reload(); // Simple refresh for now
+      // Refresh user list
+      if (typeof window !== 'undefined') {
+        window.location.reload(); 
+      }
     } catch (err) {
-      console.error('Failed to save user:', err);
-      alert('Failed to save user. Check console for details.');
+      console.error('Failed to save user (internal catch):', err);
+      alert(`Failed to save user: ${err.message || 'Unknown error'}. Check console for details.`);
     }
   };
 
