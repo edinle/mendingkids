@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import Select from '@atlaskit/select';
 import { DatePicker } from '@atlaskit/datetime-picker';
@@ -719,7 +719,7 @@ export default function ItemPanel({ isOpen, onClose, onSave, baseItem }) {
           <button
             onClick={handleBack}
             disabled={step === 1}
-            style={footerBtnStyle(false, step === 1)}
+            style={footerBtnStyle(step === 1)}
           >
             Back
           </button>
@@ -756,11 +756,11 @@ ItemPanel.propTypes = {
 
 // ─── Footer button styles ───────────────────────────────────────────────────
 
-function footerBtnStyle(active, disabled = false) {
+function footerBtnStyle(disabled = false) {
   return {
     padding: '6px 14px', borderRadius: 4,
     border: `1px solid ${token('color.border', 'rgba(9,30,66,0.14)')}`,
-    background: active ? '#422670' : token('elevation.surface', '#fff'),
+    background: token('elevation.surface', '#fff'),
     cursor: disabled ? 'not-allowed' : 'pointer',
     fontSize: 14, fontFamily: 'inherit',
     color: disabled ? '#8590A2' : token('color.text', '#172B4D'),
