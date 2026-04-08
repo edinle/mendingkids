@@ -215,7 +215,7 @@ const tCell = {
 
 // ─── Overview tab ──────────────────────────────────────────────────────────
 
-function OverviewTab({ totalQuantity, onAssign }) {
+function OverviewTab({ totalQuantity, onAssign, onNewEntry }) {
   const hasWarning = SAMPLE_ENTRIES.some(e => e.status === 'danger');
 
   return (
@@ -255,20 +255,21 @@ function OverviewTab({ totalQuantity, onAssign }) {
 
       {/* Action buttons */}
       <div style={{ display: 'flex', gap: 8, marginBottom: 24 }}>
-        <button
-          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#331D58'}
-          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#422670'}
-          style={{
-          flex: 1, height: 48, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-          backgroundColor: '#422670', color: '#fff', border: 'none', borderRadius: 4,
-          fontSize: 14, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit',
-          transition: 'background-color 0.2s',
-        }}>
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-            <path d="M8 3v10M3 8h10" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" />
-          </svg>
-          Add Items
-        </button>
+          <button
+            onClick={onNewEntry}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#331D58'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#422670'}
+            style={{
+            flex: 1, height: 48, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+            backgroundColor: '#422670', color: '#fff', border: 'none', borderRadius: 4,
+            fontSize: 14, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit',
+            transition: 'background-color 0.2s',
+          }}>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path d="M8 3v10M3 8h10" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" />
+            </svg>
+            New Entry
+          </button>
         <button
           onClick={onAssign}
           onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#821E42'}
@@ -351,7 +352,7 @@ function OverviewTab({ totalQuantity, onAssign }) {
   );
 }
 
-OverviewTab.propTypes = { totalQuantity: PropTypes.number, onAssign: PropTypes.func };
+OverviewTab.propTypes = { totalQuantity: PropTypes.number, onAssign: PropTypes.func, onNewEntry: PropTypes.func };
 
 // ─── Activity tab ──────────────────────────────────────────────────────────
 
@@ -852,7 +853,7 @@ function iconBtnSt(color) {
 
 // ─── Main Component ─────────────────────────────────────────────────────────
 
-export default function OverviewPanel({ isOpen, onClose, item, onEdit, onAssign }) {
+export default function OverviewPanel({ isOpen, onClose, item, onEdit, onAssign, onNewEntry }) {
   const [tab, setTab]             = useState('Overview');
   const [isFullEdit, setIsFullEdit] = useState(false);
   const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
@@ -965,7 +966,7 @@ export default function OverviewPanel({ isOpen, onClose, item, onEdit, onAssign 
 
           {/* Tab content */}
           <div style={{ paddingTop: 20 }}>
-            {tab === 'Overview'       && <OverviewTab totalQuantity={totalQuantity} onAssign={onAssign} />}
+            {tab === 'Overview'       && <OverviewTab totalQuantity={totalQuantity} onAssign={onAssign} onNewEntry={onNewEntry} />}
             {tab === 'Activity'       && <ActivityTab />}
             {tab === 'Documentation'  && <DocumentationTab />}
             {tab === 'Details'        && (

@@ -137,6 +137,7 @@ function Step1({ values, onChange }) {
           value={values.description}
           onChange={setE('description')}
           placeholder="Add item description"
+          isDisabled={values.isLocked}
         />
       </div>
 
@@ -146,6 +147,7 @@ function Step1({ values, onChange }) {
           value={values.referenceNum}
           onChange={setE('referenceNum')}
           placeholder="Add reference number"
+          isDisabled={values.isLocked}
         />
       </div>
 
@@ -155,6 +157,7 @@ function Step1({ values, onChange }) {
           value={values.company}
           onChange={setE('company')}
           placeholder="Add manufacturing company"
+          isDisabled={values.isLocked}
         />
       </div>
 
@@ -175,6 +178,7 @@ function Step1({ values, onChange }) {
             onChange={set('unitOfMeasure')}
             options={UNIT_OPTIONS}
             placeholder="Select Unit"
+            isDisabled={values.isLocked}
           />
         </div>
         <div style={{ flex: 1 }}>
@@ -597,7 +601,7 @@ CloseButton.propTypes = { onClose: PropTypes.func };
 // ─── Main Component ─────────────────────────────────────────────────────────
 
 const STEP_TITLES = {
-  1: 'Add item',
+  1: 'New Entry',
   2: 'Add documentation',
   3: 'Review your inputs',
 };
@@ -610,17 +614,21 @@ export default function ItemPanel({ isOpen, onClose, onSave, baseItem }) {
   const [s2, setS2] = useState(INIT_S2);
 
   // Use effect to handle pre-filling when based on an existing item
-  useState(() => {
-    if (baseItem) {
-      setS1(prev => ({
-        ...prev,
+  useEffect(() => {
+    if (baseItem && isOpen) {
+      setS1({
+        ...INIT_S1,
         description: baseItem.description || '',
         company: baseItem.company || '',
         referenceNum: baseItem.reference || '',
         shelfLife: baseItem.shelfLife || '',
-      }));
+        unitOfMeasure: baseItem.unitOfMeasure ? { label: baseItem.unitOfMeasure, value: baseItem.unitOfMeasure.toLowerCase() } : null,
+        isLocked: true,
+      });
+    } else if (!isOpen) {
+      reset();
     }
-  }, [baseItem]);
+  }, [baseItem, isOpen]);
 
   const reset = () => {
     setStep(1);

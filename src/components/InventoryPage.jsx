@@ -18,7 +18,7 @@ import TopNav from './TopNav';
 import SideNav from './SideNav';
 import ItemPanel from './ItemPanel';
 import OverviewPanel from './OverviewPanel';
-import AssignToMissionModal from './AssignToMissionModal';
+import AssignToMissionPanel from './AssignToMissionPanel';
 import { Section, ButtonItem } from '@atlaskit/menu';
 import Popup from '@atlaskit/popup';
 
@@ -139,7 +139,7 @@ function ActionMenu({ onItemAction }) {
               <ButtonItem onClick={() => { setIsOpen(false); onItemAction('restore'); }}>Restore Item</ButtonItem>
             ) : (
               <>
-                <ButtonItem onClick={() => { setIsOpen(false); onItemAction('add-shipment'); }}>Add Shipment</ButtonItem>
+                <ButtonItem onClick={() => { setIsOpen(false); onItemAction('add-shipment'); }}>New Entry</ButtonItem>
                 <ButtonItem onClick={() => { setIsOpen(false); onItemAction('assign'); }}>Assign to Mission</ButtonItem>
                 <ButtonItem onClick={() => { setIsOpen(false); onItemAction('archive'); }}>Archive</ButtonItem>
               </>
@@ -382,7 +382,7 @@ export default function InventoryPage({ onNavigate, user, onSwitchAccount, onLog
           <span style={{ display: 'flex', gap: 4 }} onClick={(e) => e.stopPropagation()}>
             <IconButton
               icon={AddIcon}
-              label="Add Shipment"
+              label="New Entry"
               appearance="subtle"
               spacing="compact"
               onClick={() => openAdd(row)}
@@ -621,9 +621,10 @@ export default function InventoryPage({ onNavigate, user, onSwitchAccount, onLog
         item={overview.item}
         onEdit={handleOverviewEdit}
         onAssign={() => { setOverview(p => ({ ...p, isOpen: false })); setAssignOpen(true); setSelectedItem(overview.item); }}
+        onNewEntry={() => { setOverview(p => ({ ...p, isOpen: false })); openAdd(overview.item); }}
       />
 
-      <AssignToMissionModal
+      <AssignToMissionPanel
         isOpen={assignOpen}
         onClose={() => setAssignOpen(false)}
         item={selectedItem}
