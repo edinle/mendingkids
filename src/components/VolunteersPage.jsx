@@ -12,6 +12,7 @@ import TopNav from './TopNav';
 import SideNav from './SideNav';
 import UserFormPanel from './UserFormPanel';
 import UserDetailPanel from './UserDetailPanel';
+import FilterDropdown from './FilterDropdown';
 
 // Volunteers are fetched from Supabase.
 
@@ -46,6 +47,9 @@ export default function VolunteersPage({ onNavigate, user, onSwitchAccount, onLo
   const [formOpen, setFormOpen] = useState(false);
   const [detailOpen, setDetailOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
+
+  const [statusFilter, setStatusFilter] = useState('');
+  const [roleFilter, setRoleFilter] = useState('');
 
   useEffect(() => {
     fetchVolunteers();
@@ -82,10 +86,14 @@ export default function VolunteersPage({ onNavigate, user, onSwitchAccount, onLo
     if (!error) fetchVolunteers();
   };
   
-  const filtered = users.filter(d => 
-    d.name.toLowerCase().includes(search.toLowerCase()) || 
-    d.email.toLowerCase().includes(search.toLowerCase())
-  );
+  const filtered = users.filter(d => {
+    if (statusFilter && d.status !== statusFilter) return false;
+    if (roleFilter && d.role !== roleFilter) return false;
+    if (search && !d.name.toLowerCase().includes(search.toLowerCase()) && !d.email.toLowerCase().includes(search.toLowerCase())) return false;
+    return true;
+  });
+
+  const allRoles = [...new Set(users.map(u => u.role))];
 
   const rows = filtered.map(row => ({
     key: String(row.id),
@@ -144,7 +152,8 @@ export default function VolunteersPage({ onNavigate, user, onSwitchAccount, onLo
               paddingBottom: 16, borderBottom: `2px solid ${token('color.border', 'rgba(9,30,66,0.14)')}`, marginBottom: 20 
             }}>
               <div style={{ display: 'flex', gap: 8 }}>
-                {/* No filters for volunteers currently */}
+                <FilterDropdown label="Status" options={['Active', 'Inactive']} selected={statusFilter} onSelect={setStatusFilter} />
+                <FilterDropdown label="Role" options={allRoles} selected={roleFilter} onSelect={setRoleFilter} />
               </div>
               <div style={{ position: 'relative', display: 'inline-flex', alignItems: 'center' }}>
                 <span style={{ position: 'absolute', left: 10, color: token('color.text.subtlest', '#626F86') }}>
@@ -152,10 +161,10 @@ export default function VolunteersPage({ onNavigate, user, onSwitchAccount, onLo
                 </span>
                 <input
                   type="text"
-                  placeholder="Search volunteers by name or email"
+                  placeholder="Search volunteers"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  style={{ height: 34, width: 260, paddingLeft: 36, paddingRight: 10, border: `1px solid ${token('color.border', 'rgba(9,30,66,0.14)')}`, borderRadius: 4, fontSize: 14, color: token('color.text', '#172B4D'), outline: 'none', fontFamily: 'inherit' }}
+                  style={{ height: 32, width: 260, paddingLeft: 36, paddingRight: 10, border: `1px solid ${token('color.border', 'rgba(9,30,66,0.14)')}`, borderRadius: 4, fontSize: 14, color: token('color.text', '#172B4D'), outline: 'none', fontFamily: 'inherit', backgroundColor: token('elevation.surface.sunken', '#F4F5F7') }}
                 />
               </div>
             </div>

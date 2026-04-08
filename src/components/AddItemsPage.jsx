@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { PageLayout, Content, Main, LeftSidebar, TopNavigation } from '@atlaskit/page-layout';
 import TopNav from './TopNav';
 import SideNav from './SideNav';
-import { FilterDropdown } from './MissionsPage';
+import FilterDropdown from './FilterDropdown';
 
 // ─── Mock Data ────────────────────────────────────────────────────────────────
 

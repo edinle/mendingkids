@@ -23,6 +23,7 @@ import AssignToMissionPanel from './AssignToMissionPanel';
 import DeleteConfirmationModal from './DeleteConfirmationModal';
 import { Section, ButtonItem } from '@atlaskit/menu';
 import Popup from '@atlaskit/popup';
+import FilterDropdown from './FilterDropdown';
 
 // ── Data ────────────────────────────────────────────────────────────
 // The data now comes from Supabase via the shipments and inventory tables.

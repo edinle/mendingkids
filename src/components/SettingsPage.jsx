@@ -9,6 +9,8 @@ import { token } from '@atlaskit/tokens';
 
 import TopNav from './TopNav';
 import SideNav from './SideNav';
+import FilterDropdown from './FilterDropdown';
+import SearchIcon from '@atlaskit/icon/core/search';
 
 // ─── Constants ─────────────────────────────────────────────────────────────
 
@@ -145,6 +147,8 @@ function GeneralConfig() {
 }
 
 function GlobalPermissions({ onAdd, onEdit }) {
+  const [search, setSearch] = useState('');
+  
   const head = {
     cells: [
       { key: 'permission', content: 'Permission', isSortable: false },
@@ -157,18 +161,40 @@ function GlobalPermissions({ onAdd, onEdit }) {
     { key: 'create', cells: [{ content: <strong>Create Missions</strong> }, { content: 'coordinators, site-admins' }, { content: <a href="#" onClick={(e) => { e.preventDefault(); onEdit({ id: 'create', name: 'Create Missions' }); }} style={{color:'var(--ds-link)'}}>Edit</a> }] },
     { key: 'manage', cells: [{ content: <strong>Manage Inventory</strong> }, { content: 'inventory-managers, site-admins' }, { content: <a href="#" onClick={(e) => { e.preventDefault(); onEdit({ id: 'manage', name: 'Manage Inventory' }); }} style={{color:'var(--ds-link)'}}>Edit</a> }] },
     { key: 'view', cells: [{ content: <strong>View Reports</strong> }, { content: 'site-admins, external-partners' }, { content: <a href="#" onClick={(e) => { e.preventDefault(); onEdit({ id: 'view', name: 'View Reports' }); }} style={{color:'var(--ds-link)'}}>Edit</a> }] },
-  ];
+  ].filter(r => r.cells[0].content.props.children.toLowerCase().includes(search.toLowerCase()));
 
   return (
     <>
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
-        <p style={{ color: token('color.text.subtle', '#5E6C84'), fontSize: 14 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20, alignItems: 'flex-start' }}>
+        <p style={{ color: token('color.text.subtle', '#5E6C84'), fontSize: 14, margin: 0, maxWidth: 500 }}>
           Global permissions apply to the entire system, regardless of mission scope.
         </p>
         <div style={{ display: 'flex', gap: 8 }}>
           <PrimaryButton onClick={onAdd}>Grant permission</PrimaryButton>
         </div>
       </div>
+
+      <div style={{ 
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        paddingBottom: 16, borderBottom: `2px solid ${token('color.border', 'rgba(9,30,66,0.14)')}`, marginBottom: 20 
+      }}>
+        <div style={{ display: 'flex', gap: 8 }}>
+          {/* Permissions don't need many filters */}
+        </div>
+        <div style={{ position: 'relative', display: 'inline-flex', alignItems: 'center' }}>
+          <span style={{ position: 'absolute', left: 10, color: token('color.text.subtlest', '#626F86'), display: 'flex' }}>
+            <SearchIcon label="" size="small" />
+          </span>
+          <input
+            type="text"
+            placeholder="Search permissions"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            style={{ height: 32, width: 220, paddingLeft: 32, paddingRight: 10, border: `1px solid ${token('color.border', 'rgba(9,30,66,0.14)')}`, borderRadius: 4, fontSize: 13, color: token('color.text', '#172B4D'), outline: 'none', fontFamily: 'inherit', backgroundColor: token('elevation.surface.sunken', '#F4F5F7') }}
+          />
+        </div>
+      </div>
+
       <DynamicTable head={head} rows={rows} rowsPerPage={10} defaultPage={1} loadingSpinnerSize="large" />
     </>
   );
@@ -200,6 +226,9 @@ function AuditLog() {
 }
 
 function Users({ onInvite }) {
+  const [search, setSearch] = useState('');
+  const [groupFilter, setGroupFilter] = useState('');
+  
   const head = {
     cells: [
       { key: 'name', content: 'Name', isSortable: true },
@@ -207,30 +236,75 @@ function Users({ onInvite }) {
       { key: 'group', content: 'Group', isSortable: true },
       { key: 'last_active', content: 'Last active', isSortable: true },
       { key: 'status', content: 'Status', isSortable: false },
+      { key: 'actions', content: '', isSortable: false, width: 10 },
     ],
   };
-  const rows = [
-    { key: '1', cells: [{ content: <strong>Sarah Johnson</strong> }, { content: 's.johnson@mendingkids.org' }, { content: 'site-admins' }, { content: 'Just now' }, { content: <span style={{color: '#1a7f37', fontWeight: 600, fontSize: 12}}>Active</span> }] },
-    { key: '2', cells: [{ content: <strong>Mark Patel</strong> }, { content: 'm.patel@mendingkids.org' }, { content: 'inventory-managers' }, { content: 'Yesterday' }, { content: <span style={{color: '#1a7f37', fontWeight: 600, fontSize: 12}}>Active</span> }] },
-    { key: '3', cells: [{ content: <strong>Elena Torres</strong> }, { content: 'elena.t@mendingkids.org' }, { content: 'external-partners' }, { content: '12 Dec, 2025' }, { content: <span style={{color: '#1a7f37', fontWeight: 600, fontSize: 12}}>Active</span> }] },
+  const allUsers = [
+    { id: '1', name: 'Sarah Johnson', email: 's.johnson@mendingkids.org', group: 'site-admins', lastActive: 'Just now', status: 'Active' },
+    { id: '2', name: 'Mark Patel', email: 'm.patel@mendingkids.org', group: 'inventory-managers', lastActive: 'Yesterday', status: 'Active' },
+    { id: '3', name: 'Elena Torres', email: 'elena.t@mendingkids.org', group: 'external-partners', lastActive: '12 Dec, 2025', status: 'Active' },
   ];
+
+  const filtered = allUsers.filter(u => {
+    if (groupFilter && u.group !== groupFilter) return false;
+    if (search && !u.name.toLowerCase().includes(search.toLowerCase()) && !u.email.toLowerCase().includes(search.toLowerCase())) return false;
+    return true;
+  });
+
+  const rows = filtered.map(u => ({
+    key: u.id,
+    cells: [
+      { content: <strong>{u.name}</strong> },
+      { content: u.email },
+      { content: u.group },
+      { content: u.lastActive },
+      { content: <span style={{color: '#1a7f37', fontWeight: 600, fontSize: 12}}>{u.status}</span> },
+      { content: <a href="#" onClick={(e) => { e.preventDefault(); onInvite(u); }} style={{color:'var(--ds-link)'}}>Edit</a> }
+    ],
+  }));
+
+  const allGroups = [...new Set(allUsers.map(u => u.group))];
 
   return (
     <>
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
-        <p style={{ color: token('color.text.subtle', '#5E6C84'), fontSize: 14 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20, alignItems: 'flex-start' }}>
+        <p style={{ color: token('color.text.subtle', '#5E6C84'), fontSize: 14, margin: 0, maxWidth: 500 }}>
           Manage access, set security credentials, and see everyone working in your workspace.
         </p>
         <div style={{ display: 'flex', gap: 8 }}>
           <PrimaryButton onClick={onInvite}>Set up new user</PrimaryButton>
         </div>
       </div>
+
+      <div style={{ 
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        paddingBottom: 16, borderBottom: `2px solid ${token('color.border', 'rgba(9,30,66,0.14)')}`, marginBottom: 20 
+      }}>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <FilterDropdown label="Group" options={allGroups} selected={groupFilter} onSelect={setGroupFilter} />
+        </div>
+        <div style={{ position: 'relative', display: 'inline-flex', alignItems: 'center' }}>
+          <span style={{ position: 'absolute', left: 10, color: token('color.text.subtlest', '#626F86'), display: 'flex' }}>
+            <SearchIcon label="" size="small" />
+          </span>
+          <input
+            type="text"
+            placeholder="Search users"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            style={{ height: 32, width: 220, paddingLeft: 32, paddingRight: 10, border: `1px solid ${token('color.border', 'rgba(9,30,66,0.14)')}`, borderRadius: 4, fontSize: 13, color: token('color.text', '#172B4D'), outline: 'none', fontFamily: 'inherit', backgroundColor: token('elevation.surface.sunken', '#F4F5F7') }}
+          />
+        </div>
+      </div>
+
       <DynamicTable head={head} rows={rows} rowsPerPage={10} defaultPage={1} />
     </>
   );
 }
 
 function Groups({ onCreate, onEdit }) {
+  const [search, setSearch] = useState('');
+  
   const head = {
     cells: [
       { key: 'group', content: 'Group name', isSortable: true },
@@ -239,7 +313,9 @@ function Groups({ onCreate, onEdit }) {
       { key: 'actions', content: '', isSortable: false, width: 10 },
     ],
   };
-  const rows = MOCK_GROUPS.map(g => ({
+  const filtered = MOCK_GROUPS.filter(g => g.name.toLowerCase().includes(search.toLowerCase()));
+  
+  const rows = filtered.map(g => ({
     key: g.id,
     cells: [
       { content: <strong>{g.name}</strong> },
@@ -251,14 +327,36 @@ function Groups({ onCreate, onEdit }) {
 
   return (
     <>
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
-        <p style={{ color: token('color.text.subtle', '#5E6C84'), fontSize: 14 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20, alignItems: 'flex-start' }}>
+        <p style={{ color: token('color.text.subtle', '#5E6C84'), fontSize: 14, margin: 0, maxWidth: 500 }}>
           Groups let you assign access and permissions to multiple users at once.
         </p>
         <div style={{ display: 'flex', gap: 8 }}>
           <PrimaryButton onClick={onCreate}>Create group</PrimaryButton>
         </div>
       </div>
+
+      <div style={{ 
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        paddingBottom: 16, borderBottom: `2px solid ${token('color.border', 'rgba(9,30,66,0.14)')}`, marginBottom: 20 
+      }}>
+        <div style={{ display: 'flex', gap: 8 }}>
+          {/* Group filters could go here */}
+        </div>
+        <div style={{ position: 'relative', display: 'inline-flex', alignItems: 'center' }}>
+          <span style={{ position: 'absolute', left: 10, color: token('color.text.subtlest', '#626F86'), display: 'flex' }}>
+            <SearchIcon label="" size="small" />
+          </span>
+          <input
+            type="text"
+            placeholder="Search groups"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            style={{ height: 32, width: 220, paddingLeft: 32, paddingRight: 10, border: `1px solid ${token('color.border', 'rgba(9,30,66,0.14)')}`, borderRadius: 4, fontSize: 13, color: token('color.text', '#172B4D'), outline: 'none', fontFamily: 'inherit', backgroundColor: token('elevation.surface.sunken', '#F4F5F7') }}
+          />
+        </div>
+      </div>
+
       <DynamicTable head={head} rows={rows} rowsPerPage={10} defaultPage={1} />
     </>
   );

@@ -12,6 +12,7 @@ import TopNav from './TopNav';
 import SideNav from './SideNav';
 import RequestDetailPanel from './RequestDetailPanel';
 import RequestFormPanel from './RequestFormPanel';
+import FilterDropdown from './FilterDropdown';
 
 // Requests are fetched from Supabase.
 
@@ -57,6 +58,10 @@ export default function ItemRequestsPage({ onNavigate, user, onSwitchAccount, on
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  
+  const [statusFilter, setStatusFilter] = useState('');
+  const [priorityFilter, setPriorityFilter] = useState('');
+  const [missionFilter, setMissionFilter] = useState('');
   
   const [detailOpen, setDetailOpen] = useState(false);
   const [formOpen, setFormOpen] = useState(false);
@@ -105,10 +110,15 @@ export default function ItemRequestsPage({ onNavigate, user, onSwitchAccount, on
     if (!error) fetchRequests();
   };
   
-  const filtered = requests.filter(r => 
-    r.id.toLowerCase().includes(search.toLowerCase()) || 
-    r.requester.toLowerCase().includes(search.toLowerCase())
-  );
+  const filtered = requests.filter(r => {
+    if (statusFilter && r.status !== statusFilter) return false;
+    if (priorityFilter && r.priority !== priorityFilter) return false;
+    if (missionFilter && r.mission !== missionFilter) return false;
+    if (search && !r.id.toLowerCase().includes(search.toLowerCase()) && !r.requester.toLowerCase().includes(search.toLowerCase())) return false;
+    return true;
+  });
+
+  const allMissions = [...new Set(requests.map(r => r.mission))];
 
   const rows = filtered.map(row => ({
     key: row.id,
@@ -157,7 +167,15 @@ export default function ItemRequestsPage({ onNavigate, user, onSwitchAccount, on
               </button>
             </div>
             
-            <div style={{ paddingBottom: 16, borderBottom: `2px solid ${token('color.border', 'rgba(9,30,66,0.14)')}`, marginBottom: 20 }}>
+            <div style={{ 
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              paddingBottom: 16, borderBottom: `2px solid ${token('color.border', 'rgba(9,30,66,0.14)')}`, marginBottom: 20 
+            }}>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <FilterDropdown label="Mission" options={allMissions} selected={missionFilter} onSelect={setMissionFilter} />
+                <FilterDropdown label="Status" options={['Pending', 'Approved', 'In Progress', 'Declined']} selected={statusFilter} onSelect={setStatusFilter} />
+                <FilterDropdown label="Priority" options={['High', 'Medium', 'Low']} selected={priorityFilter} onSelect={setPriorityFilter} />
+              </div>
               <div style={{ position: 'relative', display: 'inline-flex', alignItems: 'center' }}>
                 <span style={{ position: 'absolute', left: 10, color: token('color.text.subtlest', '#626F86') }}>
                   <SearchIcon label="" />
@@ -167,7 +185,7 @@ export default function ItemRequestsPage({ onNavigate, user, onSwitchAccount, on
                   placeholder="Search requests"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  style={{ height: 34, width: 260, paddingLeft: 36, paddingRight: 10, border: `1px solid ${token('color.border', 'rgba(9,30,66,0.14)')}`, borderRadius: 4, fontSize: 14, color: token('color.text', '#172B4D'), outline: 'none', fontFamily: 'inherit' }}
+                  style={{ height: 32, width: 260, paddingLeft: 36, paddingRight: 10, border: `1px solid ${token('color.border', 'rgba(9,30,66,0.14)')}`, borderRadius: 4, fontSize: 14, color: token('color.text', '#172B4D'), outline: 'none', fontFamily: 'inherit', backgroundColor: token('elevation.surface.sunken', '#F4F5F7') }}
                 />
               </div>
             </div>

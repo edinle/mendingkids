@@ -6,7 +6,7 @@ import SideNav from './SideNav';
 import SlidePanel from './SlidePanel';
 import CreateMissionPanel from './CreateMissionPanel';
 import DeleteConfirmationModal from './DeleteConfirmationModal';
-import { FilterDropdown } from './MissionsPage';
+import FilterDropdown from './FilterDropdown';
 
 // ─── Mock items for a mission ─────────────────────────────────────────────────
 
