@@ -1,11 +1,14 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { PageLayout, TopNavigation, LeftSidebar, Content, Main } from '@atlaskit/page-layout';
 import TextField from '@atlaskit/textfield';
 import Select from '@atlaskit/select';
 import { Checkbox } from '@atlaskit/checkbox';
 import DynamicTable from '@atlaskit/dynamic-table';
+import Modal, { ModalTransition, ModalHeader, ModalTitle, ModalBody, ModalFooter } from '@atlaskit/modal-dialog';
+import Button, { IconButton } from '@atlaskit/button/new';
 import SlidePanel from './SlidePanel';
 import { token } from '@atlaskit/tokens';
+import { supabase } from '../utils/supabase';
 
 import TopNav from './TopNav';
 import SideNav from './SideNav';
@@ -225,28 +228,60 @@ function AuditLog() {
   );
 }
 
-function Users({ onInvite }) {
+function Users({ onInvite, onEdit }) {
   const [search, setSearch] = useState('');
   const [groupFilter, setGroupFilter] = useState('');
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
   
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  const fetchUsers = async () => {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from('profiles')
+      .select(`
+        *,
+        user_groups (
+          groups (
+            name
+          )
+        )
+      `);
+    
+    if (error) {
+      console.error('Error fetching users:', error);
+    } else {
+      const mapped = data.map(u => ({
+        id: u.id,
+        name: u.name,
+        email: u.email,
+        initials: u.initials,
+        role: u.role,
+        lastActive: u.last_active ? new Date(u.last_active).toLocaleString() : 'Never',
+        status: 'Active',
+        groups: u.user_groups?.map(ug => ug.groups.name) || []
+      }));
+      setUsers(mapped);
+    }
+    setLoading(false);
+  };
+
   const head = {
     cells: [
       { key: 'name', content: 'Name', isSortable: true },
       { key: 'email', content: 'Email', isSortable: true },
-      { key: 'group', content: 'Group', isSortable: true },
+      { key: 'group', content: 'Groups', isSortable: true },
       { key: 'last_active', content: 'Last active', isSortable: true },
       { key: 'status', content: 'Status', isSortable: false },
       { key: 'actions', content: '', isSortable: false, width: 10 },
     ],
   };
-  const allUsers = [
-    { id: '1', name: 'Sarah Johnson', email: 's.johnson@mendingkids.org', group: 'site-admins', lastActive: 'Just now', status: 'Active' },
-    { id: '2', name: 'Mark Patel', email: 'm.patel@mendingkids.org', group: 'inventory-managers', lastActive: 'Yesterday', status: 'Active' },
-    { id: '3', name: 'Elena Torres', email: 'elena.t@mendingkids.org', group: 'external-partners', lastActive: '12 Dec, 2025', status: 'Active' },
-  ];
 
-  const filtered = allUsers.filter(u => {
-    if (groupFilter && u.group !== groupFilter) return false;
+  const filtered = users.filter(u => {
+    if (groupFilter && !u.groups.includes(groupFilter)) return false;
     if (search && !u.name.toLowerCase().includes(search.toLowerCase()) && !u.email.toLowerCase().includes(search.toLowerCase())) return false;
     return true;
   });
@@ -254,16 +289,23 @@ function Users({ onInvite }) {
   const rows = filtered.map(u => ({
     key: u.id,
     cells: [
-      { content: <strong>{u.name}</strong> },
+      { content: (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ width: 24, height: 24, borderRadius: '50%', backgroundColor: '#422670', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 700 }}>
+            {u.initials || u.name[0]}
+          </div>
+          <strong>{u.name}</strong>
+        </div>
+      ) },
       { content: u.email },
-      { content: u.group },
+      { content: u.groups.join(', ') || <span style={{color: '#626F86'}}>No groups</span> },
       { content: u.lastActive },
       { content: <span style={{color: '#1a7f37', fontWeight: 600, fontSize: 12}}>{u.status}</span> },
-      { content: <a href="#" onClick={(e) => { e.preventDefault(); onInvite(u); }} style={{color:'var(--ds-link)'}}>Edit</a> }
+      { content: <a href="#" onClick={(e) => { e.preventDefault(); onEdit(u); }} style={{color:'var(--ds-link)'}}>Edit</a> }
     ],
   }));
 
-  const allGroups = [...new Set(allUsers.map(u => u.group))];
+  const allGroups = [...new Set(users.flatMap(u => u.groups))];
 
   return (
     <>
@@ -297,14 +339,43 @@ function Users({ onInvite }) {
         </div>
       </div>
 
-      <DynamicTable head={head} rows={rows} rowsPerPage={10} defaultPage={1} />
+      <DynamicTable head={head} rows={rows} rowsPerPage={10} defaultPage={1} isLoading={loading} />
     </>
   );
 }
 
 function Groups({ onCreate, onEdit }) {
   const [search, setSearch] = useState('');
+  const [groups, setGroups] = useState([]);
+  const [loading, setLoading] = useState(true);
   
+  useEffect(() => {
+    fetchGroups();
+  }, []);
+
+  const fetchGroups = async () => {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from('groups')
+      .select(`
+        *,
+        user_groups (count)
+      `);
+    
+    if (error) {
+      console.error('Error fetching groups:', error);
+    } else {
+      setGroups(data.map(g => ({
+        id: g.id,
+        name: g.name,
+        description: g.description,
+        type: g.type,
+        members: `${g.user_groups[0].count} users`
+      })));
+    }
+    setLoading(false);
+  };
+
   const head = {
     cells: [
       { key: 'group', content: 'Group name', isSortable: true },
@@ -313,12 +384,17 @@ function Groups({ onCreate, onEdit }) {
       { key: 'actions', content: '', isSortable: false, width: 10 },
     ],
   };
-  const filtered = MOCK_GROUPS.filter(g => g.name.toLowerCase().includes(search.toLowerCase()));
+  const filtered = groups.filter(g => g.name.toLowerCase().includes(search.toLowerCase()));
   
   const rows = filtered.map(g => ({
     key: g.id,
     cells: [
-      { content: <strong>{g.name}</strong> },
+      { content: (
+        <div>
+          <strong style={{ display: 'block' }}>{g.name}</strong>
+          <span style={{ fontSize: 12, color: '#626F86' }}>{g.description}</span>
+        </div>
+      ) },
       { content: g.members },
       { content: g.type },
       { content: <a href="#" onClick={(e) => { e.preventDefault(); onEdit(g); }} style={{color:'var(--ds-link)'}}>Edit</a> }
@@ -357,7 +433,7 @@ function Groups({ onCreate, onEdit }) {
         </div>
       </div>
 
-      <DynamicTable head={head} rows={rows} rowsPerPage={10} defaultPage={1} />
+      <DynamicTable head={head} rows={rows} rowsPerPage={10} defaultPage={1} isLoading={loading} />
     </>
   );
 }
@@ -514,13 +590,78 @@ export default function SettingsPage({ onNavigate, user, onSwitchAccount, onLogo
   const [isModalOpen, setIsModalOpen] = useState(null);
   const [editingItem, setEditingItem] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [showWarning, setShowWarning] = useState(false);
 
-
+  // Form states
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    groups: [],
+    passcode: '',
+    role: 'Intern'
+  });
 
   const openModal = (type, item = null) => {
     setEditingItem(item);
+    if (type === 'invite' && item) {
+      setFormData({
+        name: item.name || '',
+        email: item.email || '',
+        groups: item.groups?.map(g => ({ label: g, value: g })) || [],
+        passcode: '',
+        role: item.role || 'Intern'
+      });
+    } else {
+      setFormData({ name: '', email: '', groups: [], passcode: '', role: 'Intern' });
+    }
     setIsModalOpen(type);
   };
+
+  const handleSaveUser = async () => {
+    if (editingItem && !showWarning) {
+      setShowWarning(true);
+      return;
+    }
+
+    try {
+      // In a real app, we would use supabase.auth or a specialized edge function
+      // For this prototype, we'll simulate the save to public.profiles
+      const { data, error } = await supabase
+        .from('profiles')
+        .upsert({
+          id: editingItem?.id || undefined,
+          name: formData.name,
+          email: formData.email,
+          role: formData.role,
+          initials: formData.name.split(' ').map(n => n[0]).join('').toUpperCase()
+        })
+        .select();
+
+      if (error) throw error;
+
+      // Handle group assignments
+      if (data?.[0]) {
+        const userId = data[0].id;
+        // 1. Delete old groups
+        await supabase.from('user_groups').delete().eq('user_id', userId);
+        // 2. Add new groups
+        if (formData.groups.length > 0) {
+          const { data: groupsData } = await supabase.from('groups').select('id, name').in('name', formData.groups.map(g => g.label));
+          const inserts = groupsData.map(g => ({ user_id: userId, group_id: g.id }));
+          await supabase.from('user_groups').insert(inserts);
+        }
+      }
+
+      closeModal();
+      setShowWarning(false);
+      // Refresh current view if needed (User list)
+      window.location.reload(); // Simple refresh for now
+    } catch (err) {
+      console.error('Failed to save user:', err);
+      alert('Failed to save user. Check console for details.');
+    }
+  };
+
   const closeModal = () => {
     setIsModalOpen(null);
     setEditingItem(null);
@@ -531,7 +672,7 @@ export default function SettingsPage({ onNavigate, user, onSwitchAccount, onLogo
       case 'General configuration': return <GeneralConfig />;
       case 'Global permissions':    return <GlobalPermissions onAdd={() => openModal('permission')} onEdit={(item) => openModal('permission', item)} />;
       case 'Audit log':             return <AuditLog />;
-      case 'Users':                 return <Users onInvite={() => openModal('invite')} />;
+      case 'Users':                 return <Users onInvite={() => openModal('invite')} onEdit={(item) => openModal('invite', item)} />;
       case 'Groups':                return <Groups onCreate={() => openModal('group')} onEdit={(item) => openModal('group', item)} />;
       case 'Authentication':        return <Authentication />;
       case 'Categories & Tags':     return <CategoriesTags onAdd={() => openModal('category')} onEdit={(item) => openModal('category', item)} />;
@@ -711,33 +852,83 @@ export default function SettingsPage({ onNavigate, user, onSwitchAccount, onLogo
 
             {isModalOpen === 'invite' && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-                <p style={{ margin: 0, fontSize: 14, color: '#44546F' }}>Enter the user's details and set an initial security passcode.</p>
-                <div>
-                  <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#5E6C84', marginBottom: 6 }}>Full Name</label>
-                  <TextField placeholder="e.g. John Doe" />
+                <div style={{ padding: '16px', backgroundColor: '#E9F2FF', borderRadius: 6, border: '1px solid #B3D4FF', marginBottom: 8 }}>
+                   <p style={{ margin: 0, fontSize: 13, color: '#0055CC', lineHeight: 1.5 }}>
+                     <strong>Flow:</strong> {editingItem ? 'Updating existing user profile' : 'Creating new workspace account'}. {formData.role === 'Intern' && 'Interns will have restricted access by default.'}
+                   </p>
                 </div>
-                <div>
-                  <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#5E6C84', marginBottom: 6 }}>Email Address</label>
-                  <TextField placeholder="e.g. john@mendingkids.org" />
-                </div>
-                <div>
-                  <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#5E6C84', marginBottom: 6 }}>Assign to Groups</label>
-                  <Select isMulti placeholder="Select groups..." options={[{label: 'site-admins', value: 'sa'}, {label: 'inventory-managers', value: 'im'}, {label: 'external-partners', value: 'ep'}]} />
-                </div>
-                <div style={{ padding: '20px', backgroundColor: '#F4F5F7', borderRadius: 8, border: '1px solid #DFE1E6' }}>
+
+                <section>
+                  <h4 style={{ margin: '0 0 16px', fontSize: 14, fontWeight: 700, textTransform: 'uppercase', color: '#626F86' }}>User Details</h4>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+                    <div>
+                      <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#5E6C84', marginBottom: 6 }}>Full Name</label>
+                      <TextField 
+                        value={formData.name} 
+                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                        placeholder="e.g. John Doe" 
+                      />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#5E6C84', marginBottom: 6 }}>Email Address</label>
+                      <TextField 
+                        value={formData.email}
+                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                        placeholder="e.g. john@mendingkids.org" 
+                      />
+                    </div>
+                  </div>
+                </section>
+
+                <hr style={{ border: 'none', height: 1, backgroundColor: '#DFE1E6' }} />
+
+                <section>
+                  <h4 style={{ margin: '0 0 16px', fontSize: 14, fontWeight: 700, textTransform: 'uppercase', color: '#626F86' }}>Access & Groups</h4>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+                    <div>
+                      <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#5E6C84', marginBottom: 6 }}>Primary Role</label>
+                      <Select 
+                        options={[{label: 'Admin', value: 'Admin'}, {label: 'Coordinator', value: 'Coordinator'}, {label: 'Intern', value: 'Intern'}]}
+                        value={{ label: formData.role, value: formData.role }}
+                        onChange={(opt) => setFormData({ ...formData, role: opt.value })}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#5E6C84', marginBottom: 6 }}>Assign to Groups</label>
+                      <Select 
+                        isMulti 
+                        placeholder="Select groups..." 
+                        options={[{label: 'site-admins', value: 'sa'}, {label: 'inventory-managers', value: 'im'}, {label: 'external-partners', value: 'ep'}, {label: 'interns', value: 'in'}]} 
+                        value={formData.groups}
+                        onChange={(opts) => setFormData({ ...formData, groups: opts })}
+                      />
+                    </div>
+                  </div>
+                </section>
+
+                <hr style={{ border: 'none', height: 1, backgroundColor: '#DFE1E6' }} />
+
+                <section style={{ padding: '20px', backgroundColor: '#F4F5F7', borderRadius: 8, border: '1px solid #DFE1E6' }}>
                   <h4 style={{ margin: '0 0 12px', fontSize: 13, fontWeight: 700, color: '#172B4D', textTransform: 'uppercase' }}>Security Passcode</h4>
                   <div style={{ display: 'flex', gap: 12 }}>
                     <div style={{ flex: 1 }}>
                       <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: '#626F86', marginBottom: 4 }}>Access Passcode</label>
-                      <TextField type="password" placeholder="••••••" />
+                      <TextField 
+                        type="password" 
+                        placeholder="••••••" 
+                        value={formData.passcode}
+                        onChange={(e) => setFormData({ ...formData, passcode: e.target.value })}
+                      />
                     </div>
                     <div style={{ flex: 1 }}>
                       <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: '#626F86', marginBottom: 4 }}>Confirm Passcode</label>
                       <TextField type="password" placeholder="••••••" />
                     </div>
                   </div>
-                  <span style={{ fontSize: 11, color: '#626F86', marginTop: 8, display: 'block' }}>Passcode must be at least 6 digits for mission security.</span>
-                </div>
+                  <span style={{ fontSize: 11, color: '#626F86', marginTop: 8, display: 'block' }}>
+                    {editingItem ? 'Leave blank to keep current passcode.' : 'Passcode must be at least 6 digits for mission security.'}
+                  </span>
+                </section>
               </div>
             )}
 
@@ -789,13 +980,31 @@ export default function SettingsPage({ onNavigate, user, onSwitchAccount, onLogo
           </div>
 
           <div style={{ padding: '24px 32px', borderTop: '1px solid #DFE1E6', display: 'flex', gap: 12 }}>
-            <PrimaryButton onClick={closeModal}>
-              {isModalOpen === 'automation' ? 'Create rule' : (editingItem ? 'Save changes' : 'Submit')}
+            <PrimaryButton onClick={isModalOpen === 'invite' ? handleSaveUser : closeModal}>
+              {editingItem ? 'Save changes' : 'Create user'}
             </PrimaryButton>
             <SubtleButton onClick={closeModal}>Cancel</SubtleButton>
           </div>
         </div>
       </SlidePanel>
+
+      <ModalTransition>
+        {showWarning && (
+          <Modal onClose={() => setShowWarning(false)}>
+            <ModalHeader>
+              <ModalTitle appearance="warning">Review profile changes</ModalTitle>
+            </ModalHeader>
+            <ModalBody>
+              <p>You are about to update <strong>{editingItem.name}</strong>'s profile and permissions. This may change their access levels across missions and inventory items.</p>
+              <p>Are you sure you want to proceed with these changes?</p>
+            </ModalBody>
+            <ModalFooter>
+              <Button appearance="subtle" onClick={() => setShowWarning(false)}>Cancel</Button>
+              <Button appearance="warning" onClick={handleSaveUser}>Confirm changes</Button>
+            </ModalFooter>
+          </Modal>
+        )}
+      </ModalTransition>
     </PageLayout>
   );
 }
