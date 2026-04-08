@@ -8,6 +8,7 @@ import SlidePanel from './SlidePanel';
 import { token } from '@atlaskit/tokens';
 
 import TopNav from './TopNav';
+import SideNav from './SideNav';
 
 // ─── Constants ─────────────────────────────────────────────────────────────
 
@@ -32,44 +33,6 @@ const MOCK_GROUPS = [
   { id: '3', name: 'external-partners', members: '45 users', type: 'Custom group' },
   { id: '4', name: 'interns', members: '8 users', type: 'Limited access' },
 ];
-
-function SettingsProfileSection({ user, onSwitchAccount, onLogout }) {
-  const [open, setOpen] = useState(false);
-  return (
-    <div style={{ padding: '16px', borderTop: '1px solid #DFE1E6', position: 'relative', backgroundColor: '#F4F5F7' }}>
-      <div 
-        onClick={() => setOpen(!open)}
-        style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '8px', cursor: 'pointer', borderRadius: 4 }}
-        onMouseEnter={e => e.currentTarget.style.backgroundColor = '#EBECF0'}
-        onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}
-      >
-        <div style={{ width: 32, height: 32, backgroundColor: '#6554C0', color: '#fff', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 600 }}>
-          {user?.name?.charAt(0).toUpperCase()}
-        </div>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <p style={{ margin: 0, fontSize: 13, fontWeight: 600, color: '#172B4D', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user?.name}</p>
-          <p style={{ margin: 0, fontSize: 11, color: '#626F86' }}>{user?.role}</p>
-        </div>
-      </div>
-      {open && (
-        <>
-          <div onClick={() => setOpen(false)} style={{ position: 'fixed', inset: 0, zIndex: 300 }} />
-          <div style={{
-            position: 'absolute', bottom: '100%', left: 16, width: 200,
-            backgroundColor: '#fff', borderRadius: 4, zIndex: 301,
-            boxShadow: '0 -4px 12px rgba(0,0,0,0.15)', padding: '8px 0', marginBottom: 8
-          }}>
-            <div onClick={() => { setOpen(false); onSwitchAccount('Administrator'); }} style={{ padding: '8px 16px', fontSize: 14, cursor: 'pointer' }} onMouseEnter={e => e.currentTarget.style.backgroundColor = '#F4F5F7'} onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}>Switch to Admin</div>
-            <div onClick={() => { setOpen(false); onSwitchAccount('Intern'); }} style={{ padding: '8px 16px', fontSize: 14, cursor: 'pointer' }} onMouseEnter={e => e.currentTarget.style.backgroundColor = '#F4F5F7'} onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}>Switch to Intern</div>
-            <div style={{ borderTop: '1px solid #F4F5F7', marginTop: 4 }}>
-              <div onClick={onLogout} style={{ padding: '8px 16px', fontSize: 14, cursor: 'pointer' }} onMouseEnter={e => e.currentTarget.style.backgroundColor = '#F4F5F7'} onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}>Log out</div>
-            </div>
-          </div>
-        </>
-      )}
-    </div>
-  );
-}
 
 // Reusable MK Purple Button
 function PrimaryButton({ children, onClick, style }) {
@@ -460,80 +423,80 @@ export default function SettingsPage({ onNavigate, user, onSwitchAccount, onLogo
     <PageLayout>
       <TopNavigation isFixed><TopNav onNavigate={onNavigate} user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} /></TopNavigation>
       <Content>
-        <div style={{ height: '100%' }}>
-          <LeftSidebar width={260} id="settings-sidebar" isFixed={true}>
-            <div style={{ 
-              height: '100%', 
-              backgroundColor: token('elevation.surface.sunken', '#F4F5F7'),
-              borderRight: `1px solid ${token('color.border', '#EBECF0')}`,
-              display: 'flex',
-              flexDirection: 'column'
-            }}>
-              <div style={{ padding: '24px 16px 16px', borderBottom: `1px solid ${token('color.border', '#EBECF0')}` }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
-                  {/* MK Purple icon background */}
-                  <div style={{ width: 32, height: 32, backgroundColor: '#422670', borderRadius: 3, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="white">
-                      <path d="M14 2H2v12h12V2zM8 12.5a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9zm0-2.5a2 2 0 1 0 0-4 2 2 0 0 0 0 4z" />
-                    </svg>
-                  </div>
-                  <h2 style={{ fontSize: 16, fontWeight: 600, color: token('color.text', '#172B4D'), margin: 0 }}>
-                    Settings
-                  </h2>
-                </div>
-                <button 
-                  onClick={() => onNavigate('dashboard')}
-                  style={{ 
-                    background: 'none', border: 'none', color: 'var(--ds-text-selected)', cursor: 'pointer', 
-                    fontSize: 14, fontWeight: 500, padding: 0, display: 'flex', alignItems: 'center', gap: 4
-                  }}>
-                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                    <path d="M9 11L5 7l4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        <LeftSidebar width={260} id="settings-sidebar" isFixed={true}>
+          <div style={{ 
+            height: '100%', 
+            backgroundColor: token('elevation.surface.sunken', '#F4F5F7'),
+            borderRight: '1px solid ' + token('color.border', '#EBECF0'),
+            display: 'flex',
+            flexDirection: 'column'
+          }}>
+            <div style={{ padding: '24px 16px 16px', borderBottom: '1px solid ' + token('color.border', '#EBECF0') }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+                {/* MK Purple icon background */}
+                <div style={{ width: 32, height: 32, backgroundColor: '#422670', borderRadius: 3, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="white">
+                    <path d="M14 2H2v12h12V2zM8 12.5a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9zm0-2.5a2 2 0 1 0 0-4 2 2 0 0 0 0 4z" />
                   </svg>
-                  Back to project
-                </button>
+                </div>
+                <h2 style={{ fontSize: 16, fontWeight: 600, color: token('color.text', '#172B4D'), margin: 0 }}>
+                  Settings
+                </h2>
               </div>
-
-              <div style={{ padding: '16px 8px', flex: 1, overflowY: 'auto' }}>
-                {SETTINGS_SECTIONS.map((section, sIdx) => (
-                  <div key={sIdx} style={{ marginBottom: 24 }}>
-                    <h3 style={{ 
-                      fontSize: 11, fontWeight: 700, color: token('color.text.subtlest', '#626F86'), 
-                      textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 8, paddingLeft: 12 
-                    }}>
-                      {section.title}
-                    </h3>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                      {section.items.map(item => {
-                        const isActive = activeTab === item;
-                        return (
-                          <button
-                            key={item}
-                            onClick={() => setActiveTab(item)}
-                            style={{
-                              display: 'flex', alignItems: 'center', padding: '8px 12px',
-                              border: 'none', borderRadius: 3, cursor: 'pointer', fontSize: 14, textAlign: 'left', fontFamily: 'inherit',
-                              backgroundColor: isActive ? 'var(--ds-background-selected)' : 'transparent',
-                              color: isActive ? 'var(--ds-text-selected)' : token('color.text', '#172B4D'),
-                              fontWeight: isActive ? 500 : 400,
-                              transition: 'background-color 0.15s ease'
-                            }}
-                            onMouseEnter={(e) => !isActive && (e.currentTarget.style.backgroundColor = token('color.background.neutral.hovered', '#EBECF0'))}
-                            onMouseLeave={(e) => !isActive && (e.currentTarget.style.backgroundColor = 'transparent')}
-                          >
-                            {item}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <SettingsProfileSection user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} />
+              <button 
+                onClick={() => onNavigate('dashboard')}
+                style={{ 
+                  background: 'none', border: 'none', color: 'var(--ds-text-selected)', cursor: 'pointer', 
+                  fontSize: 14, fontWeight: 500, padding: 0, display: 'flex', alignItems: 'center', gap: 4
+                }}>
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                  <path d="M9 11L5 7l4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                Back to project
+              </button>
             </div>
-          </LeftSidebar>
-        </div>
+
+            <div style={{ padding: '16px 8px', flex: 1, overflowY: 'auto' }}>
+              {SETTINGS_SECTIONS.map((section, sIdx) => (
+                <div key={sIdx} style={{ marginBottom: 24 }}>
+                  <h3 style={{ 
+                    fontSize: 11, fontWeight: 700, color: token('color.text.subtlest', '#626F86'), 
+                    textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 8, paddingLeft: 12 
+                  }}>
+                    {section.title}
+                  </h3>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    {section.items.map(item => {
+                      const isActive = activeTab === item;
+                      return (
+                        <button
+                          key={item}
+                          onClick={() => setActiveTab(item)}
+                          style={{
+                            display: 'flex', alignItems: 'center', padding: '8px 12px',
+                            border: 'none', borderRadius: 3, cursor: 'pointer', fontSize: 14, textAlign: 'left', fontFamily: 'inherit',
+                            backgroundColor: isActive ? 'var(--ds-background-selected)' : 'transparent',
+                            color: isActive ? 'var(--ds-text-selected)' : token('color.text', '#172B4D'),
+                            fontWeight: isActive ? 500 : 400,
+                            transition: 'background-color 0.15s ease'
+                          }}
+                          onMouseEnter={(e) => !isActive && (e.currentTarget.style.backgroundColor = token('color.background.neutral.hovered', '#EBECF0'))}
+                          onMouseLeave={(e) => !isActive && (e.currentTarget.style.backgroundColor = 'transparent')}
+                        >
+                          {item}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div style={{ padding: '16px', borderTop: '1px solid #DFE1E6' }}>
+               <SideNav accountOnly user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} />
+            </div>
+          </div>
+        </LeftSidebar>
 
         {/* Main Content */}
         <Main>
