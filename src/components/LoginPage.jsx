@@ -74,9 +74,6 @@ export default function LoginPage({ onLogin }) {
 
       <div style={{ marginTop: 32, textAlign: 'center' }}>
         <p style={{ fontSize: 12, color: '#626F86' }}>Privacy Policy • Terms of Service</p>
-        <div style={{ marginTop: 16, color: '#8590A2', fontSize: 14 }}>
-          <strong>Atlassian</strong>
-        </div>
       </div>
     </div>
   );
