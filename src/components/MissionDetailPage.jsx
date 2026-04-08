@@ -41,8 +41,8 @@ const ADD_ITEMS_RECOMMENDED = [
 ];
 
 const CATEGORY_CHIPS = ['Syringes', 'Patches', 'Chest Tubes', 'Bandages'];
-const CHIP_COLORS = { Syringes: '#e8f4fe', Patches: '#fef9e7', 'Chest Tubes': '#fde8d8', Bandages: '#fde8e8' };
-const CHIP_TEXT   = { Syringes: '#1561cc', Patches: '#b45309', 'Chest Tubes': '#cf4f27', Bandages: '#c62828' };
+const CHIP_COLORS = { Syringes: '#E9F2FF', Patches: '#FFF3EB', 'Chest Tubes': '#E3FCEF', Bandages: '#F3F0FF' };
+const CHIP_TEXT   = { Syringes: '#0055CC', Patches: '#974F0C', 'Chest Tubes': '#006644', Bandages: '#5E4DB2' };
 
 // ─── Quantity Badge ───────────────────────────────────────────────────────────
 
@@ -180,11 +180,52 @@ function AddItemsPanel({ category = 'ENT', onClose, onAddItemsPage, onNavigate }
 
 // ─── Main Detail Page ─────────────────────────────────────────────────────────
 
+function AddPersonPanel({ onClose, onAdd }) {
+  const [name, setName] = useState('');
+  const [role, setRole] = useState('');
+  const [email, setEmail] = useState('');
+
+  return (
+    <div style={{ width: 320, display: 'flex', flexDirection: 'column', height: '100%', backgroundColor: '#fff', borderLeft: '1px solid #e8e8e8' }}>
+      <div style={{ padding: '16px 20px', borderBottom: '1px solid #e8e8e8', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <h3 style={{ margin: 0, fontSize: 18, fontWeight: 700 }}>Add Person</h3>
+        <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M4 4l10 10M14 4L4 14" stroke="#626F86" strokeWidth="1.5" strokeLinecap="round"/></svg>
+        </button>
+      </div>
+      <div style={{ flex: 1, padding: '20px' }}>
+        <div style={{ marginBottom: 16 }}>
+          <label style={{ display: 'block', fontSize: 13, fontWeight: 600, marginBottom: 4 }}>Full Name</label>
+          <input type="text" value={name} onChange={e => setName(e.target.value)} style={{ width: '100%', height: 34, border: '1px solid #d9d9d9', borderRadius: 4, padding: '0 8px' }} />
+        </div>
+        <div style={{ marginBottom: 16 }}>
+          <label style={{ display: 'block', fontSize: 13, fontWeight: 600, marginBottom: 4 }}>Role</label>
+          <input type="text" value={role} onChange={e => setRole(e.target.value)} style={{ width: '100%', height: 34, border: '1px solid #d9d9d9', borderRadius: 4, padding: '0 8px' }} />
+        </div>
+        <div style={{ marginBottom: 16 }}>
+          <label style={{ display: 'block', fontSize: 13, fontWeight: 600, marginBottom: 4 }}>Email</label>
+          <input type="email" value={email} onChange={e => setEmail(e.target.value)} style={{ width: '100%', height: 34, border: '1px solid #d9d9d9', borderRadius: 4, padding: '0 8px' }} />
+        </div>
+      </div>
+      <div style={{ padding: '12px 20px', borderTop: '1px solid #e8e8e8', display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+        <button onClick={onClose} style={{ height: 34, padding: '0 12px', background: '#fff', border: '1px solid #d9d9d9', borderRadius: 4, cursor: 'pointer' }}>Cancel</button>
+        <button onClick={() => { onAdd({ name, role, email }); onClose(); }} style={{ height: 34, padding: '0 12px', background: '#422670', color: '#fff', border: 'none', borderRadius: 4, cursor: 'pointer' }}>Save Person</button>
+      </div>
+    </div>
+  );
+}
+
+// ─── Main Detail Page ─────────────────────────────────────────────────────────
+
 export default function MissionDetailPage({ mission, onNavigate, user, onSwitchAccount, onLogout }) {
   const [activeTab, setTab] = useState('items');
   const [addPanelOpen, setAddPanel] = useState(false);
+  const [personPanelOpen, setPersonPanel] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
+  const [itemSearch, setItemSearch] = useState('');
+  const [peopleSearch, setPeopleSearch] = useState('');
+
   const m = mission || { name: 'Mission Name', specialty: 'ENT', location: 'Location Name', timeAway: '4 months away', items: 30 };
 
   const SPECIALTY_COLORS = {
@@ -209,10 +250,41 @@ export default function MissionDetailPage({ mission, onNavigate, user, onSwitchA
   }
 
   const [items, setItems] = useState(MISSION_ITEMS);
+  const [people, setPeople] = useState([
+    { id: 1, name: 'Dr. Sarah Jenkins', role: 'Lead Surgeon', email: 's.jenkins@hospital.org' },
+    { id: 2, name: 'Mark Thompson', role: 'Coordinator', email: 'm.thompson@mendingkids.org' },
+    { id: 3, name: 'Elena Rodriguez', role: 'Nurse Practitioner', email: 'elena.r@health.gov' },
+  ]);
+
+  const handleDeleteItem = (id) => {
+    if (confirm('Deallocate this item from the mission?')) {
+      setItems(prev => prev.filter(i => i.id !== id));
+    }
+  };
+
+  const handleDeletePerson = (id) => {
+    if (confirm('Remove this person from the mission?')) {
+      setPeople(prev => prev.filter(p => p.id !== id));
+    }
+  };
+
+  const handleAddPerson = (newP) => {
+    setPeople(prev => [...prev, { ...newP, id: Date.now() }]);
+  };
 
   const handleUpdateItem = (id, field, value) => {
     setItems(prev => prev.map(item => item.id === id ? { ...item, [field]: value } : item));
   };
+
+  const filteredItems = items.filter(i => 
+    i.description.toLowerCase().includes(itemSearch.toLowerCase()) ||
+    i.company.toLowerCase().includes(itemSearch.toLowerCase())
+  );
+
+  const filteredPeople = people.filter(p => 
+    p.name.toLowerCase().includes(peopleSearch.toLowerCase()) ||
+    p.role.toLowerCase().includes(peopleSearch.toLowerCase())
+  );
   const sc = SPECIALTY_COLORS[m.specialty] || { bg: '#626F86', text: '#fff' };
 
   return (
@@ -249,15 +321,15 @@ export default function MissionDetailPage({ mission, onNavigate, user, onSwitchA
                   <h1 style={{ margin: 0, fontSize: 24, fontWeight: 600, color: '#172B4D' }}>{m.name}</h1>
                 </div>
                 <button 
-                  onClick={() => setAddPanel(p => !p)}
+                  onClick={() => activeTab === 'items' ? setAddPanel(true) : setPersonPanel(true)}
                   style={{ height: 32, padding: '0 16px', backgroundColor: '#422670', color: '#fff', border: 'none', borderRadius: 4, fontSize: 14, fontWeight: 500, cursor: 'pointer', marginTop: 16, fontFamily: 'inherit' }}>
-                  Add Items
+                  {activeTab === 'items' ? 'Add Items' : 'Add Person'}
                 </button>
               </div>
 
               <p style={{ margin: '0 0 2px', fontSize: 14, color: '#44546F' }}>{m.location || 'Location Name'}</p>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
-                <p style={{ margin: 0, fontSize: 13, color: '#626F86' }}>{m.timeAway || '4 months away'}</p>
+                <p style={{ margin: 0, fontSize: 13, color: '#626F86' }}>{m.dates || m.timeAway || '4 months away'}</p>
                 <div style={{ width: 4, height: 4, borderRadius: '50%', backgroundColor: '#C1C7D0' }} />
                 <SpecialtyBadge specialty={m.specialty} />
               </div>
@@ -294,63 +366,91 @@ export default function MissionDetailPage({ mission, onNavigate, user, onSwitchA
               </div>
 
               {activeTab === 'items' ? (
-                /* Items table */
-                <div className="mobile-stack-table" style={{ border: '1px solid #e8e8e8', borderRadius: 4, overflow: 'hidden' }}>
-                  {/* Head */}
-                  <div style={{ display: 'grid', gridTemplateColumns: 'minmax(200px, 2fr) 1.4fr 1.4fr 80px', padding: '10px 14px', backgroundColor: '#FAFBFC', borderBottom: '1px solid #e8e8e8', gap: 8, overflowX: 'auto' }}>
-                    {['Item Description', 'Manufacturing Company', 'Reference Number', 'Qty'].map(h => (
-                      <span key={h} style={{ fontSize: 11, fontWeight: 700, color: '#626F86', textTransform: 'uppercase', letterSpacing: '0.04em', display: 'flex', alignItems: 'center', gap: 4 }}>
-                        {h}
+                /* Items View */
+                <>
+                  <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
+                    <div style={{ position: 'relative', flex: 1 }}>
+                      <span style={{ position: 'absolute', left: 8, top: '50%', transform: 'translateY(-50%)', color: '#8590A2', display: 'flex' }}>
+                        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="5" stroke="currentColor" strokeWidth="1.5"/><path d="M11 11l3 3" stroke="currentColor" strokeWidth="1.5"/></svg>
                       </span>
-                    ))}
-                  </div>
-                  {/* Rows */}
-                  {items.map(item => (
-                    <div key={item.id} style={{ display: 'grid', gridTemplateColumns: 'minmax(200px, 2fr) 1.4fr 1.4fr 80px', padding: '10px 14px', gap: 8, alignItems: 'center', borderBottom: '1px solid #f4f4f4', overflowX: 'auto' }}>
-                      <span style={{ fontSize: 13, color: '#172B4D' }}>{item.description}</span>
-                      <span style={{ fontSize: 13, color: '#44546F' }} className="mobile-hide">{item.company}</span>
-                      <span style={{ fontSize: 13, color: '#172B4D' }} className="mobile-hide">{item.ref}</span>
-                      <div style={{ display: 'flex', alignItems: 'center' }}>
-                        <input 
-                          type="number" 
-                          value={item.qty || ''} 
-                          onChange={e => handleUpdateItem(item.id, 'qty', parseInt(e.target.value) || 0)}
-                          style={{ width: 60, fontSize: 13, border: '1px solid transparent', padding: '4px 8px', borderRadius: 3, outline: 'none', background: 'transparent', fontWeight: 600 }}
-                          onFocus={e => e.target.style.border = '1px solid #4C9AFF'}
-                          onBlur={e => e.target.style.border = '1px solid transparent'}
-                        />
-                      </div>
+                      <input 
+                        type="text" placeholder="Search items..." 
+                        value={itemSearch} onChange={e => setItemSearch(e.target.value)}
+                        style={{ width: '100%', height: 32, paddingLeft: 28, border: '1px solid #d9d9d9', borderRadius: 4, fontSize: 13, outline: 'none' }}
+                      />
                     </div>
-                  ))}
-                </div>
-              ) : (
-                /* People table */
-                <div className="mobile-stack-table" style={{ border: '1px solid #e8e8e8', borderRadius: 4, overflow: 'hidden' }}>
-                  {/* Head */}
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr auto', padding: '10px 14px', backgroundColor: '#FAFBFC', borderBottom: '1px solid #e8e8e8', gap: 8 }}>
-                    {['Name', 'Role', 'Email', 'Actions'].map(h => (
-                      <span key={h} style={{ fontSize: 11, fontWeight: 700, color: '#626F86', textTransform: 'uppercase', letterSpacing: '0.04em' }}>{h}</span>
+                    <button style={{ height: 32, padding: '0 12px', background: '#fff', border: '1px solid #d9d9d9', borderRadius: 4, fontSize: 13 }}>Filter</button>
+                  </div>
+
+                  <div className="mobile-stack-table" style={{ border: '1px solid #e8e8e8', borderRadius: 4, overflow: 'hidden' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'minmax(200px, 2fr) 1.2fr 1.2fr 60px 40px', padding: '10px 14px', backgroundColor: '#FAFBFC', borderBottom: '1px solid #e8e8e8', gap: 8 }}>
+                      {['Item Description', 'Company', 'Reference', 'Qty', ''].map(h => (
+                        <span key={h} style={{ fontSize: 11, fontWeight: 700, color: '#626F86', textTransform: 'uppercase' }}>{h}</span>
+                      ))}
+                    </div>
+                    {filteredItems.map(item => (
+                      <div key={item.id} style={{ display: 'grid', gridTemplateColumns: 'minmax(200px, 2fr) 1.2fr 1.2fr 60px 40px', padding: '10px 14px', gap: 8, alignItems: 'center', borderBottom: '1px solid #f4f4f4' }}>
+                        <span style={{ fontSize: 13, color: '#172B4D' }}>{item.description}</span>
+                        <span style={{ fontSize: 13, color: '#44546F' }}>{item.company}</span>
+                        <span style={{ fontSize: 13, color: '#172B4D' }}>{item.ref}</span>
+                        <input 
+                          type="number" value={item.qty || ''} 
+                          onChange={e => handleUpdateItem(item.id, 'qty', parseInt(e.target.value) || 0)}
+                          style={{ width: 50, border: '1px solid transparent', padding: '2px 4px', fontSize: 13, fontWeight: 600 }}
+                        />
+                        <button 
+                          onClick={() => handleDeleteItem(item.id)}
+                          style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#626F86', padding: 4 }}>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                        </button>
+                      </div>
                     ))}
                   </div>
-                  {/* Demo People */}
-                  {[
-                    { id: 1, name: 'Dr. Sarah Jenkins', role: 'Lead Surgeon', email: 's.jenkins@hospital.org' },
-                    { id: 2, name: 'Mark Thompson', role: 'Coordinator', email: 'm.thompson@mendingkids.org' },
-                    { id: 3, name: 'Elena Rodriguez', role: 'Nurse Practitioner', email: 'elena.r@health.gov' },
-                  ].map(person => (
-                    <div key={person.id} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr auto', padding: '12px 14px', gap: 8, alignItems: 'center', borderBottom: '1px solid #f4f4f4' }}>
-                      <span style={{ fontSize: 13, fontWeight: 500, color: '#172B4D' }}>{person.name}</span>
-                      <span style={{ fontSize: 13, color: '#44546F' }}>{person.role}</span>
-                      <span style={{ fontSize: 13, color: '#44546F' }}>{person.email}</span>
-                      <button style={{ background: 'none', border: 'none', color: '#626F86', cursor: 'pointer' }}>
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+                </>
+              ) : (
+                /* People View */
+                <>
+                  <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
+                    <div style={{ position: 'relative', flex: 1 }}>
+                      <span style={{ position: 'absolute', left: 8, top: '50%', transform: 'translateY(-50%)', color: '#8590A2', display: 'flex' }}>
+                        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="5" stroke="currentColor" strokeWidth="1.5"/><path d="M11 11l3 3" stroke="currentColor" strokeWidth="1.5"/></svg>
+                      </span>
+                      <input 
+                        type="text" placeholder="Search people..." 
+                        value={peopleSearch} onChange={e => setPeopleSearch(e.target.value)}
+                        style={{ width: '100%', height: 32, paddingLeft: 28, border: '1px solid #d9d9d9', borderRadius: 4, fontSize: 13, outline: 'none' }}
+                      />
+                    </div>
+                    <button style={{ height: 32, padding: '0 12px', background: '#fff', border: '1px solid #d9d9d9', borderRadius: 4, fontSize: 13 }}>Filter</button>
+                  </div>
+
+                  <div className="mobile-stack-table" style={{ border: '1px solid #e8e8e8', borderRadius: 4, overflow: 'hidden' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr 1.2fr 40px', padding: '10px 14px', backgroundColor: '#FAFBFC', borderBottom: '1px solid #e8e8e8', gap: 8 }}>
+                      {['Name', 'Role', 'Email', ''].map(h => (
+                        <span key={h} style={{ fontSize: 11, fontWeight: 700, color: '#626F86', textTransform: 'uppercase' }}>{h}</span>
+                      ))}
+                    </div>
+                    {filteredPeople.map(person => (
+                      <div key={person.id} style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr 1.2fr 40px', padding: '12px 14px', gap: 8, alignItems: 'center', borderBottom: '1px solid #f4f4f4' }}>
+                        <span style={{ fontSize: 13, fontWeight: 500, color: '#172B4D' }}>{person.name}</span>
+                        <span style={{ fontSize: 13, color: '#44546F' }}>{person.role}</span>
+                        <span style={{ fontSize: 13, color: '#44546F' }}>{person.email}</span>
+                        <button 
+                          onClick={() => handleDeletePerson(person.id)}
+                          style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#626F86', padding: 4 }}>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                        </button>
+                      </div>
+                    ))}
+                    <div style={{ padding: '12px 14px', textAlign: 'center' }}>
+                      <button 
+                        onClick={() => setPersonPanel(true)}
+                        style={{ background: 'none', border: '1px dashed #C1C7D0', borderRadius: 4, padding: '8px 16px', width: '100%', color: '#626F86', cursor: 'pointer', fontSize: 13, fontWeight: 500 }}>
+                        + Add Person to Mission
                       </button>
                     </div>
-                  ))}
-                  <div style={{ padding: '12px 14px', textAlign: 'center' }}>
-                    <button style={{ background: 'none', border: '1px dashed #C1C7D0', borderRadius: 4, padding: '8px 16px', width: '100%', color: '#626F86', cursor: 'pointer', fontSize: 13 }}>+ Add Person</button>
                   </div>
-                </div>
+                </>
               )}
             </div>
 
@@ -360,6 +460,13 @@ export default function MissionDetailPage({ mission, onNavigate, user, onSwitchA
                 mission={m}
                 onClose={() => setAddPanel(false)}
                 onNavigate={onNavigate}
+              />
+            </SlidePanel>
+
+            <SlidePanel isOpen={personPanelOpen} onClose={() => setPersonPanel(false)} width={400}>
+              <AddPersonPanel 
+                onClose={() => setPersonPanel(false)} 
+                onAdd={handleAddPerson}
               />
             </SlidePanel>
           </div>
