@@ -496,14 +496,6 @@ export default function MissionDetailPage({ mission, onNavigate, user, onSwitchA
           </div>
         </Main>
       </Content>
-      <DeleteConfirmationModal
-        isOpen={!!deleteTarget}
-        onClose={() => setDeleteTarget(null)}
-        onConfirm={handleConfirmDelete}
-        title={deleteTarget?.type === 'item' ? 'Remove Item' : 'Remove Person'}
-        message={deleteTarget?.type === 'item' ? 'Are you sure you want to remove item' : 'Are you sure you want to remove person'}
-        itemName={deleteTarget?.type === 'item' ? deleteTarget.data.description : deleteTarget.data.name}
-      />
     </PageLayout>
   );
 }
