@@ -57,39 +57,47 @@ export default function App() {
     // Check active session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
-      if (session) fetchProfile(session.user.id);
-      setLoading(false);
+      if (session) {
+        fetchProfile(session.user.id, session.user.email);
+      } else {
+        setLoading(false);
+      }
     });
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
       if (session) {
-        fetchProfile(session.user.id);
+        fetchProfile(session.user.id, session.user.email);
       } else {
         setUserProfile(null);
+        setLoading(false);
       }
-      setLoading(false);
     });
 
     return () => subscription.unsubscribe();
   }, []);
 
-  const fetchProfile = async (id) => {
-    const { data } = await supabase.from('profiles').select('*').eq('id', id).single();
-    if (data) {
-      setUserProfile(data);
-    } else {
-      // Create profile if missing
-      const { data: newUser } = await supabase.auth.getUser();
-      const newProfile = {
-        id: id,
-        name: session.user.email.split('@')[0],
-        email: session.user.email,
-        role: 'Administrator'
-      };
-      await supabase.from('profiles').upsert(newProfile);
-      setUserProfile(newProfile);
+  const fetchProfile = async (id, email) => {
+    try {
+      const { data, error } = await supabase.from('profiles').select('*').eq('id', id).single();
+      if (data) {
+        setUserProfile(data);
+      } else {
+        // Create profile if missing
+        const newProfile = {
+          id: id,
+          name: email.split('@')[0],
+          email: email,
+          role: 'Administrator'
+        };
+        await supabase.from('profiles').upsert(newProfile);
+        setUserProfile(newProfile);
+      }
+    } catch (err) {
+      console.error('Profile fetch error:', err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -124,15 +132,19 @@ export default function App() {
     return <LoginPage />;
   }
 
+  if (!userProfile) {
+    return (
+      <div style={{ display: 'flex', height: '100vh', alignItems: 'center', justifyContent: 'center' }}>
+        <p>Initializing Profile...</p>
+      </div>
+    );
+  }
+
   const user = {
     ...userProfile,
     id: session.user.id,
     email: session.user.email
   };
-
-  if (!user) {
-    return <LoginPage onLogin={onLogin} />;
-  }
 
   return (
     <>
