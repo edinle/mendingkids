@@ -360,7 +360,13 @@ export default function MissionsPage({ onNavigate, user, onSwitchAccount, onLogo
             </div>
 
             {/* Filter row */}
-            <div style={{ display: 'flex', gap: 12, marginBottom: 20, alignItems: 'center' }}>
+            <div style={{ display: 'flex', gap: 12, marginBottom: 20, alignItems: 'center', justifyContent: 'space-between' }}>
+              {/* Filter Dropdowns */}
+              <div style={{ display: 'flex', gap: 8 }}>
+                <FilterDropdown label="Specialty" options={allSpecialties} selected={specialtyFilter} onSelect={setSpecialty} />
+                <FilterDropdown label="Location"  options={allLocations}   selected={locationFilter}  onSelect={setLocation}  />
+              </div>
+
               {/* Fixed Search Bar */}
               <div style={{ position: 'relative', display: 'flex', alignItems: 'center', width: 280, flexShrink: 0 }}>
                 <span style={{ position: 'absolute', left: 10, color: '#626F86', display: 'flex' }}>
@@ -381,12 +387,6 @@ export default function MissionsPage({ onNavigate, user, onSwitchAccount, onLogo
                     backgroundColor: token('elevation.surface.sunken', '#F4F5F7'),
                   }}
                 />
-              </div>
-
-              {/* Filter Dropdowns */}
-              <div style={{ display: 'flex', gap: 8 }}>
-                <FilterDropdown label="Specialty" options={allSpecialties} selected={specialtyFilter} onSelect={setSpecialty} />
-                <FilterDropdown label="Location"  options={allLocations}   selected={locationFilter}  onSelect={setLocation}  />
               </div>
             </div>
 

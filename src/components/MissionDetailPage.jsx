@@ -370,7 +370,12 @@ export default function MissionDetailPage({ mission, onNavigate, user, onSwitchA
               {activeTab === 'items' ? (
                 /* Items View */
                 <>
-                    <div style={{ display: 'flex', gap: 8, marginBottom: 16, alignItems: 'center', flexWrap: 'wrap' }}>
+                    <div style={{ display: 'flex', gap: 8, marginBottom: 16, alignItems: 'center', flexWrap: 'wrap', justifyContent: 'space-between' }}>
+                      <div style={{ display: 'flex', gap: 8 }}>
+                        <FilterDropdown label="Category" options={['Syringes', 'Patches', 'Chest Tubes', 'Bandages']} selected={null} onSelect={() => {}} />
+                        <FilterDropdown label="Company" options={['Abbott', 'Nipro', 'Swann-Morton', 'Masimo', 'B. Braun']} selected={null} onSelect={() => {}} />
+                      </div>
+                      
                       {/* Search bar */}
                       <div style={{ position: 'relative', width: 280, flexShrink: 0 }}>
                         <span style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: '#626F86', display: 'flex', pointerEvents: 'none' }}>
@@ -391,10 +396,6 @@ export default function MissionDetailPage({ mission, onNavigate, user, onSwitchA
                             backgroundColor: token('elevation.surface.sunken', '#F4F5F7'),
                           }}
                         />
-                      </div>
-                      <div style={{ display: 'flex', gap: 8 }}>
-                        <FilterDropdown label="Category" options={['Syringes', 'Patches', 'Chest Tubes', 'Bandages']} selected={null} onSelect={() => {}} />
-                        <FilterDropdown label="Company" options={['Abbott', 'Nipro', 'Swann-Morton', 'Masimo', 'B. Braun']} selected={null} onSelect={() => {}} />
                       </div>
                     </div>
 
@@ -426,18 +427,24 @@ export default function MissionDetailPage({ mission, onNavigate, user, onSwitchA
               ) : (
                 /* People View */
                 <>
-                  <div style={{ display: 'flex', gap: 8, marginBottom: 16, alignItems: 'center', flexWrap: 'wrap' }}>
-                    <div style={{ position: 'relative', flex: '1 1 240px', minWidth: 200 }}>
+                  <div style={{ display: 'flex', gap: 8, marginBottom: 16, alignItems: 'center', flexWrap: 'wrap', justifyContent: 'space-between' }}>
+                    <FilterDropdown label="Role" options={['Surgeon', 'Nurse', 'Coordinator', 'Specialist']} selected={null} onSelect={() => {}} />
+                    
+                    <div style={{ position: 'relative', width: 280, flexShrink: 0 }}>
                       <span style={{ position: 'absolute', left: 8, top: '50%', transform: 'translateY(-50%)', color: '#8590A2', display: 'flex' }}>
                         <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="5" stroke="currentColor" strokeWidth="1.5"/><path d="M11 11l3 3" stroke="currentColor" strokeWidth="1.5"/></svg>
                       </span>
                       <input 
                         type="text" placeholder="Search team..." 
                         value={peopleSearch} onChange={e => setPeopleSearch(e.target.value)}
-                        style={{ width: '100%', height: 32, paddingLeft: 28, border: '1px solid #d9d9d9', borderRadius: 4, fontSize: 13, outline: 'none' }}
+                        style={{ 
+                          width: '100%', height: 32, paddingLeft: 28, 
+                          border: `1px solid ${token('color.border', '#DFE1E6')}`, borderRadius: 3, 
+                          fontSize: 13, outline: 'none',
+                          backgroundColor: token('elevation.surface.sunken', '#F4F5F7'),
+                        }}
                       />
                     </div>
-                    <FilterDropdown label="Role" options={['Surgeon', 'Nurse', 'Coordinator', 'Specialist']} selected={null} onSelect={() => {}} />
                   </div>
 
                   <div className="mobile-stack-table" style={{ border: '1px solid #e8e8e8', borderRadius: 4, overflow: 'hidden' }}>

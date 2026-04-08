@@ -529,19 +529,15 @@ export default function InventoryPage({ onNavigate, user, onSwitchAccount, onLog
             </div>
 
             {/* Tab bar + right-side filters */}
+            {/* Tabs Row */}
             <div style={{
-              display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between',
+              display: 'flex', alignItems: 'flex-end',
               borderBottom: `2px solid ${token('color.border', 'rgba(9,30,66,0.14)')}`,
               marginBottom: 16,
             }}>
-              {/* Tabs */}
               <div style={{ display: 'flex' }}>
                 {TABS.map((tab) => {
                   const isActive = activeTab === tab.key;
-                  const count = 
-                    tab.key === 'available' ? availableCount : 
-                    tab.key === 'in-use' ? inUseCount : 
-                    archivedCount;
                   return (
                     <button
                       key={tab.key}
@@ -570,7 +566,7 @@ export default function InventoryPage({ onNavigate, user, onSwitchAccount, onLog
                         backgroundColor: isActive ? '#F3F0FF' : '#F1F2F4',
                         color: isActive ? '#422670' : '#626F86',
                       }}>
-                      {tab.key === 'available' ? availableCount : tab.key === 'in-use' ? inUseCount : archivedCount}
+                        {tab.key === 'available' ? availableCount : tab.key === 'in-use' ? inUseCount : archivedCount}
                       </span>
                       {isActive && (
                         <span style={{
@@ -587,9 +583,11 @@ export default function InventoryPage({ onNavigate, user, onSwitchAccount, onLog
                   );
                 })}
               </div>
+            </div>
 
-              {/* Filters */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, paddingBottom: 8 }}>
+            {/* Filters & Search Row */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 {isInUse && (
                   <FilterDropdown
                     label="Mission"
@@ -605,31 +603,32 @@ export default function InventoryPage({ onNavigate, user, onSwitchAccount, onLog
                   selected={expirationFilter}
                   onSelect={setExpirationFilter}
                 />
-                <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-                  <span style={{
-                    position: 'absolute', left: 10, display: 'flex',
-                    color: token('color.text.subtlest', '#626F86'), pointerEvents: 'none',
-                  }}>
-                    <SearchIcon label="" />
-                  </span>
-                  <input
-                    type="text"
-                    placeholder="Search"
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    style={{
-                      height: 32, width: 220,
-                      paddingLeft: 32, paddingRight: 10,
-                      border: `1px solid ${token('color.border', 'rgba(9,30,66,0.14)')}`,
-                      borderRadius: 4, fontSize: 14,
-                      color: token('color.text', '#172B4D'),
-                      outline: 'none',
-                      backgroundColor: token('elevation.surface', '#fff'),
-                      fontFamily: 'inherit',
-                    }}
-                    aria-label="Search inventory"
-                  />
-                </div>
+              </div>
+
+              <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                <span style={{
+                  position: 'absolute', left: 10, display: 'flex',
+                  color: token('color.text.subtlest', '#626F86'), pointerEvents: 'none',
+                }}>
+                  <SearchIcon label="" />
+                </span>
+                <input
+                  type="text"
+                  placeholder="Search"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  style={{
+                    height: 32, width: 220,
+                    paddingLeft: 32, paddingRight: 10,
+                    border: `1px solid ${token('color.border', 'rgba(9,30,66,0.14)')}`,
+                    borderRadius: 4, fontSize: 14,
+                    color: token('color.text', '#172B4D'),
+                    outline: 'none',
+                    backgroundColor: token('elevation.surface', '#fff'),
+                    fontFamily: 'inherit',
+                  }}
+                  aria-label="Search inventory"
+                />
               </div>
             </div>
 
