@@ -16,6 +16,34 @@ const SPECIALTY_COLORS = {
   'General':  '#cf4f27',
 };
 
+const MISSIONS = [
+  { id: 1, name: 'Benin Cleft Lip & Palate', specialty: 'Plastics', status: 'ONGOING', location: 'Cotonou, Benin', dates: 'Apr 12 - Apr 25, 2026', category: 'Surgical', categoryColor: '#6d28d9', coordinator: 'Sarah Jenkins', volunteers: 12, items: 45, date: '2026-04-12', action: 'Submit equipment list' },
+  { id: 2, name: 'Guatemala Orthopedic 2026', specialty: 'Ortho', status: 'PENDING', location: 'Guatemala City', dates: 'May 05 - May 18, 2026', category: 'Orthopedic', categoryColor: '#0e7490', coordinator: 'Mike Thompson', volunteers: 8, items: 32, date: '2026-05-05', action: 'Finalize volunteer list' },
+  { id: 3, name: 'Tanzania Cardiac Relief', specialty: 'Cardiac', status: 'ONGOING', location: 'Dar es Salaam', dates: 'Apr 01 - Apr 15, 2026', category: 'Cardiac', categoryColor: '#1561cc', coordinator: 'Elena Rodriguez', volunteers: 15, items: 68, date: '2026-04-01', action: 'Review patient files' },
+  { id: 4, name: 'Panama General Surgery', specialty: 'General', status: 'PENDING', location: 'Panama City', dates: 'Jun 10 - Jun 22, 2026', category: 'General', categoryColor: '#cf4f27', coordinator: 'David Chen', volunteers: 10, items: 25, date: '2026-06-10', action: 'Order supplies' },
+];
+
+const CALENDAR = {
+  month: 'April 2026',
+  days: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+  today: 9,
+  weeks: [
+    [null, null, null, 1, 2, 3, 4],
+    [5, 6, 7, 8, 9, 10, 11],
+    [12, 13, 14, 15, 16, 17, 18],
+    [19, 20, 21, 22, 23, 24, 25],
+    [26, 27, 28, 29, 30, null, null],
+  ],
+  events: {
+    1: ['#1561cc'],
+    5: ['#1561cc'],
+    9: ['#1561cc', '#d63c8a'],
+    12: ['#6d28d9'],
+    15: ['#1561cc'],
+    20: ['#6d28d9'],
+  }
+};
+
 // ─── Sub-components ────────────────────────────────────────────────────────
 
 function StatusBadge({ status }) {

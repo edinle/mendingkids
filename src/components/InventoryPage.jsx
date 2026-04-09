@@ -288,7 +288,7 @@ export default function InventoryPage({ user, onSwitchAccount, onLogout }) {
         valuation_source: s.valuation_source,
         acquisition_method: s.acquisition_method
       }));
-      setRows(mapped);
+      setInventory(mapped);
     }
     setLoading(false);
   };
@@ -349,7 +349,7 @@ export default function InventoryPage({ user, onSwitchAccount, onLogout }) {
   };
 
   // Filter pipeline: tab → mission → expiration → search
-  const filtered = rows.filter((r) => {
+  const filtered = inventory.filter((r) => {
     // Tab filter
     if (r.status !== activeTab) return false;
     // Search filter
@@ -412,9 +412,9 @@ export default function InventoryPage({ user, onSwitchAccount, onLogout }) {
   });
 
   // Count items per tab
-  const availableCount = rows.filter(r => r.status === 'available').length;
-  const inUseCount = rows.filter(r => r.status === 'in-use').length;
-  const archivedCount = rows.filter(r => r.status === 'archived').length;
+  const availableCount = inventory.filter(r => r.status === 'available').length;
+  const inUseCount = inventory.filter(r => r.status === 'in-use').length;
+  const archivedCount = inventory.filter(r => r.status === 'archived').length;
 
   return (
     <PageLayout>

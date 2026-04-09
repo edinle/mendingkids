@@ -59,21 +59,30 @@ export default function App() {
   const location = useLocation();
 
   useEffect(() => {
-    // Check active session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      if (session) {
-        fetchProfile(session.user.id, session.user.email);
-      } else {
+    const checkSession = async () => {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        if (error) throw error;
+        
+        setSession(session);
+        if (session) {
+          await fetchProfile(session.user.id, session.user.email);
+        } else {
+          setLoading(false);
+        }
+      } catch (err) {
+        console.error('Auth check error:', err);
         setLoading(false);
       }
-    });
+    };
+
+    checkSession();
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       setSession(session);
       if (session) {
-        fetchProfile(session.user.id, session.user.email);
+        await fetchProfile(session.user.id, session.user.email);
       } else {
         setUserProfile(null);
         setLoading(false);
@@ -86,6 +95,11 @@ export default function App() {
   const fetchProfile = async (id, email) => {
     try {
       const { data, error } = await supabase.from('profiles').select('*').eq('id', id).single();
+      
+      if (error && error.code !== 'PGRST116') {
+        throw error;
+      }
+
       if (data) {
         setUserProfile(data);
       } else {
@@ -95,14 +109,16 @@ export default function App() {
           id: id,
           name: user?.user_metadata?.full_name || email.split('@')[0],
           email: email,
-          role: 'Administrator'
+          role: 'Administrator',
+          status: 'Active'
         };
-        await supabase.from('profiles').upsert(newProfile);
+        const { error: upsertError } = await supabase.from('profiles').upsert(newProfile);
+        if (upsertError) throw upsertError;
         setUserProfile(newProfile);
       }
     } catch (err) {
       console.error('Profile fetch error:', err);
-    } finally {
+      // Even if profile fails, we should stop loading to show "Initializing Profile..." or an error
       setLoading(false);
     }
   };
@@ -138,8 +154,17 @@ export default function App() {
 
   if (!userProfile) {
     return (
-      <div style={{ display: 'flex', height: '100vh', alignItems: 'center', justifyContent: 'center' }}>
-        <p>Initializing Profile...</p>
+      <div style={{ display: 'flex', height: '100vh', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', backgroundColor: '#F4F5F7' }}>
+        <p style={{ color: '#172B4D', fontSize: 18, marginBottom: 16 }}>Initializing Profile...</p>
+        <p style={{ color: '#626F86', fontSize: 14, marginBottom: 24, maxWidth: 300, textAlign: 'center' }}>
+          If this takes too long, please check your connection or try logging out.
+        </p>
+        <button 
+          onClick={onLogout}
+          style={{ padding: '8px 16px', backgroundColor: '#fff', border: '1px solid #DFE1E6', borderRadius: 3, cursor: 'pointer' }}
+        >
+          Logout
+        </button>
       </div>
     );
   }
