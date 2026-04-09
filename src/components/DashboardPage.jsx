@@ -552,72 +552,78 @@ export default function DashboardPage({ user, onSwitchAccount, onLogout }) {
 
   const fetchDashboardData = async () => {
     setLoading(true);
-    
-    // 1. Fetch Latest 4 Missions (Ongoing/Pending)
-    const { data: missionsData } = await supabase
-      .from('missions')
-      .select('*')
-      .neq('status', 'COMPLETED')
-      .order('created_at', { ascending: false })
-      .limit(4);
-    if (missionsData) setMissions(missionsData);
+    try {
+      const ninetyDaysFromNow = new Date();
+      ninetyDaysFromNow.setDate(ninetyDaysFromNow.getDate() + 90);
+      const cutoffDate = ninetyDaysFromNow.toISOString().split('T')[0];
 
-    // 2. Fetch Expiration Alerts (< 90 days)
-    const ninetyDaysFromNow = new Date();
-    ninetyDaysFromNow.setDate(ninetyDaysFromNow.getDate() + 90);
-    const { data: alertsData } = await supabase
-      .from('shipments')
-      .select('*, inventory(description)')
-      .lt('expiration_date', ninetyDaysFromNow.toISOString().split('T')[0])
-      .order('expiration_date', { ascending: true })
-      .limit(4);
-    if (alertsData) {
-      const mappedAlerts = alertsData.map(a => ({
-        id: a.id,
-        text: `${a.quantity} units expiring soon`,
-        date: new Date(a.expiration_date).toLocaleDateString(),
-        item: a.inventory?.description || 'Unknown',
-        qty: a.quantity,
-        location: a.location || 'Primary Storage',
-        severity: new Date(a.expiration_date) < new Date() ? 'danger' : 'warning'
-      }));
-      setAlerts(mappedAlerts);
+      const [missionsRes, alertsRes, logRes, shipmentsRes] = await Promise.all([
+        supabase
+          .from('missions')
+          .select('*')
+          .neq('status', 'COMPLETED')
+          .order('created_at', { ascending: false })
+          .limit(4),
+        supabase
+          .from('shipments')
+          .select('*, inventory(description)')
+          .lt('expiration_date', cutoffDate)
+          .order('expiration_date', { ascending: true })
+          .limit(4),
+        supabase
+          .from('activity_log')
+          .select('*, profiles(name, initials)')
+          .order('created_at', { ascending: false })
+          .limit(5),
+        supabase
+          .from('shipments')
+          .select('*, inventory(description)')
+          .order('created_at', { ascending: false })
+          .limit(4),
+      ]);
+
+      if (missionsRes.data) {
+        setMissions(missionsRes.data);
+      }
+
+      if (alertsRes.data) {
+        const mappedAlerts = alertsRes.data.map(a => ({
+          id: a.id,
+          text: `${a.quantity} units expiring soon`,
+          date: new Date(a.expiration_date).toLocaleDateString(),
+          item: a.inventory?.description || 'Unknown',
+          qty: a.quantity,
+          location: a.location || 'Primary Storage',
+          severity: new Date(a.expiration_date) < new Date() ? 'danger' : 'warning'
+        }));
+        setAlerts(mappedAlerts);
+      }
+
+      if (logRes.data) {
+        const mappedLogs = logRes.data.map(l => ({
+          id: l.id,
+          text: l.action_text,
+          time: formatRelativeTime(l.created_at),
+          initials: l.profiles?.initials || '??'
+        }));
+        setActivity(mappedLogs);
+      }
+
+      if (shipmentsRes.data) {
+        const mapped = shipmentsRes.data.map(s => ({
+          id: s.id,
+          name: s.inventory?.description || 'Item',
+          qty: s.quantity,
+          status: s.status,
+          statusColor: s.status === 'expired' ? '#c62828' : s.status === 'available' ? '#1a7f37' : '#1565c0'
+        }));
+        setUpdates(mapped);
+      }
+    } catch (error) {
+      console.error('[Dashboard] Failed to fetch dashboard data:', error);
+    } finally {
+      setLoading(false);
     }
-
-    // 3. Fetch Recent Activity
-    const { data: logData } = await supabase
-      .from('activity_log')
-      .select('*, profiles(name, initials)')
-      .order('created_at', { ascending: false })
-      .limit(5);
-    if (logData) {
-      const mappedLogs = logData.map(l => ({
-        id: l.id,
-        text: l.action_text,
-        time: formatRelativeTime(l.created_at),
-        initials: l.profiles?.initials || '??'
-      }));
-      setActivity(mappedLogs);
-    }
-
-    // 4. Fetch Item Status Updates (Recent shipments changes)
-    const { data: shipmentsData } = await supabase
-      .from('shipments')
-      .select('*, inventory(description)')
-      .order('created_at', { ascending: false })
-      .limit(4);
-    if (shipmentsData) {
-      const mapped = shipmentsData.map(s => ({
-        id: s.id,
-        name: s.inventory?.description || 'Item',
-        qty: s.quantity,
-        status: s.status,
-        statusColor: s.status === 'expired' ? '#c62828' : s.status === 'available' ? '#1a7f37' : '#1565c0'
-      }));
-      setUpdates(mapped);
-    }
-
-    setLoading(false);
   };
 
   const formatRelativeTime = (dateStr) => {

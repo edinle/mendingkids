@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
-import { supabase } from './utils/supabase';
+import { isSupabaseConfigured, supabase, supabaseConfigMessage } from './utils/supabase';
 import VolunteersPage   from './components/VolunteersPage';
 import InventoryPage     from './components/InventoryPage';
 import MissionsPage      from './components/MissionsPage';
@@ -135,7 +135,7 @@ export default function App() {
     try {
       const { data, error } = await withTimeout(
         supabase.from('profiles').select('*').eq('id', id).single(),
-        5000,
+        2500,
         'Profile lookup timed out'
       );
       
@@ -150,7 +150,7 @@ export default function App() {
         const newProfile = fallbackProfile;
         const { error: upsertError } = await withTimeout(
           supabase.from('profiles').upsert(newProfile),
-          5000,
+          2500,
           'Profile upsert timed out'
         );
         if (upsertError) {
@@ -193,7 +193,16 @@ export default function App() {
   }
 
   if (!session) {
-    return <LoginPage />;
+    return (
+      <>
+        {!isSupabaseConfigured && (
+          <div style={{ backgroundColor: '#FFEDEB', color: '#5D1F1A', padding: '8px 12px', fontSize: 13, textAlign: 'center' }}>
+            {supabaseConfigMessage}
+          </div>
+        )}
+        <LoginPage />
+      </>
+    );
   }
 
   if (!userProfile) {
@@ -248,7 +257,13 @@ export default function App() {
   };
 
   return (
-    <Routes>
+    <>
+      {!isSupabaseConfigured && (
+        <div style={{ backgroundColor: '#FFEDEB', color: '#5D1F1A', padding: '8px 12px', fontSize: 13, textAlign: 'center' }}>
+          {supabaseConfigMessage}
+        </div>
+      )}
+      <Routes>
       <Route path="/" element={<Navigate to="/dashboard" replace />} />
       <Route path="/dashboard" element={<DashboardPage user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} />} />
       <Route path="/inventory" element={<InventoryPage user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} />} />
@@ -263,6 +278,7 @@ export default function App() {
       
       {/* Fallback */}
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
-    </Routes>
+      </Routes>
+    </>
   );
 }
