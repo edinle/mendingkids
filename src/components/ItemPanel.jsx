@@ -201,12 +201,27 @@ function Step1({ values, onChange }) {
       </div>
 
       <div>
-        <FieldLabel text="Expiration Date" required />
+        <FieldLabel text="Expiration Date" />
         <DatePicker
           value={values.expirationDate}
           onChange={set('expirationDate')}
           placeholder="Select date"
         />
+        {!values.expirationDate && (
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: 6,
+            marginTop: 6, padding: '6px 10px',
+            backgroundColor: '#FFFAE6', border: '1px solid #F5CD47',
+            borderRadius: 4,
+          }}>
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path d="M8 1.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13zM8 5v4M8 11h.01" stroke="#974F0C" strokeWidth="1.5" strokeLinecap="round"/>
+            </svg>
+            <span style={{ fontSize: 12, color: '#974F0C' }}>
+              Reminder: expiration date helps track item safety — don't forget to add it.
+            </span>
+          </div>
+        )}
       </div>
 
       <div>
@@ -543,7 +558,7 @@ function Step3({ s1, s2 }) {
 
       {/* Expiration Date */}
       <div>
-        <FieldLabel text="Expiration Date" required />
+        <FieldLabel text="Expiration Date" />
         <div style={{
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           padding: '8px 12px', minHeight: 36,
@@ -591,6 +606,7 @@ export default function ItemPanel({ isOpen, onClose, onSave, isEdit, baseItem })
   const [s2, setS2] = useState(INIT_S2);
   const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [showExpWarning, setShowExpWarning] = useState(false);
 
   // Use effect to handle pre-filling when based on an existing item
   useEffect(() => {
@@ -635,6 +651,10 @@ export default function ItemPanel({ isOpen, onClose, onSave, isEdit, baseItem })
   };
 
   const handleNext = () => {
+    if (step === 1 && !s1.expirationDate) {
+      setShowExpWarning(true);
+      return;
+    }
     if (step < TOTAL_STEPS) setStep(step + 1);
   };
 
@@ -805,6 +825,27 @@ export default function ItemPanel({ isOpen, onClose, onSave, isEdit, baseItem })
 
     </SlidePanel>
 
+    <ModalTransition>
+      {showExpWarning && (
+        <Modal onClose={() => setShowExpWarning(false)}>
+          <ModalHeader>
+            <ModalTitle>No Expiration Date Set</ModalTitle>
+          </ModalHeader>
+          <ModalBody>
+            <p>You haven't added an expiration date. Expiration dates help track item safety and prevent expired supplies from being used in missions.</p>
+            <p>Are you sure you want to continue without one?</p>
+          </ModalBody>
+          <ModalFooter>
+            <Button appearance="subtle" onClick={() => setShowExpWarning(false)}>
+              Go Back &amp; Add Date
+            </Button>
+            <Button appearance="warning" onClick={() => { setShowExpWarning(false); setStep(step + 1); }}>
+              Continue Without Date
+            </Button>
+          </ModalFooter>
+        </Modal>
+      )}
+    </ModalTransition>
     <ModalTransition>
       {isErrorModalOpen && (
         <Modal onClose={() => setIsErrorModalOpen(false)}>
