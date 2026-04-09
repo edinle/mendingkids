@@ -3,17 +3,11 @@ import PropTypes from 'prop-types';
 import Button from '@atlaskit/button/new';
 import Lozenge from '@atlaskit/lozenge';
 import { token } from '@atlaskit/tokens';
+import { supabase } from '../utils/supabase';
 import SlidePanel from './SlidePanel';
 import ItemStatusModal from './ItemStatusModal';
 
-// ─── Static sample data ────────────────────────────────────────────────────
-
-const SAMPLE_ENTRIES = [
-  { id: 1, dateAdded: '2020-05-17', expiration: '2026-03-01', quantity: 500, location: 'Cabinet 14 Shelf 3A', status: 'danger' },
-  { id: 2, dateAdded: '2020-05-17', expiration: '2026-08-01', quantity: 500, location: 'Cabinet 14 Shelf 3A', status: 'warning' },
-  { id: 3, dateAdded: '2020-05-17', expiration: '2027-08-01', quantity: 500, location: 'Cabinet 14 Shelf 3A', status: 'success' },
-  { id: 4, dateAdded: '2020-05-17', expiration: '2026-08-01', quantity: 500, location: 'Cabinet 14 Shelf 3A', status: 'warning' },
-];
+// ─── Static sample remains as fallback ─────────────────────────────────────
 
 const ACTIVITY_LOG = [
   { id: 1, type: 'added',   label: 'Added inventory',      delta: '+500', reason: 'Purchase order received' },
@@ -215,8 +209,14 @@ const tCell = {
 
 // ─── Overview tab ──────────────────────────────────────────────────────────
 
-function OverviewTab({ totalQuantity, onAssign, onNewEntry }) {
-  const hasWarning = SAMPLE_ENTRIES.some(e => e.status === 'danger');
+function OverviewTab({ totalQuantity, onAssign, onNewEntry, entries = [] }) {
+  const hasWarning = entries.some(e => {
+    if (!e.expiration) return false;
+    const exp = new Date(e.expiration);
+    const threeMonths = new Date();
+    threeMonths.setMonth(threeMonths.getMonth() + 3);
+    return exp < threeMonths;
+  });
 
   return (
     <>
@@ -322,28 +322,31 @@ function OverviewTab({ totalQuantity, onAssign, onNewEntry }) {
               </tr>
             </thead>
             <tbody>
-              {SAMPLE_ENTRIES.map((e) => (
-                <tr key={e.id}>
-                  <td style={tCell}>{e.dateAdded}</td>
-                  <td style={tCell}>
-                    <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                      <StatusDot status={e.status} />
-                      {e.expiration}
-                    </span>
-                  </td>
-                  <td style={tCell}>
-                    <span style={{
-                      display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                      minWidth: 36, padding: '1px 6px',
-                      border: '1px solid #B7B9BE', borderRadius: 3,
-                      fontSize: 12, fontWeight: 700, color: '#172B4D',
-                    }}>
-                      {e.quantity}
-                    </span>
-                  </td>
-                  <td style={{ ...tCell, whiteSpace: 'nowrap' }}>{e.location}</td>
-                </tr>
-              ))}
+              {entries.map((e) => {
+                const isDanger = e.expiration && new Date(e.expiration) < new Date(new Date().setMonth(new Date().getMonth() + 3));
+                return (
+                  <tr key={e.id}>
+                    <td style={tCell}>{new Date(e.created_at).toLocaleDateString()}</td>
+                    <td style={tCell}>
+                      <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <StatusDot status={isDanger ? 'danger' : 'success'} />
+                        {e.expiration || '—'}
+                      </span>
+                    </td>
+                    <td style={tCell}>
+                      <span style={{
+                        display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                        minWidth: 36, padding: '1px 6px',
+                        border: '1px solid #B7B9BE', borderRadius: 3,
+                        fontSize: 12, fontWeight: 700, color: '#172B4D',
+                      }}>
+                        {e.quantity}
+                      </span>
+                    </td>
+                    <td style={{ ...tCell, whiteSpace: 'nowrap' }}>{e.location}</td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
@@ -420,7 +423,12 @@ function ActivityTab() {
 
 // ─── Documentation tab ─────────────────────────────────────────────────────
 
-function DocumentationTab() {
+function DocumentationTab({ item }) {
+  const marketValue = item?.market_value || 0;
+  const valuationSource = item?.valuation_source || '—';
+  const totalQuantity = item?.quantity || 0;
+  const totalValue = (marketValue * totalQuantity).toFixed(2);
+
   return (
     <>
       {/* Total Value */}
@@ -433,17 +441,17 @@ function DocumentationTab() {
             <circle cx="9" cy="9" r="7.5" stroke="#626F86" strokeWidth="1.3" />
             <path d="M9 4.5v1.2M9 12.3V13.5M6.8 7C6.8 5.9 7.8 5 9 5h.5C10.9 5 12 6.1 12 7.3c0 1-.6 1.8-1.5 2L9 9.5C8 10 6.8 11 6.8 12c0 1.1 1 2 2.2 2H9.5c1.2 0 2.2-.9 2.2-2" stroke="#626F86" strokeWidth="1.1" strokeLinecap="round" />
           </svg>
-          <span style={{ fontSize: 20, fontWeight: 700, color: token('color.text', '#172B4D') }}>$510</span>
+          <span style={{ fontSize: 20, fontWeight: 700, color: token('color.text', '#172B4D') }}>\${totalValue}</span>
         </div>
 
         <div style={{ display: 'flex', gap: 32, marginBottom: 14 }}>
           <div>
             <p style={{ fontSize: 12, color: token('color.text.subtle', '#505258'), margin: '0 0 3px' }}>Market Value per Unit</p>
-            <p style={{ fontSize: 14, color: token('color.text', '#172B4D'), margin: 0 }}>$0.255</p>
+            <p style={{ fontSize: 14, color: token('color.text', '#172B4D'), margin: 0 }}>\${marketValue}</p>
           </div>
           <div>
             <p style={{ fontSize: 12, color: token('color.text.subtle', '#505258'), margin: '0 0 3px' }}>Date Value Researched</p>
-            <p style={{ fontSize: 14, color: token('color.text', '#172B4D'), margin: 0 }}>2024-08-01</p>
+            <p style={{ fontSize: 14, color: token('color.text', '#172B4D'), margin: 0 }}>{new Date().toISOString().split('T')[0]}</p>
           </div>
         </div>
 
@@ -453,7 +461,7 @@ function DocumentationTab() {
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
               <path d="M5.5 7a1.75 1.75 0 0 0 1.75 1.75h1.75a1.75 1.75 0 0 0 0-3.5H8.5M8.5 7a1.75 1.75 0 0 0-1.75-1.75H5a1.75 1.75 0 0 0 0 3.5h.75" stroke="var(--ds-link)" strokeWidth="1.2" strokeLinecap="round" />
             </svg>
-            <span style={{ fontSize: 14, color: 'var(--ds-link)' }}>www.amazon.com/value</span>
+            <span style={{ fontSize: 14, color: 'var(--ds-link)', wordBreak: 'break-all' }}>{valuationSource}</span>
           </div>
         </div>
       </div>
@@ -511,9 +519,33 @@ const DEFAULT_DETAIL_VALUES = {
 
 const SHELF_LIFE_OPTIONS = ['Does Not Expire', '1 Year', '2 Years', '3 Years', '5 Years'];
 
-function DetailsTab({ isFullEdit, onExitFullEdit }) {
-  const [saved, setSaved]         = useState(DEFAULT_DETAIL_VALUES);
-  const [draft, setDraft]         = useState(DEFAULT_DETAIL_VALUES);
+function DetailsTab({ isFullEdit, onExitFullEdit, item, onSave }) {
+  const [saved, setSaved]         = useState({
+    company:      item?.company || '',
+    reference:    item?.reference || '',
+    lotNumber:    item?.lot_number || 'N/A',
+    unitOfMeasure:item?.unit_of_measure || 'Unit',
+    shelfLife:    item?.shelf_life || 'Does Not Expire',
+    location:     item?.location || '',
+    notes:        item?.notes || '',
+  });
+  const [draft, setDraft]         = useState(saved);
+  
+  useEffect(() => {
+    if (item) {
+        const newState = {
+            company:      item.company || '',
+            reference:    item.reference || '',
+            lotNumber:    item.lot_number || 'N/A',
+            unitOfMeasure:item.unit_of_measure || 'Unit',
+            shelfLife:    item.shelf_life || 'Does Not Expire',
+            location:     item.location || '',
+            notes:        item.notes || '',
+        };
+        setSaved(newState);
+        setDraft(newState);
+    }
+  }, [item]);
   const [editing, setEditing]     = useState(null); // field key or null
   const [hovered, setHovered]     = useState(null); // field key or null
   const [tempVal, setTempVal]     = useState('');
@@ -524,10 +556,27 @@ function DetailsTab({ isFullEdit, onExitFullEdit }) {
     setHovered(null);
   };
 
-  const commitEdit = () => {
-    setSaved(prev => ({ ...prev, [editing]: tempVal }));
-    setDraft(prev => ({ ...prev, [editing]: tempVal }));
+  const commitEdit = async () => {
+    const field = editing;
+    const value = tempVal;
+    setSaved(prev => ({ ...prev, [field]: value }));
+    setDraft(prev => ({ ...prev, [field]: value }));
     setEditing(null);
+
+    // Persist single-field edit to Supabase
+    try {
+      const inventoryFields = { company: 'company', reference: 'reference_number', unitOfMeasure: 'unit_of_measure', shelfLife: 'shelf_life', notes: 'notes' };
+      const shipmentFields = { location: 'location', lotNumber: 'lot_number' };
+
+      if (inventoryFields[field] && item?.inventory_id) {
+        await supabase.from('inventory').update({ [inventoryFields[field]]: value }).eq('id', item.inventory_id);
+      } else if (shipmentFields[field] && item?.id) {
+        await supabase.from('shipments').update({ [shipmentFields[field]]: value }).eq('id', item.id);
+      }
+      onSave?.();
+    } catch (err) {
+      console.error('Inline save failed:', err);
+    }
   };
 
   const cancelEdit = () => {
@@ -539,9 +588,37 @@ function DetailsTab({ isFullEdit, onExitFullEdit }) {
     setDraft(prev => ({ ...prev, [field]: val }));
   };
 
-  const saveAll = () => {
-    setSaved({ ...draft });
-    onExitFullEdit();
+  const saveAll = async () => {
+    try {
+      // Update inventory table
+      if (item.inventory_id) {
+        await supabase
+          .from('inventory')
+          .update({
+            company: draft.company,
+            reference_number: draft.reference,
+            unit_of_measure: draft.unitOfMeasure,
+            shelf_life: draft.shelfLife,
+            notes: draft.notes
+          })
+          .eq('id', item.inventory_id);
+      }
+      
+      // Update shipments table (for location & lot_number)
+      await supabase
+        .from('shipments')
+        .update({
+          location: draft.location,
+          lot_number: draft.lotNumber
+        })
+        .eq('id', item.id);
+
+      setSaved({ ...draft });
+      onSave?.(); // Refresh parent
+      onExitFullEdit();
+    } catch (err) {
+      console.error('Save failed:', err);
+    }
   };
 
   const cancelAll = () => {
@@ -853,21 +930,39 @@ function iconBtnSt(color) {
 
 // ─── Main Component ─────────────────────────────────────────────────────────
 
-export default function OverviewPanel({ isOpen, onClose, item, onEdit, onAssign, onNewEntry }) {
+export default function OverviewPanel({ isOpen, onClose, item, onEdit, onAssign, onNewEntry, onSave }) {
   const [tab, setTab]             = useState('Overview');
   const [isFullEdit, setIsFullEdit] = useState(false);
   const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
-  const [status, setStatus]       = useState('in-use');
+  const [status, setStatus]       = useState('available');
+  const [entries, setEntries]     = useState([]);
+  const [loading, setLoading]     = useState(false);
+
+  useEffect(() => {
+    if (item && isOpen) {
+      fetchEntries();
+      setStatus(item.status || 'available');
+    }
+  }, [item, isOpen]);
+
+  const fetchEntries = async () => {
+    if (!item?.inventory_id) return;
+    setLoading(true);
+    const { data } = await supabase
+      .from('shipments')
+      .select('*')
+      .eq('inventory_id', item.inventory_id);
+    if (data) setEntries(data);
+    setLoading(false);
+  };
 
   if (!item) return null;
 
-  const totalQuantity = typeof item.quantity === 'number' ? item.quantity : 2000;
+  const totalQuantity = entries.reduce((sum, e) => sum + (e.quantity || 0), 0);
   const itemName  = item.description || 'Infusion Set';
-  const refNumber = item.reference   || 'IS-170/AVF/RL/H-WB';
-  const location  = 'Cabinet 14 Shelf 3A';
-  const expDate   = typeof item.expiration === 'number'
-    ? 'EXP 08/2027'
-    : `EXP ${item.expiration}`;
+  const refNumber = item.reference   || '—';
+  const location  = item.location    || '—';
+  const expDate   = item.expiration === '—' ? 'No Expiration' : `EXP ${item.expiration}`;
 
   const handleClose = () => {
     setTab('Overview');
@@ -966,13 +1061,15 @@ export default function OverviewPanel({ isOpen, onClose, item, onEdit, onAssign,
 
           {/* Tab content */}
           <div style={{ paddingTop: 20 }}>
-            {tab === 'Overview'       && <OverviewTab totalQuantity={totalQuantity} onAssign={onAssign} onNewEntry={onNewEntry} />}
+            {tab === 'Overview'       && <OverviewTab totalQuantity={totalQuantity} onAssign={onAssign} onNewEntry={onNewEntry} entries={entries} />}
             {tab === 'Activity'       && <ActivityTab />}
-            {tab === 'Documentation'  && <DocumentationTab />}
+            {tab === 'Documentation'  && <DocumentationTab item={item} />}
             {tab === 'Details'        && (
               <DetailsTab
                 isFullEdit={isFullEdit}
                 onExitFullEdit={() => setIsFullEdit(false)}
+                item={item}
+                onSave={() => { fetchEntries(); onSave?.(); }}
               />
             )}
           </div>

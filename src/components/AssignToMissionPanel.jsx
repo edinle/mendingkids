@@ -3,25 +3,61 @@ import PropTypes from 'prop-types';
 import Select from '@atlaskit/select';
 import Textfield from '@atlaskit/textfield';
 import { token } from '@atlaskit/tokens';
+import { supabase } from '../utils/supabase';
 import SlidePanel from './SlidePanel';
-
-const MISSIONS = [
-  { label: 'Benin Cleft Lip & Palate', value: 'benin' },
-  { label: 'Guatemala Orthopedic 2026', value: 'guatemala' },
-  { label: 'Tanzania Cardiac Relief', value: 'tanzania' },
-  { label: 'Honduras General Surgical', value: 'honduras' },
-];
 
 export default function AssignToMissionPanel({ isOpen, onClose, item, onAssign }) {
   const [selectedMission, setSelectedMission] = useState(null);
   const [quantity, setQuantity] = useState('');
+  const [missions, setMissions] = useState([]);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    if (isOpen && item) {
-      setQuantity(String(item.quantity || ''));
+    if (isOpen) {
+      fetchMissions();
+      if (item) {
+        setQuantity(String(item.quantity || ''));
+      }
       setSelectedMission(null);
     }
   }, [isOpen, item]);
+
+  const fetchMissions = async () => {
+    const { data } = await supabase.from('missions').select('id, name, location');
+    if (data) {
+      setMissions(data.map(m => ({
+        label: m.name,
+        value: m.id,
+        location: m.location || m.name,
+      })));
+    }
+  };
+
+  const handleAssign = async () => {
+    if (!selectedMission || !quantity || !item) return;
+    setSaving(true);
+
+    try {
+      // Update the shipment: set status to 'in-use', assign mission, update location to mission name
+      const { error } = await supabase
+        .from('shipments')
+        .update({
+          status: 'in-use',
+          mission_id: selectedMission.value,
+          quantity: Number(quantity),
+          location: selectedMission.location || selectedMission.label,
+        })
+        .eq('id', item.id);
+
+      if (error) throw error;
+
+      onAssign?.(selectedMission, quantity);
+    } catch (err) {
+      console.error('Assign to mission failed:', err);
+    } finally {
+      setSaving(false);
+    }
+  };
 
   if (!isOpen) return null;
 
@@ -38,7 +74,7 @@ export default function AssignToMissionPanel({ isOpen, onClose, item, onAssign }
         {/* Content */}
         <div style={{ flex: 1, overflowY: 'auto', padding: '0 24px 24px' }}>
           <p style={{ margin: '0 0 24px', fontSize: 14, color: '#505258', lineHeight: 1.5 }}>
-            Deploy <strong>{item?.description}</strong> to a specific mission. This will update the status of these units to "In Use".
+            Deploy <strong>{item?.description}</strong> to a specific mission. This will update the status of these units to "In Use" and change the item's location to the mission.
           </p>
 
           <div style={{ marginBottom: 24 }}>
@@ -46,7 +82,7 @@ export default function AssignToMissionPanel({ isOpen, onClose, item, onAssign }
               Select Mission
             </label>
             <Select
-              options={MISSIONS}
+              options={missions}
               value={selectedMission}
               onChange={setSelectedMission}
               placeholder="Choose a mission..."
@@ -86,22 +122,23 @@ export default function AssignToMissionPanel({ isOpen, onClose, item, onAssign }
             onClick={onClose}
             style={{
               padding: '6px 16px', borderRadius: 4, border: '1px solid #DFE1E6',
-              background: '#fff', cursor: 'pointer', fontSize: 14, fontWeight: 500
+              background: '#fff', cursor: 'pointer', fontSize: 14, fontWeight: 500,
+              fontFamily: 'inherit',
             }}
           >
             Cancel
           </button>
           <button
-            onClick={() => onAssign?.(selectedMission, quantity)}
-            disabled={!selectedMission || !quantity}
+            onClick={handleAssign}
+            disabled={!selectedMission || !quantity || saving}
             style={{
               padding: '6px 16px', borderRadius: 4, border: 'none',
-              background: (!selectedMission || !quantity) ? '#F1F2F4' : '#A12654',
-              color: '#fff', cursor: (!selectedMission || !quantity) ? 'not-allowed' : 'pointer',
-              fontSize: 14, fontWeight: 500
+              background: (!selectedMission || !quantity || saving) ? '#F1F2F4' : '#A12654',
+              color: '#fff', cursor: (!selectedMission || !quantity || saving) ? 'not-allowed' : 'pointer',
+              fontSize: 14, fontWeight: 500, fontFamily: 'inherit',
             }}
           >
-            Assign Items
+            {saving ? 'Assigning...' : 'Assign Items'}
           </button>
         </div>
       </div>

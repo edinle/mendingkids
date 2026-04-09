@@ -182,19 +182,19 @@ function FilterOption({ label, isSelected, onClick }) {
 }
 
 // ── Expiration categories ──────────────────────────────────────────────────
-const EXPIRATION_OPTIONS = ['Expired', 'Within 3 Months', 'Within 6 Months', 'Within 1 Year', '1+ Year'];
+const EXPIRATION_OPTIONS = ['Expired', '0-3 Months', '3-6 Months', '6-12 Months', '1+ year'];
 
 function getExpirationCategory(dateStr) {
   const d = parseDate(dateStr);
-  if (!d) return '1+ Year';
+  if (!d) return '1+ year';
   const now = new Date();
   const diff = d - now;
   const days = diff / (1000 * 60 * 60 * 24);
   if (days < 0) return 'Expired';
-  if (days <= 90) return 'Within 3 Months';
-  if (days <= 180) return 'Within 6 Months';
-  if (days <= 365) return 'Within 1 Year';
-  return '1+ Year';
+  if (days <= 90) return '0-3 Months';
+  if (days <= 180) return '3-6 Months';
+  if (days <= 365) return '6-12 Months';
+  return '1+ year';
 }
 
 function parseDate(str) {
@@ -241,7 +241,10 @@ export default function InventoryPage({ user, onSwitchAccount, onLogout }) {
         inventory (
           description,
           company,
-          reference_number
+          reference_number,
+          unit_of_measure,
+          shelf_life,
+          notes
         ),
         missions (
           name
@@ -251,14 +254,22 @@ export default function InventoryPage({ user, onSwitchAccount, onLogout }) {
     if (data) {
       const mapped = data.map(s => ({
         id: s.id,
+        inventory_id: s.inventory_id,
         description: s.inventory?.description || 'Unknown',
         company: s.inventory?.company || 'Unknown',
         reference: s.inventory?.reference_number || '—',
+        unit_of_measure: s.inventory?.unit_of_measure || 'units',
+        shelf_life: s.inventory?.shelf_life || 'Does Not Expire',
+        notes: s.inventory?.notes || '',
         quantity: s.quantity,
         status: s.status,
         mission: s.missions?.name || '',
         location: s.location || '',
-        expiration: s.expiration_date || '—'
+        expiration: s.expiration_date || '—',
+        lot_number: s.lot_number || 'N/A',
+        market_value: s.market_value,
+        valuation_source: s.valuation_source,
+        acquisition_method: s.acquisition_method
       }));
       setRows(mapped);
     }
@@ -594,6 +605,7 @@ export default function InventoryPage({ user, onSwitchAccount, onLogout }) {
         isOpen={overview.isOpen}
         onClose={closeOverview}
         item={overview.item}
+        onSave={handleSave}
         onEdit={handleOverviewEdit}
         onAssign={() => { setOverview(p => ({ ...p, isOpen: false })); setAssignOpen(true); setSelectedItem(overview.item); }}
         onNewEntry={() => { setOverview(p => ({ ...p, isOpen: false })); openAdd(overview.item); }}
@@ -606,6 +618,7 @@ export default function InventoryPage({ user, onSwitchAccount, onLogout }) {
         onAssign={(mission, qty) => {
           setDeploySuccess({ isOpen: true, msg: `Successfully deployed ${qty} units of ${selectedItem.description} to ${mission.label}` });
           setAssignOpen(false);
+          fetchInventory(); // Refresh to show updated location and status
         }}
       />
 

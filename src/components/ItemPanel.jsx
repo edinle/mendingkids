@@ -49,6 +49,7 @@ const INIT_S1 = {
   quantity:      '',
   expirationDate:'',
   location:      null,
+  notes:         '',
 };
 
 const INIT_S2 = {
@@ -201,7 +202,7 @@ function Step1({ values, onChange }) {
       </div>
 
       <div>
-        <FieldLabel text="Expiration Date" required />
+        <FieldLabel text="Expiration Date" />
         <DatePicker
           value={values.expirationDate}
           onChange={set('expirationDate')}
@@ -543,7 +544,7 @@ function Step3({ s1, s2 }) {
 
       {/* Expiration Date */}
       <div>
-        <FieldLabel text="Expiration Date" required />
+        <FieldLabel text="Expiration Date" />
         <div style={{
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           padding: '8px 12px', minHeight: 36,
@@ -602,10 +603,19 @@ export default function ItemPanel({ isOpen, onClose, onSave, isEdit, baseItem })
           description: baseItem.description || '',
           company: baseItem.company || '',
           referenceNum: baseItem.reference || '',
-          unitOfMeasure: baseItem.unitOfMeasure ? { label: baseItem.unitOfMeasure, value: baseItem.unitOfMeasure.toLowerCase() } : null,
+          lotNumber: baseItem.lot_number || '',
+          unitOfMeasure: baseItem.unit_of_measure ? { label: baseItem.unit_of_measure, value: baseItem.unit_of_measure.toLowerCase() } : null,
+          shelfLife: baseItem.shelf_life || '',
           quantity: baseItem.quantity?.toString() || '',
           expirationDate: baseItem.expiration || '',
           location: baseItem.location ? { label: baseItem.location, value: baseItem.location } : null,
+          notes: baseItem.notes || '',
+        });
+        setS2({
+          ...INIT_S2,
+          marketValue: baseItem.market_value?.toString() || '',
+          valuationSource: baseItem.valuation_source || '',
+          acquisitionMethod: baseItem.acquisition_method ? { label: baseItem.acquisition_method, value: baseItem.acquisition_method.toLowerCase() } : null,
         });
       } else {
         // New Entry mode: Only pre-fill the "Catalog" info
@@ -614,8 +624,15 @@ export default function ItemPanel({ isOpen, onClose, onSave, isEdit, baseItem })
           description: baseItem.description || '',
           company: baseItem.company || '',
           referenceNum: baseItem.reference || '',
-          unitOfMeasure: baseItem.unitOfMeasure ? { label: baseItem.unitOfMeasure, value: baseItem.unitOfMeasure.toLowerCase() } : null,
-          // quantity, expiration, location left blank for fresh entry
+          unitOfMeasure: baseItem.unit_of_measure ? { label: baseItem.unit_of_measure, value: baseItem.unit_of_measure.toLowerCase() } : null,
+          shelfLife: baseItem.shelf_life || '',
+          notes: baseItem.notes || '',
+        });
+        setS2({
+          ...INIT_S2,
+          marketValue: baseItem.market_value?.toString() || '',
+          valuationSource: baseItem.valuation_source || '',
+          acquisitionMethod: baseItem.acquisition_method ? { label: baseItem.acquisition_method, value: baseItem.acquisition_method.toLowerCase() } : null,
         });
       }
     } else if (!isOpen) {
@@ -662,7 +679,9 @@ export default function ItemPanel({ isOpen, onClose, onSave, isEdit, baseItem })
           .from('inventory')
           .update({
             company: s1.company,
-            unit_of_measure: s1.unitOfMeasure?.label || 'units'
+            unit_of_measure: s1.unitOfMeasure?.label || 'units',
+            shelf_life: s1.shelfLife,
+            notes: s1.notes || ''
           })
           .eq('id', invId);
       } else {
@@ -672,7 +691,9 @@ export default function ItemPanel({ isOpen, onClose, onSave, isEdit, baseItem })
             description: s1.description,
             company: s1.company,
             reference_number: s1.referenceNum,
-            unit_of_measure: s1.unitOfMeasure?.label || 'units'
+            unit_of_measure: s1.unitOfMeasure?.label || 'units',
+            shelf_life: s1.shelfLife,
+            notes: s1.notes || ''
           })
           .select()
           .single();
@@ -686,7 +707,11 @@ export default function ItemPanel({ isOpen, onClose, onSave, isEdit, baseItem })
         quantity: s1.quantity ? Number(s1.quantity) : 0,
         location: s1.location?.value || '',
         expiration_date: s1.expirationDate || null,
-        status: baseItem?.status || 'available'
+        status: baseItem?.status || 'available',
+        lot_number: s1.lotNumber,
+        market_value: s2.marketValue ? Number(s2.marketValue) : null,
+        valuation_source: s2.valuationSource,
+        acquisition_method: s2.acquisitionMethod?.label || null,
       };
 
       let shipError;

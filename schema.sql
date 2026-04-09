@@ -99,3 +99,27 @@ CREATE POLICY "Allow authenticated all" ON public.requests FOR ALL TO authentica
 CREATE POLICY "Allow authenticated all" ON public.activity_log FOR ALL TO authenticated USING (true) WITH CHECK (true);
 CREATE POLICY "Allow authenticated all" ON public.donors FOR ALL TO authenticated USING (true) WITH CHECK (true);
 
+
+-- Extend inventory and shipments with missing fields found in UI
+ALTER TABLE public.inventory ADD COLUMN IF NOT EXISTS shelf_life TEXT;
+ALTER TABLE public.inventory ADD COLUMN IF NOT EXISTS notes TEXT;
+
+ALTER TABLE public.shipments ADD COLUMN IF NOT EXISTS lot_number TEXT;
+ALTER TABLE public.shipments ADD COLUMN IF NOT EXISTS market_value DECIMAL(10,2);
+ALTER TABLE public.shipments ADD COLUMN IF NOT EXISTS valuation_source TEXT;
+ALTER TABLE public.shipments ADD COLUMN IF NOT EXISTS acquisition_method TEXT;
+
+-- Add documents table
+CREATE TABLE IF NOT EXISTS public.documents (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  inventory_id UUID REFERENCES public.inventory(id) ON DELETE CASCADE,
+  filename TEXT NOT NULL,
+  file_url TEXT,
+  file_size INTEGER,
+  reason TEXT,
+  uploaded_by UUID REFERENCES public.profiles(id),
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE public.documents ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Allow authenticated all" ON public.documents FOR ALL TO authenticated USING (true) WITH CHECK (true);
