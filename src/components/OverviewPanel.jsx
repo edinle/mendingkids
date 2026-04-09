@@ -423,10 +423,9 @@ function ActivityTab() {
 
 // ─── Documentation tab ─────────────────────────────────────────────────────
 
-function DocumentationTab({ item, isEditMode, draft, onDraftChange }) {
-  const marketValue = Number(isEditMode ? draft.marketValue : (item?.market_value || 0));
-  const valuationSource = isEditMode ? draft.valuationSource : (item?.valuation_source || '—');
-  const totalQuantity = item?.quantity || 0;
+function DocumentationTab({ totalQuantity, isEditMode, values, draft, onDraftChange }) {
+  const marketValue = Number(isEditMode ? draft.marketValue : (values.marketValue || 0));
+  const valuationSource = isEditMode ? draft.valuationSource : (values.valuationSource || '—');
   const totalValue = (marketValue * totalQuantity).toFixed(2);
 
   return (
@@ -976,6 +975,7 @@ export default function OverviewPanel({ isOpen, onClose, item, onEdit, onAssign,
   const [tab, setTab]             = useState('Overview');
   const [isFullEdit, setIsFullEdit] = useState(false);
   const [isDocEdit, setIsDocEdit] = useState(false);
+  const [docValues, setDocValues] = useState({ marketValue: '', valuationSource: '' });
   const [docDraft, setDocDraft] = useState({ marketValue: '', valuationSource: '' });
   const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
   const [status, setStatus]       = useState('available');
@@ -986,9 +986,14 @@ export default function OverviewPanel({ isOpen, onClose, item, onEdit, onAssign,
     if (item && isOpen) {
       fetchEntries();
       setStatus(item.status || 'available');
-      setDocDraft({
+      const nextDocValues = {
         marketValue: item.market_value != null ? String(item.market_value) : '',
         valuationSource: item.valuation_source || '',
+      };
+      setDocValues(nextDocValues);
+      setDocDraft({
+        marketValue: nextDocValues.marketValue,
+        valuationSource: nextDocValues.valuationSource,
       });
       setIsDocEdit(false);
     }
@@ -1028,17 +1033,20 @@ export default function OverviewPanel({ isOpen, onClose, item, onEdit, onAssign,
 
   const saveDocumentation = async () => {
     try {
-      await supabase
+      const { error } = await supabase
         .from('shipments')
         .update({
           market_value: docDraft.marketValue === '' ? null : Number(docDraft.marketValue),
           valuation_source: docDraft.valuationSource || null,
         })
         .eq('id', item.id);
+      if (error) throw error;
+      setDocValues({ ...docDraft });
       setIsDocEdit(false);
       onSave?.();
     } catch (err) {
       console.error('Documentation save failed:', err);
+      alert('Failed to save valuation data. Please check your permissions and try again.');
     }
   };
 
@@ -1136,8 +1144,9 @@ export default function OverviewPanel({ isOpen, onClose, item, onEdit, onAssign,
             {tab === 'Activity'       && <ActivityTab />}
             {tab === 'Documentation'  && (
               <DocumentationTab
-                item={item}
+                totalQuantity={totalQuantity}
                 isEditMode={isDocEdit}
+                values={docValues}
                 draft={docDraft}
                 onDraftChange={(field, value) => setDocDraft(prev => ({ ...prev, [field]: value }))}
               />

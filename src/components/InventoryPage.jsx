@@ -292,7 +292,7 @@ export default function InventoryPage({ user, onSwitchAccount, onLogout }) {
     if (result.error) {
       console.error('[Inventory] Failed to fetch inventory:', result.error);
       setLoading(false);
-      return;
+      return [];
     }
 
     if (result.data) {
@@ -317,8 +317,11 @@ export default function InventoryPage({ user, onSwitchAccount, onLogout }) {
         acquisition_method: s.acquisition_method
       }));
       setInventory(mapped);
+      setLoading(false);
+      return mapped;
     }
     setLoading(false);
+    return [];
   };
 
   const fetchMissionsList = async () => {
@@ -372,8 +375,14 @@ export default function InventoryPage({ user, onSwitchAccount, onLogout }) {
     openAdd(item, true);
   };
 
-  const handleSave = () => {
-    fetchInventory();
+  const handleSave = async () => {
+    const latest = await fetchInventory();
+    if (overview.isOpen && overview.item && latest.length > 0) {
+      const refreshed = latest.find((x) => x.id === overview.item.id);
+      if (refreshed) {
+        setOverview((prev) => ({ ...prev, item: refreshed }));
+      }
+    }
   };
 
   // Filter pipeline: tab → mission → expiration → search
