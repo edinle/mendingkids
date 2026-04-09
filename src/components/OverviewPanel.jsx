@@ -423,9 +423,9 @@ function ActivityTab() {
 
 // ─── Documentation tab ─────────────────────────────────────────────────────
 
-function DocumentationTab({ item }) {
-  const marketValue = item?.market_value || 0;
-  const valuationSource = item?.valuation_source || '—';
+function DocumentationTab({ item, isEditMode, draft, onDraftChange }) {
+  const marketValue = Number(isEditMode ? draft.marketValue : (item?.market_value || 0));
+  const valuationSource = isEditMode ? draft.valuationSource : (item?.valuation_source || '—');
   const totalQuantity = item?.quantity || 0;
   const totalValue = (marketValue * totalQuantity).toFixed(2);
 
@@ -447,7 +447,29 @@ function DocumentationTab({ item }) {
         <div style={{ display: 'flex', gap: 32, marginBottom: 14 }}>
           <div>
             <p style={{ fontSize: 12, color: token('color.text.subtle', '#505258'), margin: '0 0 3px' }}>Market Value per Unit</p>
-            <p style={{ fontSize: 14, color: token('color.text', '#172B4D'), margin: 0 }}>\${marketValue}</p>
+            {isEditMode ? (
+              <input
+                type="number"
+                min="0"
+                step="0.01"
+                value={draft.marketValue}
+                onChange={(e) => onDraftChange('marketValue', e.target.value)}
+                style={{
+                  width: 140,
+                  boxSizing: 'border-box',
+                  padding: '6px 8px',
+                  borderRadius: 3,
+                  border: '2px solid #2684FF',
+                  fontSize: 14,
+                  fontFamily: 'inherit',
+                  color: token('color.text', '#172B4D'),
+                  backgroundColor: '#fff',
+                  outline: 'none',
+                }}
+              />
+            ) : (
+              <p style={{ fontSize: 14, color: token('color.text', '#172B4D'), margin: 0 }}>\${marketValue}</p>
+            )}
           </div>
           <div>
             <p style={{ fontSize: 12, color: token('color.text.subtle', '#505258'), margin: '0 0 3px' }}>Date Value Researched</p>
@@ -457,12 +479,32 @@ function DocumentationTab({ item }) {
 
         <div>
           <p style={{ fontSize: 12, color: token('color.text.subtle', '#505258'), margin: '0 0 4px' }}>Valuation Source</p>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-              <path d="M5.5 7a1.75 1.75 0 0 0 1.75 1.75h1.75a1.75 1.75 0 0 0 0-3.5H8.5M8.5 7a1.75 1.75 0 0 0-1.75-1.75H5a1.75 1.75 0 0 0 0 3.5h.75" stroke="var(--ds-link)" strokeWidth="1.2" strokeLinecap="round" />
-            </svg>
-            <span style={{ fontSize: 14, color: 'var(--ds-link)', wordBreak: 'break-all' }}>{valuationSource}</span>
-          </div>
+          {isEditMode ? (
+            <input
+              type="text"
+              value={draft.valuationSource}
+              onChange={(e) => onDraftChange('valuationSource', e.target.value)}
+              style={{
+                width: '100%',
+                boxSizing: 'border-box',
+                padding: '6px 8px',
+                borderRadius: 3,
+                border: '2px solid #2684FF',
+                fontSize: 14,
+                fontFamily: 'inherit',
+                color: token('color.text', '#172B4D'),
+                backgroundColor: '#fff',
+                outline: 'none',
+              }}
+            />
+          ) : (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                <path d="M5.5 7a1.75 1.75 0 0 0 1.75 1.75h1.75a1.75 1.75 0 0 0 0-3.5H8.5M8.5 7a1.75 1.75 0 0 0-1.75-1.75H5a1.75 1.75 0 0 0 0 3.5h.75" stroke="var(--ds-link)" strokeWidth="1.2" strokeLinecap="round" />
+              </svg>
+              <span style={{ fontSize: 14, color: 'var(--ds-link)', wordBreak: 'break-all' }}>{valuationSource}</span>
+            </div>
+          )}
         </div>
       </div>
 
@@ -933,6 +975,8 @@ function iconBtnSt(color) {
 export default function OverviewPanel({ isOpen, onClose, item, onEdit, onAssign, onNewEntry, onSave }) {
   const [tab, setTab]             = useState('Overview');
   const [isFullEdit, setIsFullEdit] = useState(false);
+  const [isDocEdit, setIsDocEdit] = useState(false);
+  const [docDraft, setDocDraft] = useState({ marketValue: '', valuationSource: '' });
   const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
   const [status, setStatus]       = useState('available');
   const [entries, setEntries]     = useState([]);
@@ -942,6 +986,11 @@ export default function OverviewPanel({ isOpen, onClose, item, onEdit, onAssign,
     if (item && isOpen) {
       fetchEntries();
       setStatus(item.status || 'available');
+      setDocDraft({
+        marketValue: item.market_value != null ? String(item.market_value) : '',
+        valuationSource: item.valuation_source || '',
+      });
+      setIsDocEdit(false);
     }
   }, [item, isOpen]);
 
@@ -967,17 +1016,39 @@ export default function OverviewPanel({ isOpen, onClose, item, onEdit, onAssign,
   const handleClose = () => {
     setTab('Overview');
     setIsFullEdit(false);
+    setIsDocEdit(false);
     onClose();
   };
 
   const handleTabChange = (t) => {
     setTab(t);
     if (t !== 'Details') setIsFullEdit(false);
+    if (t !== 'Documentation') setIsDocEdit(false);
+  };
+
+  const saveDocumentation = async () => {
+    try {
+      await supabase
+        .from('shipments')
+        .update({
+          market_value: docDraft.marketValue === '' ? null : Number(docDraft.marketValue),
+          valuation_source: docDraft.valuationSource || null,
+        })
+        .eq('id', item.id);
+      setIsDocEdit(false);
+      onSave?.();
+    } catch (err) {
+      console.error('Documentation save failed:', err);
+    }
   };
 
   const handleEditItem = () => {
     if (tab === 'Details' && !isFullEdit) {
       setIsFullEdit(true);
+    } else if (tab === 'Documentation' && !isDocEdit) {
+      setIsDocEdit(true);
+    } else if (tab === 'Documentation' && isDocEdit) {
+      saveDocumentation();
     } else if (tab !== 'Details') {
       onEdit?.(item);
     }
@@ -1063,7 +1134,14 @@ export default function OverviewPanel({ isOpen, onClose, item, onEdit, onAssign,
           <div style={{ paddingTop: 20 }}>
             {tab === 'Overview'       && <OverviewTab totalQuantity={totalQuantity} onAssign={onAssign} onNewEntry={onNewEntry} entries={entries} />}
             {tab === 'Activity'       && <ActivityTab />}
-            {tab === 'Documentation'  && <DocumentationTab item={item} />}
+            {tab === 'Documentation'  && (
+              <DocumentationTab
+                item={item}
+                isEditMode={isDocEdit}
+                draft={docDraft}
+                onDraftChange={(field, value) => setDocDraft(prev => ({ ...prev, [field]: value }))}
+              />
+            )}
             {tab === 'Details'        && (
               <DetailsTab
                 isFullEdit={isFullEdit}
@@ -1095,7 +1173,11 @@ export default function OverviewPanel({ isOpen, onClose, item, onEdit, onAssign,
             }}
             onClick={handleEditItem}
           >
-            {isFullEdit ? '✏ Save Changes' : '✏ Edit Item'}
+            {tab === 'Documentation' && isDocEdit
+              ? '✏ Save Valuation'
+              : isFullEdit
+              ? '✏ Save Changes'
+              : '✏ Edit Item'}
           </button>
         </div>
       </div>
