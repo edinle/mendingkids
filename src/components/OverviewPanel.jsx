@@ -1046,7 +1046,12 @@ export default function OverviewPanel({ isOpen, onClose, item, onEdit, onAssign,
       onSave?.();
     } catch (err) {
       console.error('Documentation save failed:', err);
-      alert('Failed to save valuation data. Please check your permissions and try again.');
+      const errMsg = String(err?.message || err);
+      if (/market_value|valuation_source|does not exist/i.test(errMsg)) {
+        alert('Failed to save valuation data because the database schema is missing valuation columns on shipments. Run the SQL migration in supabase/migrations/20260409_add_valuation_columns.sql, then try again.');
+      } else {
+        alert('Failed to save valuation data. Please check your permissions and try again.');
+      }
     }
   };
 
