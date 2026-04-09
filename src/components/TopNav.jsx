@@ -175,6 +175,10 @@ const NavSearch = () => (
     <Search
       onClick={() => {}}
       placeholder="Search inventory items, missions, partners..."
+    />
+  </div>
+);
+
 export default function TopNav({ user, onSwitchAccount, onLogout, onToggleMobileMenu }) {
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
