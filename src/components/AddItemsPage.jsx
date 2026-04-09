@@ -3,6 +3,8 @@ import { PageLayout, Content, Main, LeftSidebar, TopNavigation } from '@atlaskit
 import TopNav from './TopNav';
 import SideNav from './SideNav';
 import FilterDropdown from './FilterDropdown';
+import Modal, { ModalTransition, ModalHeader, ModalTitle, ModalBody, ModalFooter } from '@atlaskit/modal-dialog';
+import Button from '@atlaskit/button';
 
 // ─── Mock Data ────────────────────────────────────────────────────────────────
 
@@ -80,10 +82,9 @@ function TableRow({ item, checked, onToggle, showCheck = true }) {
 export default function AddItemsPage({ mission, onNavigate, user, onSwitchAccount, onLogout }) {
   const [itemTypeFilter, setItemType] = useState('');
   const [companyFilter,  setCompany]  = useState('');
-  const [search,         setSearch]   = useState('');
-  const [selectedIds,    setSelected] = useState(new Set(SELECTED_PRELOADED.map(i => i.id)));
+  const [isScanModalOpen, setIsScanModalOpen] = useState(false);
 
-  const handleScanOpen = () => alert('Scan functionality not implemented');
+  const handleScanOpen = () => setIsScanModalOpen(true);
 
   const toggleId = id => setSelected(s => {
     const next = new Set(s);
@@ -212,6 +213,23 @@ export default function AddItemsPage({ mission, onNavigate, user, onSwitchAccoun
           </div>
         </Main>
       </Content>
+      <ModalTransition>
+        {isScanModalOpen && (
+          <Modal onClose={() => setIsScanModalOpen(false)}>
+            <ModalHeader>
+              <ModalTitle>Scanner Coming Soon</ModalTitle>
+            </ModalHeader>
+            <ModalBody>
+              <p>Barcode scanning functionality is currently being implemented. You will soon be able to scan medical items directly using your device camera.</p>
+            </ModalBody>
+            <ModalFooter>
+              <Button appearance="subtle" onClick={() => setIsScanModalOpen(false)}>
+                Close
+              </Button>
+            </ModalFooter>
+          </Modal>
+        )}
+      </ModalTransition>
     </PageLayout>
   );
 }

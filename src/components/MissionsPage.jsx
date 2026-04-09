@@ -6,6 +6,8 @@ import TopNav from './TopNav';
 import SideNav from './SideNav';
 import CreateMissionPanel from './CreateMissionPanel';
 import DeleteConfirmationModal from './DeleteConfirmationModal';
+import Modal, { ModalTransition, ModalHeader, ModalTitle, ModalBody, ModalFooter } from '@atlaskit/modal-dialog';
+import Button from '@atlaskit/button';
 
 // ── Data Handling ────────────────────────────────────────────────────────────
 // Missions data is now fetched from Supabase.
@@ -187,6 +189,7 @@ export default function MissionsPage({ onNavigate, user, onSwitchAccount, onLogo
   const [createOpen, setCreateOpen]     = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [errorModal, setErrorModal] = useState({ isOpen: false, message: '' });
 
   const [missions, setMissions] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -204,7 +207,7 @@ export default function MissionsPage({ onNavigate, user, onSwitchAccount, onLogo
       setDeleteTarget(null);
     } catch (err) {
       console.error('Delete failed:', err);
-      alert('Failed to delete mission');
+      setErrorModal({ isOpen: true, message: 'Failed to delete mission. Please check your permissions and try again.' });
     }
   };
 
@@ -351,6 +354,23 @@ export default function MissionsPage({ onNavigate, user, onSwitchAccount, onLogo
         message="Are you sure you want to delete this mission?"
         itemName={deleteTarget?.name}
       />
+      <ModalTransition>
+        {errorModal.isOpen && (
+          <Modal onClose={() => setErrorModal({ ...errorModal, isOpen: false })}>
+            <ModalHeader>
+              <ModalTitle>Action Failed</ModalTitle>
+            </ModalHeader>
+            <ModalBody>
+              <p>{errorModal.message}</p>
+            </ModalBody>
+            <ModalFooter>
+              <Button appearance="danger" onClick={() => setErrorModal({ ...errorModal, isOpen: false })}>
+                Close
+              </Button>
+            </ModalFooter>
+          </Modal>
+        )}
+      </ModalTransition>
     </PageLayout>
   );
 }

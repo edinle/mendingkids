@@ -219,6 +219,7 @@ export default function InventoryPage({ onNavigate, user, onSwitchAccount, onLog
   const [panel, setPanel] = useState({ isOpen: false, baseItem: null });
   const [overview, setOverview] = useState({ isOpen: false, item: null });
   const [assignOpen, setAssignOpen] = useState(false);
+  const [deploySuccess, setDeploySuccess] = useState({ isOpen: false, msg: '' });
   const [selectedItem, setSelectedItem] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [confirmModal, setConfirmModal] = useState({ isOpen: false, item: null, action: null });
@@ -601,7 +602,7 @@ export default function InventoryPage({ onNavigate, user, onSwitchAccount, onLog
         onClose={() => setAssignOpen(false)}
         item={selectedItem}
         onAssign={(mission, qty) => {
-          alert(`Deploying ${qty} units of ${selectedItem.description} to ${mission.label}`);
+          setDeploySuccess({ isOpen: true, msg: `Successfully deployed ${qty} units of ${selectedItem.description} to ${mission.label}` });
           setAssignOpen(false);
         }}
       />
@@ -628,6 +629,23 @@ export default function InventoryPage({ onNavigate, user, onSwitchAccount, onLog
           'Delete'
         }
       />
+      <ModalTransition>
+        {deploySuccess.isOpen && (
+          <Modal onClose={() => setDeploySuccess({ ...deploySuccess, isOpen: false })}>
+            <ModalHeader>
+              <ModalTitle>Deployment Initiated</ModalTitle>
+            </ModalHeader>
+            <ModalBody>
+              <p>{deploySuccess.msg}</p>
+            </ModalBody>
+            <ModalFooter>
+              <Button appearance="primary" onClick={() => setDeploySuccess({ ...deploySuccess, isOpen: false })}>
+                Done
+              </Button>
+            </ModalFooter>
+          </Modal>
+        )}
+      </ModalTransition>
     </PageLayout>
   );
 }

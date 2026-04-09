@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { PageLayout, TopNavigation, LeftSidebar, Content, Main } from '@atlaskit/page-layout';
 import { token } from '@atlaskit/tokens';
+import Modal, { ModalTransition, ModalHeader, ModalTitle, ModalBody, ModalFooter } from '@atlaskit/modal-dialog';
+import Button from '@atlaskit/button';
 
 import TopNav from './TopNav';
 import SideNav from './SideNav';
@@ -15,13 +17,15 @@ const REPORT_TYPES = [
 export default function ReportsPage({ onNavigate, user, onSwitchAccount, onLogout }) {
   const [downloading, setDownloading] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [successModal, setSuccessModal] = useState({ isOpen: false, reportTitle: '' });
 
   const handleDownload = (id) => {
     setDownloading(id);
     // Simulate generation and download delay
     setTimeout(() => {
       setDownloading(null);
-      alert(`Successfully generated and downloaded PDF for report: ${id}`);
+      const title = REPORT_TYPES.find(r => r.id === id)?.title || id;
+      setSuccessModal({ isOpen: true, reportTitle: title });
     }, 1500);
   };
 
@@ -104,6 +108,23 @@ export default function ReportsPage({ onNavigate, user, onSwitchAccount, onLogou
           </div>
         </Main>
       </Content>
+      <ModalTransition>
+        {successModal.isOpen && (
+          <Modal onClose={() => setSuccessModal({ ...successModal, isOpen: false })}>
+            <ModalHeader>
+              <ModalTitle>Report Generated</ModalTitle>
+            </ModalHeader>
+            <ModalBody>
+              <p>Successfully generated and downloaded PDF for report: <strong>{successModal.reportTitle}</strong></p>
+            </ModalBody>
+            <ModalFooter>
+              <Button appearance="primary" onClick={() => setSuccessModal({ ...successModal, isOpen: false })}>
+                Close
+              </Button>
+            </ModalFooter>
+          </Modal>
+        )}
+      </ModalTransition>
     </PageLayout>
   );
 }

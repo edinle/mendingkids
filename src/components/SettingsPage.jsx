@@ -449,6 +449,7 @@ function Groups({ onCreate, onEdit }) {
 function AccessRequests() {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [errorModal, setErrorModal] = useState({ isOpen: false, message: '' });
 
   useEffect(() => {
     fetchRequests();
@@ -472,8 +473,11 @@ function AccessRequests() {
       .update({ status: newStatus })
       .eq('id', id);
     
-    if (error) alert(error.message);
-    else fetchRequests();
+    if (error) {
+      setErrorModal({ isOpen: true, message: error.message });
+    } else {
+      fetchRequests();
+    }
   };
 
   const head = {
@@ -516,6 +520,24 @@ function AccessRequests() {
         Review and approve access requests from new personnel.
       </p>
       <DynamicTable head={head} rows={rows} isLoading={loading} />
+
+      <ModalTransition>
+        {errorModal.isOpen && (
+          <Modal onClose={() => setErrorModal({ ...errorModal, isOpen: false })}>
+            <ModalHeader>
+              <ModalTitle>Action Failed</ModalTitle>
+            </ModalHeader>
+            <ModalBody>
+              <p>{errorModal.message}</p>
+            </ModalBody>
+            <ModalFooter>
+              <Button appearance="danger" onClick={() => setErrorModal({ ...errorModal, isOpen: false })}>
+                Close
+              </Button>
+            </ModalFooter>
+          </Modal>
+        )}
+      </ModalTransition>
     </>
   );
 }
