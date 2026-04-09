@@ -5,14 +5,14 @@ import '@atlaskit/css-reset';
 import './index.css';
 import App from './App.jsx';
 
-import { BrowserRouter } from 'react-router-dom';
+import { HashRouter } from 'react-router-dom';
 
 setGlobalTheme({ colorMode: 'light', spacing: 'spacing', typography: 'typography-adg3' });
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <BrowserRouter>
+    <HashRouter>
       <App />
-    </BrowserRouter>
+    </HashRouter>
   </StrictMode>,
 );
