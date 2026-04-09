@@ -619,6 +619,7 @@ export default function InventoryPage({ user, onSwitchAccount, onLogout }) {
         onSave={handleSave}
         isEdit={panel.isEdit}
         baseItem={panel.baseItem}
+        user={user}
       />
 
       <OverviewPanel

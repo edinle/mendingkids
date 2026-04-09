@@ -230,11 +230,11 @@ export default function TopNav({ user, onSwitchAccount, onLogout, onToggleMobile
             />
           </div>
         )}
-        renderNotifications={() => <Notifications badge={NotificationBadge} onClick={() => setNotifOpen(!notifOpen)} tooltip="Notifications" />}
+        renderNotifications={() => <Notifications badge={NotificationBadge} onClick={() => setIsNotificationsOpen(!isNotificationsOpen)} tooltip="Notifications" />}
         renderSettings={() => <Settings onClick={() => navigate('/settings')} tooltip="Settings" />}
         renderProfile={() => <NavProfile user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} />}
       />
-      <NotificationsPopover isOpen={notifOpen} onClose={() => setNotifOpen(false)} />
+      <NotificationsPopover isOpen={isNotificationsOpen} onClose={() => setIsNotificationsOpen(false)} />
       
       <style>{`
         @media (max-width: 768px) {

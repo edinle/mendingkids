@@ -58,10 +58,14 @@ export default function App() {
   const navigate = useNavigate();
   const location = useLocation();
 
+  console.log('[App] Render:', { hasSession: !!session, hasProfile: !!userProfile, loading });
+
   useEffect(() => {
+    console.log('[App] Initializing session...');
     const checkSession = async () => {
       try {
         const { data: { session }, error } = await supabase.auth.getSession();
+        console.log('[App] Session received:', !!session);
         if (error) throw error;
         
         setSession(session);

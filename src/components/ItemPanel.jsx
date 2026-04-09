@@ -617,7 +617,7 @@ const STEP_TITLES = (isEdit) => ({
 
 const TOTAL_STEPS = 3;
 
-export default function ItemPanel({ isOpen, onClose, onSave, isEdit, baseItem }) {
+export default function ItemPanel({ isOpen, onClose, onSave, isEdit, baseItem, user }) {
   const [step, setStep] = useState(1);
   const titles = STEP_TITLES(isEdit);
   const [s1, setS1] = useState(INIT_S1);
