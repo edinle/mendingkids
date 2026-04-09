@@ -4,6 +4,7 @@ import { setGlobalTheme } from '@atlaskit/tokens';
 import '@atlaskit/css-reset';
 import './index.css';
 import App from './App.jsx';
+import AppErrorBoundary from './components/AppErrorBoundary.jsx';
 
 import { HashRouter } from 'react-router-dom';
 
@@ -13,8 +14,16 @@ try {
   console.error('Theme initialization failed:', e);
 }
 
-createRoot(document.getElementById('root')).render(
-  <HashRouter>
-    <App />
-  </HashRouter>,
+const rootElement = document.getElementById('root');
+
+if (!rootElement) {
+  throw new Error('Root element #root was not found in index.html');
+}
+
+createRoot(rootElement).render(
+  <AppErrorBoundary>
+    <HashRouter>
+      <App />
+    </HashRouter>
+  </AppErrorBoundary>,
 );
