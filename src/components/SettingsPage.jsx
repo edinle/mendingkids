@@ -81,6 +81,32 @@ function SubtleButton({ children, onClick }) {
 
 
 function GeneralConfig() {
+  const [config, setConfig] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    fetchConfig();
+  }, []);
+
+  const fetchConfig = async () => {
+    setLoading(true);
+    const { data } = await supabase.from('organization_settings').select('*').limit(1).single();
+    if (data) setConfig(data);
+    setLoading(false);
+  };
+
+  const handleSave = async () => {
+    setSaving(true);
+    const { error } = await supabase.from('organization_settings').update(config).eq('id', config.id);
+    setSaving(false);
+    if (!error) {
+      alert('Settings saved successfully.');
+    }
+  };
+
+  if (loading) return <p>Loading configuration...</p>;
+
   return (
     <>
       <p style={{ color: token('color.text.subtle', '#5E6C84'), fontSize: 14, marginBottom: 32 }}>
@@ -93,15 +119,15 @@ function GeneralConfig() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
             <div style={{ maxWidth: 440 }}>
               <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: token('color.text.subtle', '#5E6C84'), marginBottom: 6 }}>Organization Name</label>
-              <TextField defaultValue="Mending Kids" />
+              <TextField value={config.name} onChange={(e) => setConfig({ ...config, name: e.target.value })} />
             </div>
             <div style={{ maxWidth: 440 }}>
               <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: token('color.text.subtle', '#5E6C84'), marginBottom: 6 }}>Support Email</label>
-              <TextField defaultValue="support@mendingkids.org" />
+              <TextField value={config.support_email} onChange={(e) => setConfig({ ...config, support_email: e.target.value })} />
             </div>
             <div style={{ maxWidth: 440 }}>
               <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: token('color.text.subtle', '#5E6C84'), marginBottom: 6 }}>Base URL</label>
-              <TextField defaultValue="https://inventory.mendingkids.org" isReadOnly />
+              <TextField value={config.base_url} isReadOnly />
               <span style={{ fontSize: 12, color: token('color.text.subtlest', '#626F86'), marginTop: 4, display: 'block' }}>This is your site's permanent address.</span>
             </div>
           </div>
@@ -120,30 +146,23 @@ function GeneralConfig() {
                   { label: '(GMT-05:00) Eastern Time (US & Canada)', value: 'et' },
                   { label: '(GMT+00:00) UTC', value: 'utc' }
                 ]}
-                defaultValue={{ label: '(GMT-08:00) Pacific Time (US & Canada)', value: 'pt' }}
+                value={{ label: config.timezone === 'pt' ? '(GMT-08:00) Pacific Time (US & Canada)' : config.timezone, value: config.timezone }}
+                onChange={(v) => setConfig({ ...config, timezone: v.value })}
               />
             </div>
             <div style={{ maxWidth: 440 }}>
               <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: token('color.text.subtle', '#5E6C84'), marginBottom: 6 }}>Default Language</label>
               <Select 
                 options={[{ label: 'English (United States)', value: 'en-US' }, { label: 'Spanish', value: 'es' }]}
-                defaultValue={{ label: 'English (United States)', value: 'en-US' }}
+                value={{ label: config.language === 'en-US' ? 'English (United States)' : 'Spanish', value: config.language }}
+                onChange={(v) => setConfig({ ...config, language: v.value })}
               />
             </div>
           </div>
         </section>
 
-        <section>
-          <h3 style={{ fontSize: 16, fontWeight: 600, marginBottom: 16, color: token('color.text', '#172B4D') }}>Options</h3>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            <Checkbox label="Allow users to vote on item requests" defaultChecked theme={(t) => ({ ...t, color: '#422670' })} />
-            <Checkbox label="Enable public API access for integrations" />
-            <Checkbox label="Show contact support floating widget" defaultChecked />
-          </div>
-        </section>
-
         <div style={{ paddingTop: 16, display: 'flex', gap: 8 }}>
-          <PrimaryButton onClick={() => { setAlertModalContent({ title: 'Success', body: 'Settings saved successfully.' }); setIsAlertModalOpen(true); }}>Save configuration</PrimaryButton>
+          <PrimaryButton onClick={handleSave} disabled={saving}>{saving ? 'Saving...' : 'Save configuration'}</PrimaryButton>
           <SubtleButton>Cancel</SubtleButton>
         </div>
       </div>
@@ -206,6 +225,34 @@ function GlobalPermissions({ onAdd, onEdit }) {
 }
 
 function AuditLog() {
+  const [logs, setLogs] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchLogs();
+  }, []);
+
+  const fetchLogs = async () => {
+    setLoading(true);
+    const { data } = await supabase
+      .from('activity_log')
+      .select('*, profiles(name)')
+      .order('created_at', { ascending: false });
+    
+    if (data) {
+      setLogs(data.map(l => ({
+        key: l.id,
+        cells: [
+          { content: new Date(l.created_at).toLocaleString() },
+          { content: l.profiles?.name || 'System' },
+          { content: l.category || 'General' },
+          { content: l.action_text }
+        ]
+      })));
+    }
+    setLoading(false);
+  };
+
   const head = {
     cells: [
       { key: 'date', content: 'Date', isSortable: true },
@@ -214,18 +261,13 @@ function AuditLog() {
       { key: 'summary', content: 'Summary', isSortable: false },
     ],
   };
-  const rows = [
-    { key: '1', cells: [{ content: 'Today 10:14 AM' }, { content: 'Sarah Johnson' }, { content: 'Permissions' }, { content: 'Granted View Reports to external-partners' }] },
-    { key: '2', cells: [{ content: 'Yesterday 04:30 PM' }, { content: 'Mark Patel' }, { content: 'General' }, { content: 'Changed Default Timezone to pt' }] },
-    { key: '3', cells: [{ content: '14 Dec, 2025' }, { content: 'System' }, { content: 'Automation' }, { content: 'Rule triggered: Low stock alert' }] },
-  ];
 
   return (
     <>
       <p style={{ color: token('color.text.subtle', '#5E6C84'), fontSize: 14, marginBottom: 20 }}>
-        The audit log records all configuration changes made in your organization.
+        The audit log records all configuration changes and system events in your organization.
       </p>
-      <DynamicTable head={head} rows={rows} rowsPerPage={10} defaultPage={1} />
+      <DynamicTable head={head} rows={logs} rowsPerPage={10} defaultPage={1} isLoading={loading} />
     </>
   );
 }
@@ -586,20 +628,38 @@ function Authentication() {
 }
 
 function CategoriesTags({ onAdd, onEdit }) {
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  const fetchCategories = async () => {
+    setLoading(true);
+    const { data } = await supabase.from('categories').select('*');
+    if (data) setCategories(data);
+    setLoading(false);
+  };
+
   const head = {
     cells: [
       { key: 'name', content: 'Category name', isSortable: true },
       { key: 'color', content: 'Color code', isSortable: false },
-      { key: 'usage', content: 'Used by', isSortable: false },
+      { key: 'usage', content: 'Description', isSortable: false },
       { key: 'actions', content: '', isSortable: false },
     ],
   };
-  const rows = [
-    { key: '1', cells: [{ content: <strong>Cardiac</strong> }, { content: <span style={{display: 'flex', gap: 8}}><div style={{width: 16, height: 16, backgroundColor: '#1561cc', borderRadius: '50%'}}></div> Blue</span> }, { content: '124 items' }, { content: <a href="#" onClick={(e) => { e.preventDefault(); onEdit({ id: '1', name: 'Cardiac' }); }} style={{color:'var(--ds-link)'}}>Edit</a> }] },
-    { key: '2', cells: [{ content: <strong>Infections</strong> }, { content: <span style={{display: 'flex', gap: 8}}><div style={{width: 16, height: 16, backgroundColor: '#d63c8a', borderRadius: '50%'}}></div> Pink</span> }, { content: '19 items' }, { content: <a href="#" onClick={(e) => { e.preventDefault(); onEdit({ id: '2', name: 'Infections' }); }} style={{color:'var(--ds-link)'}}>Edit</a> }] },
-    { key: '3', cells: [{ content: <strong>ENT</strong> }, { content: <span style={{display: 'flex', gap: 8}}><div style={{width: 16, height: 16, backgroundColor: '#1a7f37', borderRadius: '50%'}}></div> Green</span> }, { content: '43 items' }, { content: <a href="#" onClick={(e) => { e.preventDefault(); onEdit({ id: '3', name: 'ENT' }); }} style={{color:'var(--ds-link)'}}>Edit</a> }] },
-    { key: '4', cells: [{ content: <strong>General</strong> }, { content: <span style={{display: 'flex', gap: 8}}><div style={{width: 16, height: 16, backgroundColor: '#cf4f27', borderRadius: '50%'}}></div> Orange</span> }, { content: '312 items' }, { content: <a href="#" onClick={(e) => { e.preventDefault(); onEdit({ id: '4', name: 'General' }); }} style={{color:'var(--ds-link)'}}>Edit</a> }] },
-  ];
+
+  const rows = categories.map(c => ({
+    key: c.id,
+    cells: [
+      { content: <strong>{c.name}</strong> },
+      { content: <span style={{display: 'flex', gap: 8}}><div style={{width: 16, height: 16, backgroundColor: c.color, borderRadius: '50%'}}></div> {c.color}</span> },
+      { content: c.description || '—' },
+      { content: <a href="#" onClick={(e) => { e.preventDefault(); onEdit(c); }} style={{color:'var(--ds-link)'}}>Edit</a> }
+    ]
+  }));
 
   return (
     <>
@@ -609,25 +669,42 @@ function CategoriesTags({ onAdd, onEdit }) {
         </p>
         <PrimaryButton onClick={onAdd}>Add category</PrimaryButton>
       </div>
-      <DynamicTable head={head} rows={rows} rowsPerPage={10} defaultPage={1} />
+      <DynamicTable head={head} rows={rows} rowsPerPage={10} defaultPage={1} isLoading={loading} />
     </>
   );
 }
 
 function Locations({ onAdd, onEdit }) {
+  const [locations, setLocations] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchLocations();
+  }, []);
+
+  const fetchLocations = async () => {
+    setLoading(true);
+    const { data } = await supabase.from('locations').select('*');
+    if (data) setLocations(data);
+    setLoading(false);
+  };
+
   const head = {
     cells: [
       { key: 'name', content: 'Location name', isSortable: true },
       { key: 'type', content: 'Type', isSortable: true },
-      { key: 'items', content: 'Stored Items', isSortable: false },
       { key: 'actions', content: '', isSortable: false },
     ],
   };
-  const rows = [
-    { key: '1', cells: [{ content: <strong>Main Warehouse Los Angeles</strong> }, { content: 'Facility' }, { content: '4,520' }, { content: <a href="#" onClick={(e) => { e.preventDefault(); onEdit({ id: '1', name: 'Main Warehouse Los Angeles', type: 'Facility' }); }} style={{color:'var(--ds-link)'}}>Edit</a> }] },
-    { key: '2', cells: [{ content: <strong>Cabinet 3B</strong> }, { content: 'Sub-location' }, { content: '142' }, { content: <a href="#" onClick={(e) => { e.preventDefault(); onEdit({ id: '2', name: 'Cabinet 3B', type: 'Sub-location' }); }} style={{color:'var(--ds-link)'}}>Edit</a> }] },
-    { key: '3', cells: [{ content: <strong>Storage A</strong> }, { content: 'Sub-location' }, { content: '93' }, { content: <a href="#" onClick={(e) => { e.preventDefault(); onEdit({ id: '3', name: 'Storage A', type: 'Sub-location' }); }} style={{color:'var(--ds-link)'}}>Edit</a> }] },
-  ];
+
+  const rows = locations.map(l => ({
+    key: l.id,
+    cells: [
+      { content: <strong>{l.name}</strong> },
+      { content: l.type },
+      { content: <a href="#" onClick={(e) => { e.preventDefault(); onEdit(l); }} style={{color:'var(--ds-link)'}}>Edit</a> }
+    ]
+  }));
 
   return (
     <>
@@ -637,7 +714,7 @@ function Locations({ onAdd, onEdit }) {
         </p>
         <PrimaryButton onClick={onAdd}>Add location</PrimaryButton>
       </div>
-      <DynamicTable head={head} rows={rows} rowsPerPage={10} defaultPage={1} />
+      <DynamicTable head={head} rows={rows} rowsPerPage={10} defaultPage={1} isLoading={loading} />
     </>
   );
 }
@@ -695,11 +772,21 @@ export default function SettingsPage({ user, onSwitchAccount, onLogout }) {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('General configuration');
   const [isModalOpen, setIsModalOpen] = useState(null);
+  const [groups, setGroups] = useState([]);
   const [editingItem, setEditingItem] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showWarning, setShowWarning] = useState(false);
   const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
   const [alertModalContent, setAlertModalContent] = useState({ title: '', body: '' });
+
+  useEffect(() => {
+    fetchGroups();
+  }, []);
+
+  const fetchGroups = async () => {
+    const { data } = await supabase.from('groups').select('*');
+    if (data) setGroups(data.map(g => g.name));
+  };
 
   // Form states
   const [formData, setFormData] = useState({
@@ -719,6 +806,17 @@ export default function SettingsPage({ user, onSwitchAccount, onLogout }) {
         groups: item.groups?.map(g => ({ label: g, value: g })) || [],
         passcode: '',
         role: item.role || 'Intern'
+      });
+    } else if (type === 'category') {
+      setFormData({
+        name: item?.name || '',
+        color: item?.color || '#1561cc',
+        description: item?.description || ''
+      });
+    } else if (type === 'location') {
+      setFormData({
+        name: item?.name || '',
+        type: item?.type || 'Facility'
       });
     } else {
       setFormData({ name: '', email: '', groups: [], passcode: '', role: 'Intern' });
@@ -807,6 +905,32 @@ export default function SettingsPage({ user, onSwitchAccount, onLogout }) {
       });
       setIsAlertModalOpen(true);
     }
+  };
+  const handleSaveCategory = async () => {
+    const payload = {
+      name: formData.name,
+      color: formData.color,
+      description: formData.description
+    };
+    const { error } = editingItem 
+      ? await supabase.from('categories').update(payload).eq('id', editingItem.id)
+      : await supabase.from('categories').insert(payload);
+    
+    if (error) alert(error.message);
+    else { closeModal(); window.location.reload(); }
+  };
+
+  const handleSaveLocation = async () => {
+    const payload = {
+      name: formData.name,
+      type: formData.type
+    };
+    const { error } = editingItem
+      ? await supabase.from('locations').update(payload).eq('id', editingItem.id)
+      : await supabase.from('locations').insert(payload);
+    
+    if (error) alert(error.message);
+    else { closeModal(); window.location.reload(); }
   };
 
   const closeModal = () => {
@@ -948,11 +1072,27 @@ export default function SettingsPage({ user, onSwitchAccount, onLogout }) {
               <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
                 <div>
                   <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#5E6C84', marginBottom: 6 }}>Category Name</label>
-                  <TextField defaultValue={editingItem?.name || ''} placeholder="e.g. Surgical Supplies" />
+                  <TextField 
+                    value={formData.name} 
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    placeholder="e.g. Surgical Supplies" 
+                  />
                 </div>
                 <div>
                   <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#5E6C84', marginBottom: 6 }}>Tag Color</label>
-                  <Select options={[{label: 'Blue', value: 'blue'}, {label: 'Pink', value: 'pink'}, {label: 'Green', value: 'green'}, {label: 'Orange', value: 'orange'}]} defaultValue={{label: 'Blue', value: 'blue'}} />
+                  <Select 
+                    options={[{label: 'Blue', value: '#1561cc'}, {label: 'Pink', value: '#d63c8a'}, {label: 'Green', value: '#1a7f37'}, {label: 'Orange', value: '#cf4f27'}]} 
+                    value={{ label: 'Color', value: formData.color }}
+                    onChange={(v) => setFormData({ ...formData, color: v.value })}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#5E6C84', marginBottom: 6 }}>Description</label>
+                  <TextField 
+                    value={formData.description} 
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    placeholder="What's in this category?" 
+                  />
                 </div>
               </div>
             )}
@@ -961,11 +1101,19 @@ export default function SettingsPage({ user, onSwitchAccount, onLogout }) {
               <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
                 <div>
                   <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#5E6C84', marginBottom: 6 }}>Location Name</label>
-                  <TextField defaultValue={editingItem?.name || ''} placeholder="e.g. Warehouse B - Shelf 4" />
+                  <TextField 
+                    value={formData.name} 
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    placeholder="e.g. Warehouse B - Shelf 4" 
+                  />
                 </div>
                 <div>
                   <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#5E6C84', marginBottom: 6 }}>Location Type</label>
-                  <Select options={[{label: 'Facility', value: 'facility'}, {label: 'Sub-location', value: 'sub'}]} defaultValue={editingItem ? {label: editingItem.type, value: editingItem.type.toLowerCase()} : {label: 'Facility', value: 'facility'}} />
+                  <Select 
+                    options={[{label: 'Facility', value: 'Facility'}, {label: 'Sub-location', value: 'Sub-location'}]} 
+                    value={{ label: formData.type, value: formData.type }}
+                    onChange={(v) => setFormData({ ...formData, type: v.value })}
+                  />
                 </div>
               </div>
             )}
@@ -1064,7 +1212,7 @@ export default function SettingsPage({ user, onSwitchAccount, onLogout }) {
                       <Select 
                         isMulti 
                         placeholder="Select groups..." 
-                        options={[{label: 'site-admins', value: 'sa'}, {label: 'inventory-managers', value: 'im'}, {label: 'external-partners', value: 'ep'}, {label: 'interns', value: 'in'}]} 
+                        options={groups.map(g => ({ label: g, value: g }))} 
                         value={formData.groups}
                         onChange={(opts) => setFormData({ ...formData, groups: opts })}
                       />
@@ -1146,8 +1294,13 @@ export default function SettingsPage({ user, onSwitchAccount, onLogout }) {
           </div>
 
           <div style={{ padding: '24px 32px', borderTop: '1px solid #DFE1E6', display: 'flex', gap: 12 }}>
-            <PrimaryButton onClick={isModalOpen === 'invite' ? handleSaveUser : closeModal}>
-              {editingItem ? 'Save changes' : 'Create user'}
+            <PrimaryButton onClick={
+              isModalOpen === 'invite' ? handleSaveUser : 
+              isModalOpen === 'category' ? handleSaveCategory :
+              isModalOpen === 'location' ? handleSaveLocation :
+              closeModal
+            }>
+              {editingItem ? 'Save changes' : 'Create'}
             </PrimaryButton>
             <SubtleButton onClick={closeModal}>Cancel</SubtleButton>
           </div>

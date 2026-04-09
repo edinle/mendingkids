@@ -19,13 +19,41 @@ export default function ReportsPage({ user, onSwitchAccount, onLogout }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [successModal, setSuccessModal] = useState({ isOpen: false, reportTitle: '' });
 
-  const handleDownload = (id) => {
+  const handleDownload = async (id) => {
     setDownloading(id);
-    // Simulate generation and download delay
+    
+    // Fetch live summary data to make the report feel real
+    let summaryText = "";
+    try {
+      if (id === 'inventory-valuation') {
+        const { count: itemCount } = await supabase.from('inventory').select('*', { count: 'exact', head: true });
+        const { data: shipments } = await supabase.from('shipments').select('quantity');
+        const totalQty = shipments?.reduce((acc, s) => acc + (s.quantity || 0), 0) || 0;
+        summaryText = `Analysed ${itemCount} types across ${totalQty} units.`;
+      } else if (id === 'mission-packing') {
+        const { count: missionCount } = await supabase.from('missions').select('*', { count: 'exact', head: true });
+        summaryText = `Generated packing slips for ${missionCount} active missions.`;
+      } else if (id === 'expiration-alert') {
+        const ninetyDays = new Date();
+        ninetyDays.setDate(ninetyDays.getDate() + 90);
+        const { count: alertCount } = await supabase
+          .from('shipments')
+          .select('*', { count: 'exact', head: true })
+          .lte('expiration_date', ninetyDays.toISOString().split('T')[0]);
+        summaryText = `Identified ${alertCount} critical expiration risks.`;
+      } else {
+        summaryText = "Data aggregation complete.";
+      }
+    } catch (err) {
+      console.error('Report fetch failed:', err);
+      summaryText = "Sample data generated.";
+    }
+
+    // Simulate generation delay
     setTimeout(() => {
       setDownloading(null);
       const title = REPORT_TYPES.find(r => r.id === id)?.title || id;
-      setSuccessModal({ isOpen: true, reportTitle: title });
+      setSuccessModal({ isOpen: true, reportTitle: title, summary: summaryText });
     }, 1500);
   };
 
@@ -114,7 +142,11 @@ export default function ReportsPage({ user, onSwitchAccount, onLogout }) {
               <ModalTitle>Report Generated</ModalTitle>
             </ModalHeader>
             <ModalBody>
-              <p>Successfully generated and downloaded PDF for report: <strong>{successModal.reportTitle}</strong></p>
+              <p style={{ margin: '0 0 16px', fontSize: 14 }}>Successfully generated and downloaded PDF for report: <strong>{successModal.reportTitle}</strong></p>
+              <div style={{ backgroundColor: '#F4F5F7', padding: '16px', borderRadius: 4, border: '1px solid #DFE1E6' }}>
+                <span style={{ fontSize: 12, fontWeight: 700, color: '#626F86', textTransform: 'uppercase', display: 'block', marginBottom: 8 }}>Report Summary</span>
+                <p style={{ margin: 0, fontSize: 14, color: '#172B4D' }}>{successModal.summary || 'PDF generation complete.'}</p>
+              </div>
             </ModalBody>
             <ModalFooter>
               <Button appearance="primary" onClick={() => setSuccessModal({ ...successModal, isOpen: false })}>

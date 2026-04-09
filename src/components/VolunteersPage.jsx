@@ -57,9 +57,7 @@ export default function VolunteersPage({ user, onSwitchAccount, onLogout }) {
 
   const fetchVolunteers = async () => {
     setLoading(true);
-    // In a real app, we might filter by a 'type' column. 
-    // For now, we fetch from donors table which handles external personnel.
-    const { data } = await supabase.from('donors').select('*');
+    const { data } = await supabase.from('donors').select('*').eq('category', 'Volunteer');
     if (data) setUsers(data);
     setLoading(false);
   };
@@ -81,9 +79,8 @@ export default function VolunteersPage({ user, onSwitchAccount, onLogout }) {
     setDetailOpen(true);
   };
 
-  const handleSaveUser = async (userData) => {
-    const { error } = await supabase.from('donors').upsert(userData);
-    if (!error) fetchVolunteers();
+  const handleSaveUser = () => {
+    fetchVolunteers();
   };
   
   const filtered = users.filter(d => {
@@ -174,8 +171,8 @@ export default function VolunteersPage({ user, onSwitchAccount, onLogout }) {
           </div>
         </Main>
       </Content>
-      <UserFormPanel isOpen={formOpen} onClose={() => setFormOpen(false)} user={selectedUser} onSave={handleSaveUser} />
-      <UserDetailPanel isOpen={detailOpen} onClose={() => setDetailOpen(false)} user={selectedUser} onEdit={handleEditClick} />
+      <UserFormPanel isOpen={formOpen} onClose={() => setFormOpen(false)} user={selectedUser} onSave={handleSaveUser} category="Volunteer" />
+      <UserDetailPanel isOpen={detailOpen} onClose={() => setDetailOpen(false)} user={selectedUser} onEdit={handleEditClick} onSave={fetchVolunteers} />
     </PageLayout>
     </div>
   );

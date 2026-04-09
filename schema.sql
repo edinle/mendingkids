@@ -68,7 +68,7 @@ CREATE TABLE IF NOT EXISTS public.activity_log (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 7. Donors/Partners
+-- 7. Donors/Partners/Volunteers
 CREATE TABLE IF NOT EXISTS public.donors (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name TEXT NOT NULL,
@@ -76,9 +76,17 @@ CREATE TABLE IF NOT EXISTS public.donors (
   role TEXT,
   organization TEXT,
   status TEXT DEFAULT 'Active',
+  category TEXT DEFAULT 'Donor', -- Donor, Volunteer
+  city TEXT,
+  state TEXT,
+  country TEXT,
   last_active TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- Categorize existing data based on organization Presence
+UPDATE public.donors SET category = 'Volunteer' WHERE organization IS NULL OR organization = 'Individual';
+UPDATE public.donors SET category = 'Donor' WHERE organization IS NOT NULL AND organization != 'Individual';
 
 -- Enable RLS (Row Level Security)
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
@@ -123,3 +131,94 @@ CREATE TABLE IF NOT EXISTS public.documents (
 
 ALTER TABLE public.documents ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Allow authenticated all" ON public.documents FOR ALL TO authenticated USING (true) WITH CHECK (true);
+
+-- 8. Item Request Details (which items in a request)
+CREATE TABLE IF NOT EXISTS public.request_items (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  request_id TEXT REFERENCES public.requests(id) ON DELETE CASCADE,
+  inventory_id UUID REFERENCES public.inventory(id),
+  quantity INTEGER NOT NULL DEFAULT 1,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 9. Organization Settings
+CREATE TABLE IF NOT EXISTS public.organization_settings (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT DEFAULT 'Mending Kids',
+  support_email TEXT DEFAULT 'support@mendingkids.org',
+  base_url TEXT DEFAULT 'https://inventory.mendingkids.org',
+  timezone TEXT DEFAULT 'pt',
+  language TEXT DEFAULT 'en-US',
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 10. Categories/Tags
+CREATE TABLE IF NOT EXISTS public.categories (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL UNIQUE,
+  color TEXT,
+  description TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 11. Locations
+CREATE TABLE IF NOT EXISTS public.locations (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL UNIQUE,
+  type TEXT, -- Facility, Sub-location
+  parent_id UUID REFERENCES public.locations(id),
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 12. Groups & Permissions (Extended)
+CREATE TABLE IF NOT EXISTS public.groups (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL UNIQUE,
+  description TEXT,
+  type TEXT DEFAULT 'Custom group',
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS public.user_groups (
+  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
+  group_id UUID REFERENCES public.groups(id) ON DELETE CASCADE,
+  PRIMARY KEY (user_id, group_id)
+);
+
+-- Enable RLS & Policies
+ALTER TABLE public.request_items ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.organization_settings ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.categories ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.locations ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.groups ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.user_groups ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Allow authenticated all" ON public.request_items FOR ALL TO authenticated USING (true) WITH CHECK (true);
+CREATE POLICY "Allow authenticated all" ON public.organization_settings FOR ALL TO authenticated USING (true) WITH CHECK (true);
+CREATE POLICY "Allow authenticated all" ON public.categories FOR ALL TO authenticated USING (true) WITH CHECK (true);
+CREATE POLICY "Allow authenticated all" ON public.locations FOR ALL TO authenticated USING (true) WITH CHECK (true);
+CREATE POLICY "Allow authenticated all" ON public.groups FOR ALL TO authenticated USING (true) WITH CHECK (true);
+CREATE POLICY "Allow authenticated all" ON public.user_groups FOR ALL TO authenticated USING (true) WITH CHECK (true);
+
+-- Seed Initial Data
+INSERT INTO public.organization_settings (name) VALUES ('Mending Kids') ON CONFLICT DO NOTHING;
+
+INSERT INTO public.categories (name, color) VALUES 
+('Cardiac', '#1561cc'),
+('Infections', '#d63c8a'),
+('ENT', '#1a7f37'),
+('General', '#cf4f27')
+ON CONFLICT (name) DO NOTHING;
+
+INSERT INTO public.locations (name, type) VALUES 
+('Main Warehouse Los Angeles', 'Facility'),
+('Cabinet 3B', 'Sub-location'),
+('Storage A', 'Sub-location')
+ON CONFLICT (name) DO NOTHING;
+
+INSERT INTO public.groups (name, type) VALUES 
+('site-admins', 'System defined'),
+('inventory-managers', 'Custom group'),
+('external-partners', 'Custom group'),
+('interns', 'Limited access')
+ON CONFLICT (name) DO NOTHING;

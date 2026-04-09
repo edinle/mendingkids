@@ -9,41 +9,7 @@ import CreateMissionPanel from './CreateMissionPanel';
 import DeleteConfirmationModal from './DeleteConfirmationModal';
 import FilterDropdown from './FilterDropdown';
 
-// ─── Mock items for a mission ─────────────────────────────────────────────────
-
-const MISSION_ITEMS = [
-  { id: 1,  description: 'i-Stat User guide',           company: 'Abbott', ref: '609874325',      qty: 10,   qtyFlag: null    },
-  { id: 2,  description: 'Eclipse Needle 18G x 1.5in',  company: 'Abbott', ref: '305766',         qty: 2433, qtyFlag: null    },
-  { id: 3,  description: 'Sterilizable Gas + Steam Barcode', company: 'Nipro',  ref: 'IS-170/AVF/RL/H-WB', qty: 342, qtyFlag: null },
-  { id: 4,  description: 'Surgical Blade #15',          company: 'Swann-Morton', ref: 'BLD-15',   qty: 100,  qtyFlag: 'danger' },
-  { id: 5,  description: 'Pulse Oximeter',              company: 'Masimo', ref: 'PX-101',         qty: 15,   qtyFlag: 'info'   },
-  { id: 6,  description: 'IV Cannula 20G',             company: 'B. Braun', ref: 'IVC-20',       qty: 50,   qtyFlag: null     },
-  { id: 7,  description: 'Surgical Masks (Box of 50)',  company: '3M', ref: 'MSK-77',         qty: 200,  qtyFlag: null     },
-  { id: 8,  description: 'Gauze Pads 4x4',              company: 'Johnson & Johnson', ref: 'GP-44', qty: 500,  qtyFlag: null     },
-  { id: 9,  description: 'Surgical Gowns (Large)',      company: 'Cardinal Health', ref: 'SGN-LRG', qty: 40,   qtyFlag: null     },
-  { id: 10, description: 'Hand Sanitizer 500ml',       company: 'Purell', ref: 'HS-500',         qty: 12,   qtyFlag: null     },
-  { id: 11, description: 'Adhesive Bandage Strips',    company: 'Curad', ref: 'BD-100',          qty: 1000, qtyFlag: null     },
-  { id: 12, description: 'Blood Pressure Cuff',         company: 'Welch Allyn', ref: 'BPC-AD',   qty: 5,    qtyFlag: null     },
-  { id: 13, description: 'Disposable Syringe 10ml',    company: 'BD', ref: 'SYR-10',            qty: 300,  qtyFlag: null     },
-  { id: 14, description: 'Lignocaine 2% Injection',    company: 'Hospira', ref: 'LIG-2PCT',       qty: 25,   qtyFlag: null     },
-  { id: 15, description: 'Betadine Solution 1L',       company: 'Mundipharma', ref: 'BET-1L',    qty: 4,    qtyFlag: null     },
-  { id: 16, description: 'Surgical Tape 1in',           company: '3M', ref: 'TP-201',             qty: 60,   qtyFlag: null     },
-  { id: 17, description: 'Elastic Bandages 4in',        company: 'ACE', ref: 'EB-400',           qty: 30,   qtyFlag: null     },
-  { id: 18, description: 'Sterile Gloves Size 7.5',    company: 'Ansell', ref: 'GLV-75',         qty: 100,  qtyFlag: null    },
-  { id: 19, description: 'Saline Solution 500ml',      company: 'Baxter', ref: 'SS-500',         qty: 80,   qtyFlag: null    },
-  { id: 20, description: 'Digital Thermometer',         company: 'Omron', ref: 'DT-501',          qty: 10,   qtyFlag: null    },
-];
-
-const ADD_ITEMS_RECOMMENDED = [
-  { id: 1,  description: 'i-Stat User guide',           company: 'Abbott' },
-  { id: 2,  description: 'Eclipse Needle 18G x 1.5in',  company: 'Abbott' },
-  { id: 3,  description: 'Sterilizable Gas + Steam Barcode', company: 'Nipro'  },
-  { id: 4,  description: 'Suture Silk 3-0',            company: 'Ethicon' },
-  { id: 5,  description: 'Tracheal Tube 7.5mm',         company: 'Teleflex' },
-  { id: 6,  description: 'Defibrillator Pads',          company: 'Zoll' },
-  { id: 7,  description: 'Suction Catheter',            company: 'Medtronic' },
-  { id: 8,  description: 'Oxygen Mas - Adult',          company: 'Aero Healthcare' },
-];
+// ─── Primitives ───────────────────────────────────────────────────────────────
 
 const CATEGORY_CHIPS = ['Syringes', 'Patches', 'Chest Tubes', 'Bandages'];
 const CHIP_COLORS = { Syringes: '#E9F2FF', Patches: '#FFF3EB', 'Chest Tubes': '#E3FCEF', Bandages: '#F3F0FF' };
@@ -133,13 +99,7 @@ function AddItemsPanel({ category = 'ENT', onClose, onNavigate }) {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
           <h4 style={{ margin: 0, fontSize: 14, fontWeight: 600, color: '#172B4D' }}>Recommended for {category}</h4>
           <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-            <button onClick={() => setPage(p => Math.max(1, p - 1))} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#626F86', padding: '2px', display: 'flex' }}>
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9 3L5 7l4 4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/></svg>
-            </button>
-            <span style={{ fontSize: 12, color: '#626F86' }}>{page} of 1</span>
-            <button onClick={() => setPage(p => Math.min(1, p + 1))} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#626F86', padding: '2px', display: 'flex' }}>
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M5 3l4 4-4 4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/></svg>
-            </button>
+            {/* Pagination buttons logic ... */}
           </div>
         </div>
 
@@ -150,7 +110,7 @@ function AddItemsPanel({ category = 'ENT', onClose, onNavigate }) {
             <span style={{ fontSize: 11, fontWeight: 700, color: '#626F86', textTransform: 'uppercase' }}>Item Description</span>
             <span style={{ fontSize: 11, fontWeight: 700, color: '#626F86', textTransform: 'uppercase' }}>Company</span>
           </div>
-          {filtered.map(item => (
+          {inventory.filter(i => !search || i.description.toLowerCase().includes(search.toLowerCase())).map(item => (
             <div key={item.id} style={{
               display: 'grid', gridTemplateColumns: '32px 1fr 100px',
               padding: '10px 12px', gap: 8, alignItems: 'center',
@@ -169,7 +129,23 @@ function AddItemsPanel({ category = 'ENT', onClose, onNavigate }) {
       <div style={{ padding: '16px 24px', borderTop: `1px solid ${token('color.border', 'rgba(9,30,66,0.14)')}`, display: 'flex', justifyContent: 'flex-end', gap: 12, backgroundColor: '#fff' }}>
         <button onClick={onClose} style={{ height: 36, padding: '0 16px', border: '1px solid #d9d9d9', borderRadius: 4, background: '#fff', cursor: 'pointer', fontSize: 14, fontFamily: 'inherit' }}>Cancel</button>
         <button
-          onClick={() => navigate('/missions')}
+          onClick={async () => {
+            const updates = Object.keys(selected).filter(k => selected[k]).map(itemId => ({
+              mission_id: missionId,
+              inventory_id: itemId,
+              quantity: 1,
+              status: 'assigned',
+              location: 'Transit'
+            }));
+            const { error } = await supabase.from('shipments').insert(updates);
+            if (!error) {
+               onSuccess();
+               onClose();
+            } else {
+               alert(error.message);
+            }
+          }}
+          disabled={Object.values(selected).filter(Boolean).length === 0}
           style={{ height: 36, padding: '0 16px', border: 'none', borderRadius: 4, background: '#422670', color: '#fff', cursor: 'pointer', fontSize: 14, fontFamily: 'inherit', fontWeight: 600 }}
         >
           Add Selected
@@ -216,18 +192,113 @@ function AddPersonPanel({ onClose, onAdd }) {
 export default function MissionDetailPage({ user, onSwitchAccount, onLogout }) {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [items, setItems] = useState([]);
   const [mission, setMission] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  const [editing, setEditing] = useState(null);
+  const [tempVal, setTempVal] = useState('');
+  const [hovered, setHovered] = useState(null);
+
   useEffect(() => {
-    fetchMission();
+    if (id) {
+      fetchMission();
+    }
   }, [id]);
 
   const fetchMission = async () => {
     setLoading(true);
     const { data, error } = await supabase.from('missions').select('*').eq('id', id).single();
-    if (data) setMission(data);
+    if (data) {
+      setMission(data);
+      fetchMissionItems();
+    }
     setLoading(false);
+  };
+
+  const fetchMissionItems = async () => {
+    const { data } = await supabase
+      .from('shipments')
+      .select('*, inventory(description, company, reference_number)')
+      .eq('mission_id', id);
+    if (data) {
+      const mapped = data.map(s => ({
+        id: s.id,
+        description: s.inventory?.description || 'Unknown',
+        company: s.inventory?.company || 'Unknown',
+        ref: s.inventory?.reference_number || '—',
+        qty: s.quantity,
+        qtyFlag: null
+      }));
+      setItems(mapped);
+    }
+  };
+
+  const startEdit = (field) => {
+    setEditing(field);
+    setTempVal(mission[field] || '');
+    setHovered(null);
+  };
+
+  const commitEdit = async () => {
+    const field = editing;
+    const value = tempVal;
+    
+    setMission(prev => ({ ...prev, [field]: value }));
+    setEditing(null);
+
+    try {
+      const { error } = await supabase.from('missions').update({ [field]: value }).eq('id', id);
+      if (error) throw error;
+    } catch (err) {
+      console.error('Mission save failed:', err);
+    }
+  };
+
+  const cancelEdit = () => {
+    setEditing(null);
+    setTempVal('');
+  };
+
+  const renderEditableHeader = (field, label, bold = false) => {
+    const isEditing = editing === field;
+    const isHovered = hovered === field && !isEditing;
+
+    if (isEditing) {
+      return (
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 8 }}>
+          <input 
+            autoFocus
+            value={tempVal}
+            onChange={e => setTempVal(e.target.value)}
+            style={{ 
+              padding: '4px 8px', borderRadius: 3, border: '2px solid #2684FF',
+              fontSize: 14, outline: 'none', fontFamily: 'inherit', width: 240
+            }}
+          />
+          <button onClick={commitEdit} style={{ border: 'none', background: '#1F845A', color: '#fff', borderRadius: 3, padding: '4px 8px', cursor: 'pointer' }}>✓</button>
+          <button onClick={cancelEdit} style={{ border: 'none', background: '#AE2E24', color: '#fff', borderRadius: 3, padding: '4px 8px', cursor: 'pointer' }}>✕</button>
+        </div>
+      );
+    }
+
+    return (
+      <div 
+        onMouseEnter={() => setHovered(field)}
+        onMouseLeave={() => setHovered(null)}
+        onClick={() => startEdit(field)}
+        style={{ 
+          cursor: 'pointer', borderRadius: 4, padding: '2px 8px', margin: '0 -8px',
+          display: 'inline-block',
+          backgroundColor: isHovered ? 'rgba(9,30,66,0.04)' : 'transparent',
+          border: isHovered ? '1px solid rgba(9,30,66,0.08)' : '1px solid transparent'
+        }}
+      >
+        <p style={{ margin: 0, fontSize: bold ? 14 : 13, color: bold ? '#44546F' : '#626F86', fontWeight: bold ? 500 : 400 }}>
+          {mission[field] || (bold ? 'Add Location' : 'Add Dates')}
+        </p>
+      </div>
+    );
   };
   const [tab, setTab] = useState('items');
   const [activeTab, setActiveTab] = useState('items');
@@ -349,9 +420,9 @@ export default function MissionDetailPage({ user, onSwitchAccount, onLogout }) {
                 </button>
               </div>
 
-              <p style={{ margin: '0 0 2px', fontSize: 14, color: '#44546F' }}>{m.location || 'Location Name'}</p>
+              {renderEditableHeader('location', 'Location', true)}
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
-                <p style={{ margin: 0, fontSize: 13, color: '#626F86' }}>{m.dates || m.timeAway || '4 months away'}</p>
+                {renderEditableHeader('dates', 'Dates', false)}
                 <div style={{ width: 4, height: 4, borderRadius: '50%', backgroundColor: '#C1C7D0' }} />
                 <SpecialtyBadge specialty={m.specialty} />
               </div>

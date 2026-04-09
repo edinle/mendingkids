@@ -57,7 +57,7 @@ export default function DonorsPage({ user, onSwitchAccount, onLogout }) {
 
   const fetchDonors = async () => {
     setLoading(true);
-    const { data } = await supabase.from('donors').select('*');
+    const { data } = await supabase.from('donors').select('*').eq('category', 'Donor');
     if (data) setUsers(data);
     setLoading(false);
   };
@@ -79,9 +79,8 @@ export default function DonorsPage({ user, onSwitchAccount, onLogout }) {
     setDetailOpen(true);
   };
 
-  const handleSaveUser = async (userData) => {
-    const { error } = await supabase.from('donors').upsert(userData);
-    if (!error) fetchDonors();
+  const handleSaveUser = () => {
+    fetchDonors();
   };
   
   const filtered = users.filter(d => {
@@ -171,8 +170,8 @@ export default function DonorsPage({ user, onSwitchAccount, onLogout }) {
           </div>
         </Main>
       </Content>
-      <UserFormPanel isOpen={formOpen} onClose={() => setFormOpen(false)} user={selectedUser} onSave={handleSaveUser} />
-      <UserDetailPanel isOpen={detailOpen} onClose={() => setDetailOpen(false)} user={selectedUser} onEdit={handleEditClick} />
+      <UserFormPanel isOpen={formOpen} onClose={() => setFormOpen(false)} user={selectedUser} onSave={handleSaveUser} category="Donor" />
+      <UserDetailPanel isOpen={detailOpen} onClose={() => setDetailOpen(false)} user={selectedUser} onEdit={handleEditClick} onSave={fetchDonors} />
     </PageLayout>
   );
 }

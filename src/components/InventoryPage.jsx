@@ -212,9 +212,18 @@ const TABS = [
 ];
 
 export default function InventoryPage({ user, onSwitchAccount, onLogout }) {
-  const [search, setSearch] = useState('');
-  const [rows, setRows] = useState([]);
+  const [inventory, setInventory] = useState([]);
+  const [archived, setArchived] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [categories, setCategories] = useState([]);
+  
+  // Filters state
+  const [search, setSearch] = useState('');
+  const [category, setCategory] = useState('');
+  const [mission, setMission] = useState('');
+  const [location, setLocation] = useState('');
+  const [expiration, setExpiration] = useState('');
+
   const [activeTab, setActiveTab] = useState('available');
   const [missionFilter, setMissionFilter] = useState('');
   const [expirationFilter, setExpirationFilter] = useState('');
@@ -230,7 +239,13 @@ export default function InventoryPage({ user, onSwitchAccount, onLogout }) {
   useEffect(() => {
     fetchInventory();
     fetchMissionsList();
+    fetchCategories();
   }, []);
+
+  const fetchCategories = async () => {
+    const { data } = await supabase.from('categories').select('name');
+    if (data) setCategories(data.map(c => c.name));
+  };
 
   const fetchInventory = async () => {
     setLoading(true);
@@ -244,7 +259,8 @@ export default function InventoryPage({ user, onSwitchAccount, onLogout }) {
           reference_number,
           unit_of_measure,
           shelf_life,
-          notes
+          notes,
+          category
         ),
         missions (
           name
@@ -258,6 +274,7 @@ export default function InventoryPage({ user, onSwitchAccount, onLogout }) {
         description: s.inventory?.description || 'Unknown',
         company: s.inventory?.company || 'Unknown',
         reference: s.inventory?.reference_number || '—',
+        category: s.inventory?.category || 'Uncategorized',
         unit_of_measure: s.inventory?.unit_of_measure || 'units',
         shelf_life: s.inventory?.shelf_life || 'Does Not Expire',
         notes: s.inventory?.notes || '',
@@ -337,6 +354,8 @@ export default function InventoryPage({ user, onSwitchAccount, onLogout }) {
     if (r.status !== activeTab) return false;
     // Search filter
     if (search && !r.description.toLowerCase().includes(search.toLowerCase())) return false;
+    // Category filter
+    if (category && r.category !== category) return false;
     // Mission filter
     if (missionFilter && r.mission !== missionFilter) return false;
     // Expiration filter
@@ -519,6 +538,7 @@ export default function InventoryPage({ user, onSwitchAccount, onLogout }) {
             {/* Filters & Search Row */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <FilterDropdown label="Category" options={categories} selected={category} onSelect={setCategory} />
                 {isInUse && (
                   <FilterDropdown
                     label="Mission"
@@ -615,9 +635,17 @@ export default function InventoryPage({ user, onSwitchAccount, onLogout }) {
         isOpen={assignOpen}
         onClose={() => setAssignOpen(false)}
         item={selectedItem}
-        onAssign={(mission, qty) => {
+        onAssign={async (mission, qty) => {
           setDeploySuccess({ isOpen: true, msg: `Successfully deployed ${qty} units of ${selectedItem.description} to ${mission.label}` });
           setAssignOpen(false);
+          
+          // Log Activity
+          await supabase.from('activity_log').insert({
+            profile_id: user?.id,
+            action_text: `Assigned ${qty}x ${selectedItem.description} to ${mission.label}`,
+            category: 'Inventory'
+          });
+          
           fetchInventory(); // Refresh to show updated location and status
         }}
       />

@@ -195,7 +195,7 @@ export default function ItemRequestsPage({ user, onSwitchAccount, onLogout }) {
           </div>
         </Main>
       </Content>
-      <RequestDetailPanel isOpen={detailOpen} onClose={() => setDetailOpen(false)} request={selectedRequest} onUpdateStatus={handleUpdateStatus} />
+      <RequestDetailPanel isOpen={detailOpen} onClose={() => setDetailOpen(false)} request={selectedRequest} onUpdateStatus={handleUpdateStatus} onSave={fetchRequests} user={user} />
       <RequestFormPanel isOpen={formOpen} onClose={() => setFormOpen(false)} onSave={handleSaveNewRequest} />
     </PageLayout>
   );

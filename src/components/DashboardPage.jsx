@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { supabase } from '../utils/supabase';
 import {
   PageLayout, Content, Main, LeftSidebar, TopNavigation,
 } from '@atlaskit/page-layout';
@@ -7,105 +8,12 @@ import TopNav from './TopNav';
 import SideNav from './SideNav';
 import SlidePanel from './SlidePanel';
 
-// ─── Mock Data ─────────────────────────────────────────────────────────────
-
-const MISSIONS = [
-  {
-    id: 1,
-    name: 'Benin Cleft Lip & Palate',
-    category: 'Plastics',
-    categoryColor: '#6d28d9',
-    status: 'PENDING',
-    date: 'In 2 days',
-    action: 'Verify surgical kit #4 is packed',
-    location: 'Cotonou, Benin',
-    coordinator: 'Sarah Jenkins',
-    volunteers: 14,
-    items: 62,
-  },
-  {
-    id: 2,
-    name: 'Guatemala Orthopedic 2026',
-    category: 'Ortho',
-    categoryColor: '#0e7490',
-    status: 'ONGOING',
-    date: 'Now',
-    action: 'Scan 15 drill bits into inventory',
-    location: 'Guatemala City',
-    coordinator: 'Dr. Robert Chen',
-    volunteers: 9,
-    items: 112,
-  },
-  {
-    id: 3,
-    name: 'Tanzania Cardiac Relief',
-    category: 'Cardiac',
-    categoryColor: '#1561cc',
-    status: 'ONGOING',
-    date: 'Now',
-    action: 'Confirm ECG lead quantities',
-    location: 'Dar es Salaam',
-    coordinator: 'Elena Rodriguez',
-    volunteers: 11,
-    items: 84,
-  },
-  {
-    id: 4,
-    name: 'Honduras General Surgical',
-    category: 'General',
-    categoryColor: '#cf4f27',
-    status: 'COMPLETED',
-    date: 'Last week',
-    action: 'Approve mission return report',
-    location: 'Tegucigalpa',
-    coordinator: 'Marcus Thorne',
-    volunteers: 18,
-    items: 145,
-  },
-];
-
-const EXPIRATION_ALERTS = [
-  { id: 1, text: '24 Surgical Blades expire in 2 weeks', date: '04/22/26', item: 'Surgical Blade #15', qty: 24, location: 'Cabinet 14A', severity: 'warning' },
-  { id: 2, text: '100 IV Cannulas expire in 3 weeks', date: '04/29/26', item: 'IV Cannula 22G', qty: 100, location: 'Storage B', severity: 'warning' },
-  { id: 3, text: '250 Sterile Gauze Packs in 2 months', date: '06/15/26', item: 'Sterile Gauze 4x4', qty: 250, location: 'Cabinet 12', severity: 'caution' },
-  { id: 4, text: '12 Pulse Oximeter batteries in 3 months', date: '07/10/26', item: '9V Batteries', qty: 12, location: 'Supply Room', severity: 'caution' },
-];
-
-const RECENT_ACTIVITY = [
-  { id: 1, text: 'Sarah checked out Cardiac Kit #2', time: '2 hours ago', initials: 'SJ' },
-  { id: 2, text: 'Marcus approved Guatemala mission request', time: '4 hours ago', initials: 'MT' },
-  { id: 3, text: 'Elena updated 45 item categories', time: 'Yesterday', initials: 'ER' },
-  { id: 4, text: 'Dr. Chen added Benin shipment logs', time: '2 days ago', initials: 'RC' },
-];
-
-const ITEM_STATUS_UPDATES = [
-  { id: 1, name: 'Surgical Gowns', qty: 45, status: 'donated',  statusColor: '#5e35b1' },
-  { id: 2, name: 'Drapes (Large)', qty: 20, status: 'in use',   statusColor: '#1565c0' },
-  { id: 3, name: 'Anesthesia Kit', qty: 2,  status: 'expired',  statusColor: '#c62828' },
-  { id: 4, name: 'Sutures 3-0',    qty: 15, status: 'returned', statusColor: '#1a7f37' },
-];
-
-// ─── Calendar Data ─────────────────────────────────────────────────────────
-
-const CALENDAR = {
-  month: 'December 2025',
-  days: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
-  weeks: [
-    [null, null, null, null, 1, 2, 3],
-    [4, 5, 6, 7, 8, 9, 10],
-    [11, 12, 13, 14, 15, 16, 17],
-    [18, 19, 20, 21, 22, 23, 24],
-    [25, 26, 27, 28, 29, 30, 31],
-    [null, null, null, null, null, null, null],
-  ],
-  events: {
-    9:  ['#cf4f27', '#1561cc', '#d63c8a'],
-    14: ['#1561cc'],
-    19: ['#1a7f37'],
-    22: ['#d63c8a'],
-    25: ['#cf4f27'],
-  },
-  today: 19,
+// ─── Constants ─────────────────────────────────────────────────────────────
+const SPECIALTY_COLORS = {
+  'Plastics': '#6d28d9',
+  'Ortho':    '#0e7490',
+  'Cardiac':  '#1561cc',
+  'General':  '#cf4f27',
 };
 
 // ─── Sub-components ────────────────────────────────────────────────────────
@@ -158,21 +66,21 @@ function MissionCard({ mission, onClick }) {
         <span style={{ fontSize: 16, fontWeight: 400, color: '#000', lineHeight: '20px' }}>
           {mission.name}
         </span>
-        <CategoryBadge label={mission.category} color={mission.categoryColor} />
+        <CategoryBadge label={mission.specialty || 'General'} color={SPECIALTY_COLORS[mission.specialty] || '#626F86'} />
       </div>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
         <StatusBadge status={mission.status} />
         <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: '#000' }}>
           <CalIconSvg />
-          {mission.date}
+          {mission.dates || 'TBD'}
         </span>
       </div>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
         <WarningIcon color="#FF991F" size={12} />
         <span style={{ fontSize: 12, color: '#000', textDecoration: 'underline', textDecorationColor: '#aaa' }}>
-          {mission.action}
+          Location: {mission.location || 'Unknown'}
         </span>
         <ArrowIcon />
       </div>
@@ -604,6 +512,94 @@ export default function DashboardPage({ user, onSwitchAccount, onLogout }) {
   const [panel, setPanel] = useState({ type: null, data: null });
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  const [missions, setMissions] = useState([]);
+  const [alerts, setAlerts] = useState([]);
+  const [activity, setActivity] = useState([]);
+  const [updates, setUpdates] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
+
+  const fetchDashboardData = async () => {
+    setLoading(true);
+    
+    // 1. Fetch Latest 4 Missions (Ongoing/Pending)
+    const { data: missionsData } = await supabase
+      .from('missions')
+      .select('*')
+      .neq('status', 'COMPLETED')
+      .order('created_at', { ascending: false })
+      .limit(4);
+    if (missionsData) setMissions(missionsData);
+
+    // 2. Fetch Expiration Alerts (< 90 days)
+    const ninetyDaysFromNow = new Date();
+    ninetyDaysFromNow.setDate(ninetyDaysFromNow.getDate() + 90);
+    const { data: alertsData } = await supabase
+      .from('shipments')
+      .select('*, inventory(description)')
+      .lt('expiration_date', ninetyDaysFromNow.toISOString().split('T')[0])
+      .order('expiration_date', { ascending: true })
+      .limit(4);
+    if (alertsData) {
+      const mappedAlerts = alertsData.map(a => ({
+        id: a.id,
+        text: `${a.quantity} units expiring soon`,
+        date: new Date(a.expiration_date).toLocaleDateString(),
+        item: a.inventory?.description || 'Unknown',
+        qty: a.quantity,
+        location: a.location || 'Primary Storage',
+        severity: new Date(a.expiration_date) < new Date() ? 'danger' : 'warning'
+      }));
+      setAlerts(mappedAlerts);
+    }
+
+    // 3. Fetch Recent Activity
+    const { data: logData } = await supabase
+      .from('activity_log')
+      .select('*, profiles(name, initials)')
+      .order('created_at', { ascending: false })
+      .limit(5);
+    if (logData) {
+      const mappedLogs = logData.map(l => ({
+        id: l.id,
+        text: l.action_text,
+        time: formatRelativeTime(l.created_at),
+        initials: l.profiles?.initials || '??'
+      }));
+      setActivity(mappedLogs);
+    }
+
+    // 4. Fetch Item Status Updates (Recent shipments changes)
+    const { data: shipmentsData } = await supabase
+      .from('shipments')
+      .select('*, inventory(description)')
+      .order('created_at', { ascending: false })
+      .limit(4);
+    if (shipmentsData) {
+      const mapped = shipmentsData.map(s => ({
+        id: s.id,
+        name: s.inventory?.description || 'Item',
+        qty: s.quantity,
+        status: s.status,
+        statusColor: s.status === 'expired' ? '#c62828' : s.status === 'available' ? '#1a7f37' : '#1565c0'
+      }));
+      setUpdates(mapped);
+    }
+
+    setLoading(false);
+  };
+
+  const formatRelativeTime = (dateStr) => {
+    const d = new Date(dateStr);
+    const diff = Date.now() - d.getTime();
+    if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`;
+    if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`;
+    return d.toLocaleDateString();
+  };
+
   const openPanel = (type, data) => setPanel({ type, data });
   const closePanel = () => setPanel({ type: null, data: null });
 
@@ -646,7 +642,9 @@ export default function DashboardPage({ user, onSwitchAccount, onLogout }) {
               <div style={{ border: '1px solid #e8e8e8', borderRadius: 6, padding: '20px 20px 16px' }}>
                 <h2 style={{ margin: '0 0 16px', fontSize: 15, fontWeight: 600, color: '#000' }}>Missions</h2>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-                  {MISSIONS.map((m) => (
+                  {missions.length === 0 ? (
+                    <p style={{ gridColumn: 'span 2', textAlign: 'center', padding: 20, color: '#626F86' }}>No active missions found.</p>
+                  ) : missions.map((m) => (
                     <MissionCard key={m.id} mission={m} onClick={(mission) => navigate(`/missions/${mission.id}`)} />
                   ))}
                 </div>
@@ -656,7 +654,9 @@ export default function DashboardPage({ user, onSwitchAccount, onLogout }) {
               <div style={{ border: '1px solid #e8e8e8', borderRadius: 6, padding: '20px 20px 16px' }}>
                 <h2 style={{ margin: '0 0 12px', fontSize: 15, fontWeight: 600, color: '#000' }}>Expiration Alerts</h2>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
-                  {EXPIRATION_ALERTS.map((alert) => (
+                  {alerts.length === 0 ? (
+                    <p style={{ textAlign: 'center', padding: 20, color: '#626F86' }}>No upcoming expirations found.</p>
+                  ) : alerts.map((alert) => (
                     <AlertRow key={alert.id} alert={alert} onClick={() => openPanel('expiration', alert)} />
                   ))}
                 </div>
@@ -674,7 +674,9 @@ export default function DashboardPage({ user, onSwitchAccount, onLogout }) {
               <div style={{ border: '1px solid #e8e8e8', borderRadius: 6, padding: '16px 20px' }}>
                 <h2 style={{ margin: '0 0 12px', fontSize: 15, fontWeight: 600, color: '#000' }}>Recent Activity</h2>
                 <div>
-                  {RECENT_ACTIVITY.map((a) => (
+                  {activity.length === 0 ? (
+                    <p style={{ textAlign: 'center', padding: 10, color: '#626F86' }}>No recent activity found.</p>
+                  ) : activity.map((a) => (
                     <ActivityRow key={a.id} activity={a} onClick={() => openPanel('activity', a)} />
                   ))}
                 </div>
@@ -691,7 +693,9 @@ export default function DashboardPage({ user, onSwitchAccount, onLogout }) {
               <div style={{ border: '1px solid #e8e8e8', borderRadius: 6, padding: '16px 20px' }}>
                 <h2 style={{ margin: '0 0 12px', fontSize: 15, fontWeight: 600, color: '#000' }}>Item Status Updates</h2>
                 <div>
-                  {ITEM_STATUS_UPDATES.map((item) => (
+                  {updates.length === 0 ? (
+                    <p style={{ textAlign: 'center', padding: 10, color: '#626F86' }}>No recent item updates found.</p>
+                  ) : updates.map((item) => (
                     <ItemStatusRow key={item.id} item={item} onClick={() => openPanel('itemStatus', item)} />
                   ))}
                 </div>

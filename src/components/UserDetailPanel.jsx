@@ -1,12 +1,127 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { token } from '@atlaskit/tokens';
+import { supabase } from '../utils/supabase';
 import SlidePanel from './SlidePanel';
 
-export default function UserDetailPanel({ isOpen, onClose, user, onEdit }) {
-  if (!user) return null;
+export default function UserDetailPanel({ isOpen, onClose, user, onEdit, onSave }) {
+  const [saved, setSaved] = useState(null);
+  const [draft, setDraft] = useState(null);
+  const [editing, setEditing] = useState(null); // field key
+  const [tempVal, setTempVal] = useState('');
+  const [hovered, setHovered] = useState(null);
+  const [userLogs, setUserLogs] = useState([]);
+
+  useEffect(() => {
+    if (user) {
+      const userData = {
+        role: user.role || '',
+        organization: user.organization || '',
+        status: user.status || 'Active',
+      };
+      setSaved(userData);
+      setDraft(userData);
+      fetchUserLogs(user.id);
+    }
+  }, [user]);
+
+  const fetchUserLogs = async (profileId) => {
+    const { data } = await supabase
+      .from('activity_log')
+      .select('*')
+      .eq('profile_id', profileId)
+      .order('created_at', { ascending: false })
+      .limit(7);
+    if (data) setUserLogs(data);
+  };
+
+  if (!user || !saved) return null;
+
+  const startEdit = (field) => {
+    setEditing(field);
+    setTempVal(saved[field]);
+    setHovered(null);
+  };
+
+  const commitEdit = async () => {
+    const field = editing;
+    const value = tempVal;
+    
+    // Update local state
+    setSaved(prev => ({ ...prev, [field]: value }));
+    setDraft(prev => ({ ...prev, [field]: value }));
+    setEditing(null);
+
+    // Persist to Supabase
+    try {
+      const { error } = await supabase
+        .from('donors')
+        .update({ [field]: value })
+        .eq('id', user.id);
+      
+      if (error) throw error;
+      
+      // Log Activity
+      await supabase.from('activity_log').insert({
+        action_text: `Updated profile for ${user.name}: ${field} set to ${value}`,
+        category: 'Users'
+      });
+
+      onSave?.(); // Refresh parent table
+    } catch (err) {
+      console.error('Save failed:', err);
+    }
+  };
+
+  const cancelEdit = () => {
+    setEditing(null);
+    setTempVal('');
+  };
 
   const labelSt = { fontSize: 12, color: token('color.text.subtle', '#505258'), margin: '0 0 4px', display: 'block' };
   const valSt = { fontSize: 14, color: token('color.text', '#172B4D'), margin: 0, fontWeight: 500 };
+  
+  const renderEditableField = (field, label) => {
+    const isEditing = editing === field;
+    const isHovered = hovered === field && !editing;
+
+    if (isEditing) {
+      return (
+        <div style={{ marginBottom: 20 }}>
+          <span style={labelSt}>{label}</span>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            <input 
+              autoFocus
+              value={tempVal}
+              onChange={e => setTempVal(e.target.value)}
+              style={{
+                flex: 1, padding: '6px 10px', borderRadius: 3, border: '2px solid #2684FF',
+                fontSize: 14, outline: 'none', fontFamily: 'inherit'
+              }}
+            />
+            <button onClick={commitEdit} style={{ border: 'none', background: '#1F845A', color: '#fff', borderRadius: 3, padding: '4px 8px', cursor: 'pointer' }}>Save</button>
+            <button onClick={cancelEdit} style={{ border: 'none', background: '#AE2E24', color: '#fff', borderRadius: 3, padding: '4px 8px', cursor: 'pointer' }}>✕</button>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div 
+        style={{ 
+          marginBottom: 20, padding: '4px 8px', borderRadius: 4, 
+          backgroundColor: isHovered ? 'rgba(9,30,66,0.04)' : 'transparent',
+          border: isHovered ? '1px solid rgba(9,30,66,0.08)' : '1px solid transparent',
+          cursor: 'pointer'
+        }}
+        onMouseEnter={() => setHovered(field)}
+        onMouseLeave={() => setHovered(null)}
+        onClick={() => startEdit(field)}
+      >
+        <span style={labelSt}>{label}</span>
+        <p style={valSt}>{saved[field]}</p>
+      </div>
+    );
+  };
 
   return (
     <SlidePanel isOpen={isOpen} onClose={onClose} width={480}>
@@ -36,32 +151,23 @@ export default function UserDetailPanel({ isOpen, onClose, user, onEdit }) {
 
         <h3 style={{ fontSize: 16, fontWeight: 600, color: '#172B4D', marginBottom: 16, borderBottom: '1px solid #e8e8e8', paddingBottom: 8 }}>User Details</h3>
         
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 24 }}>
-          <div>
-            <span style={labelSt}>Role</span>
-            <p style={valSt}>{user.role}</p>
-          </div>
-          <div>
-            <span style={labelSt}>Organization</span>
-            <p style={valSt}>{user.organization}</p>
-          </div>
-          <div>
-            <span style={labelSt}>Status</span>
-            <span style={{ backgroundColor: user.status === 'Active' ? '#E3FCEF' : '#FFEBE6', color: user.status === 'Active' ? '#006644' : '#BF2600', padding: '2px 8px', borderRadius: 3, fontSize: 12, fontWeight: 600, display: 'inline-block' }}>
-              {user.status}
-            </span>
-          </div>
-          <div>
-            <span style={labelSt}>Last Active</span>
-            <p style={valSt}>{user.lastActive}</p>
-          </div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 0, marginBottom: 24 }}>
+          {renderEditableField('role', 'Role')}
+          {renderEditableField('organization', 'Organization')}
+          {renderEditableField('status', 'Status')}
         </div>
 
         <h3 style={{ fontSize: 16, fontWeight: 600, color: '#172B4D', marginBottom: 16, borderBottom: '1px solid #e8e8e8', paddingBottom: 8 }}>Recent Activity</h3>
         <div style={{ color: '#626F86', fontSize: 14 }}>
-          <p style={{ margin: '0 0 8px' }}>• Logged in from new device ({user.lastActive})</p>
-          <p style={{ margin: '0 0 8px' }}>• Updated profile information (2 weeks ago)</p>
-          <p style={{ margin: '0 0 8px' }}>• Donated 500 units of Surgical Masks (1 month ago)</p>
+          {userLogs.length === 0 ? (
+            <p style={{ fontStyle: 'italic' }}>No recent activity recorded.</p>
+          ) : (
+            userLogs.map((log, i) => (
+              <p key={i} style={{ margin: '0 0 8px' }}>
+                • {log.action_text} ({new Date(log.created_at).toLocaleDateString()})
+              </p>
+            ))
+          )}
         </div>
       </div>
     </SlidePanel>

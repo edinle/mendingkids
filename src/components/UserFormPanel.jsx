@@ -16,9 +16,9 @@ const STATUS_OPTIONS = [
   { label: 'Inactive', value: 'Inactive' },
 ];
 
-export default function UserFormPanel({ isOpen, onClose, user, onSave }) {
+export default function UserFormPanel({ isOpen, onClose, user, onSave, category }) {
   const [formData, setFormData] = useState({
-    name: '', email: '', role: null, organization: '', status: null
+    name: '', email: '', role: null, organization: '', status: null, category: category || 'Volunteer'
   });
 
   useEffect(() => {
@@ -29,23 +29,42 @@ export default function UserFormPanel({ isOpen, onClose, user, onSave }) {
         role: user.role ? { label: user.role, value: user.role } : null,
         organization: user.organization || '',
         status: user.status ? { label: user.status, value: user.status } : null,
+        category: user.category || category || 'Volunteer'
       });
     } else {
-      setFormData({ name: '', email: '', role: null, organization: '', status: null });
+      setFormData({ name: '', email: '', role: null, organization: '', status: null, category: category || 'Volunteer' });
     }
-  }, [user, isOpen]);
+  }, [user, isOpen, category]);
 
-  const handleSave = () => {
-    onSave({
-      id: user ? user.id : Date.now(),
+  const handleSave = async () => {
+    const payload = {
       name: formData.name,
       email: formData.email,
-      role: formData.role?.value || 'Donor',
+      role: formData.role?.value || 'Volunteer',
       organization: formData.organization || 'Individual',
       status: formData.status?.value || 'Active',
-      lastActive: user ? user.lastActive : 'Just now',
-    });
-    onClose();
+      category: formData.category || 'Volunteer' // Provided by parent
+    };
+
+    let result;
+    if (user?.id) {
+      result = await supabase.from('donors').update(payload).eq('id', user.id);
+    } else {
+      result = await supabase.from('donors').insert(payload).select().single();
+    }
+
+    if (!result.error) {
+       // Log Activity
+       await supabase.from('activity_log').insert({
+         action_text: `${user ? 'Updated' : 'Added new'} ${payload.category.toLowerCase()}: ${payload.name}`,
+         category: 'Personnel'
+       });
+       onSave(result.data || payload);
+       onClose();
+    } else {
+       console.error('Save failed:', result.error);
+       alert('Failed to save: ' + result.error.message);
+    }
   };
 
   const labelSt = { display: 'block', marginBottom: 4, fontSize: 12, fontWeight: 600, color: token('color.text', '#172B4D') };

@@ -128,7 +128,7 @@ GlobeIcon.propTypes = { color: PropTypes.string };
 
 // ─── Step 1: Item Details ───────────────────────────────────────────────────
 
-function Step1({ values, onChange }) {
+function Step1({ values, onChange, locations, categories }) {
   const set = (field) => (val) => onChange({ ...values, [field]: val });
   const setE = (field) => (e) => onChange({ ...values, [field]: e.target.value });
 
@@ -140,7 +140,39 @@ function Step1({ values, onChange }) {
         <Textfield
           value={values.description}
           onChange={setE('description')}
-          placeholder="Add item description"
+          placeholder="e.g. Surgical Gown, Size L"
+          elemBeforeInput={<AssetsPrefix />}
+          autoFocus={!values.description}
+        />
+      </div>
+
+      <div style={{ display: 'flex', gap: 12 }}>
+        <div style={{ flex: 1 }}>
+          <FieldLabel text="Category" required />
+          <Select
+            value={values.category}
+            onChange={set('category')}
+            options={categories}
+            placeholder="Select Category"
+          />
+        </div>
+        <div style={{ flex: 1 }}>
+          <FieldLabel text="Manufacturing Company" />
+          <Textfield
+            value={values.company}
+            onChange={setE('company')}
+            placeholder="Add company"
+          />
+        </div>
+      </div>
+
+      <div>
+        <FieldLabel text="Location" required />
+        <Select
+          value={values.location}
+          onChange={set('location')}
+          options={locations}
+          placeholder="Select Location"
         />
       </div>
 
@@ -590,8 +622,22 @@ export default function ItemPanel({ isOpen, onClose, onSave, isEdit, baseItem })
   const titles = STEP_TITLES(isEdit);
   const [s1, setS1] = useState(INIT_S1);
   const [s2, setS2] = useState(INIT_S2);
+  const [categories, setCategories] = useState([]);
+  const [locations, setLocations] = useState([]);
   const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+
+  // Fetch dynamic options
+  useEffect(() => {
+    const fetchOptions = async () => {
+      const { data: catData } = await supabase.from('categories').select('*').order('name');
+      const { data: locData } = await supabase.from('locations').select('*').order('name');
+      
+      if (catData) setCategories(catData.map(c => ({ label: c.name, value: c.name })));
+      if (locData) setLocations(locData.map(l => ({ label: l.name, value: l.name })));
+    };
+    fetchOptions();
+  }, []);
 
   // Use effect to handle pre-filling when based on an existing item
   useEffect(() => {
@@ -732,6 +778,13 @@ export default function ItemPanel({ isOpen, onClose, onSave, isEdit, baseItem })
 
       if (shipError) throw shipError;
 
+      // Log Activity
+      await supabase.from('activity_log').insert({
+        profile_id: user?.id,
+        action_text: isEdit ? `Updated ${s1.description}` : `Added new item: ${s1.description}`,
+        category: 'Inventory'
+      });
+
       onSave?.(); // Notify parent to refresh
       reset();
       onClose();
@@ -787,8 +840,8 @@ export default function ItemPanel({ isOpen, onClose, onSave, isEdit, baseItem })
           </p>
         )}
 
-        {step === 1 && <Step1 values={s1} onChange={setS1} />}
-        {step === 2 && <Step2 values={s2} onChange={setS2} />}
+        {step === 1 && <Step1 values={s1} onChange={setS1} locations={locations} categories={categories} />}
+        {step === 2 && <Step2 values={s2} onChange={setS2} categories={categories} />}
         {step === 3 && <Step3 s1={s1} s2={s2} />}
       </div>
 

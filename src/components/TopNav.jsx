@@ -175,14 +175,25 @@ const NavSearch = () => (
     <Search
       onClick={() => {}}
       placeholder="Search inventory items, missions, partners..."
-      tooltip="Search ( / )"
-    />
-  </div>
-);
-
 export default function TopNav({ user, onSwitchAccount, onLogout, onToggleMobileMenu }) {
-  const [notifOpen, setNotifOpen] = useState(false);
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const [notifications, setNotifications] = useState([]);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    fetchNotifications();
+    
+    const sub = supabase.channel('activity-feed').on('postgres_changes', { event: '*', schema: 'public', table: 'activity_log' }, () => {
+      fetchNotifications();
+    }).subscribe();
+
+    return () => { supabase.removeChannel(sub); };
+  }, []);
+
+  const fetchNotifications = async () => {
+    const { data } = await supabase.from('activity_log').select('*').order('created_at', { ascending: false }).limit(5);
+    if (data) setNotifications(data);
+  };
 
   return (
     <>
