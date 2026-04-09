@@ -644,24 +644,45 @@ export default function ItemPanel({ isOpen, onClose, onSave, isEdit, baseItem })
 
   const handleSave = async () => {
     try {
-      // 1. Ensure inventory item exists (Upsert by reference number or description)
-      // Since we added a unique constraint on (description, reference_number), this will work.
-      const { data: invData, error: invError } = await supabase
+      // 1. Ensure inventory item exists (Manual lookup to avoid constraint issues)
+      let invId;
+      const { data: existingInv, error: findError } = await supabase
         .from('inventory')
-        .upsert({
-          description: s1.description,
-          company: s1.company,
-          reference_number: s1.referenceNum,
-          unit_of_measure: s1.unitOfMeasure?.label || 'units'
-        }, { onConflict: 'description,reference_number' })
-        .select()
-        .single();
+        .select('id')
+        .eq('description', s1.description)
+        .eq('reference_number', s1.referenceNum)
+        .maybeSingle();
 
-      if (invError) throw invError;
+      if (findError) throw findError;
+
+      if (existingInv) {
+        invId = existingInv.id;
+        // Optionally update the company/unit of measure if they changed
+        await supabase
+          .from('inventory')
+          .update({
+            company: s1.company,
+            unit_of_measure: s1.unitOfMeasure?.label || 'units'
+          })
+          .eq('id', invId);
+      } else {
+        const { data: newInv, error: createError } = await supabase
+          .from('inventory')
+          .insert({
+            description: s1.description,
+            company: s1.company,
+            reference_number: s1.referenceNum,
+            unit_of_measure: s1.unitOfMeasure?.label || 'units'
+          })
+          .select()
+          .single();
+        if (createError) throw createError;
+        invId = newInv.id;
+      }
 
       // 2. Create or Update the shipment entry
       const shipmentData = {
-        inventory_id: invData.id,
+        inventory_id: invId,
         quantity: s1.quantity ? Number(s1.quantity) : 0,
         location: s1.location?.value || '',
         expiration_date: s1.expirationDate || null,
