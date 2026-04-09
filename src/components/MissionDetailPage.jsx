@@ -193,6 +193,11 @@ export default function MissionDetailPage({ user, onSwitchAccount, onLogout }) {
   const { id } = useParams();
   const navigate = useNavigate();
   const [items, setItems] = useState([]);
+  const [people, setPeople] = useState([
+    { id: 1, name: 'Dr. Sarah Jenkins', role: 'Lead Surgeon', email: 's.jenkins@hospital.org' },
+    { id: 2, name: 'Mark Thompson', role: 'Coordinator', email: 'm.thompson@mendingkids.org' },
+    { id: 3, name: 'Elena Rodriguez', role: 'Nurse Practitioner', email: 'elena.r@health.gov' },
+  ]);
   const [mission, setMission] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -336,12 +341,7 @@ export default function MissionDetailPage({ user, onSwitchAccount, onLogout }) {
     );
   }
 
-  const [items, setItems] = useState(MISSION_ITEMS);
-  const [people, setPeople] = useState([
-    { id: 1, name: 'Dr. Sarah Jenkins', role: 'Lead Surgeon', email: 's.jenkins@hospital.org' },
-    { id: 2, name: 'Mark Thompson', role: 'Coordinator', email: 'm.thompson@mendingkids.org' },
-    { id: 3, name: 'Elena Rodriguez', role: 'Nurse Practitioner', email: 'elena.r@health.gov' },
-  ]);
+
 
 
 
