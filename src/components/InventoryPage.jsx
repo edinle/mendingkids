@@ -8,7 +8,8 @@ import {
   Main,
 } from '@atlaskit/page-layout';
 import DynamicTable from '@atlaskit/dynamic-table';
-import Button, { IconButton } from '@atlaskit/button';
+import Button from '@atlaskit/button';
+import { IconButton } from '@atlaskit/button/new';
 import Modal, { ModalTransition, ModalHeader, ModalTitle, ModalBody, ModalFooter } from '@atlaskit/modal-dialog';
 import AddIcon from '@atlaskit/icon/core/add';
 import EditIcon from '@atlaskit/icon/core/edit';

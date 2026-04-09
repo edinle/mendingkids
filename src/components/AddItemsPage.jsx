@@ -5,6 +5,7 @@ import SideNav from './SideNav';
 import FilterDropdown from './FilterDropdown';
 import Modal, { ModalTransition, ModalHeader, ModalTitle, ModalBody, ModalFooter } from '@atlaskit/modal-dialog';
 import Button from '@atlaskit/button';
+import { IconButton } from '@atlaskit/button/new';
 
 // ─── Mock Data ────────────────────────────────────────────────────────────────
 
@@ -83,6 +84,8 @@ export default function AddItemsPage({ mission, onNavigate, user, onSwitchAccoun
   const [itemTypeFilter, setItemType] = useState('');
   const [companyFilter,  setCompany]  = useState('');
   const [isScanModalOpen, setIsScanModalOpen] = useState(false);
+  const [selectedIds, setSelected] = useState(new Set());
+  const [search, setSearch] = useState('');
 
   const handleScanOpen = () => setIsScanModalOpen(true);
 
