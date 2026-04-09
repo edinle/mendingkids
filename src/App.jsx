@@ -118,9 +118,26 @@ export default function App() {
     status: 'Active',
   });
 
+  const withTimeout = (promise, ms, timeoutMessage) => {
+    let timeoutId;
+    const timeoutPromise = new Promise((_, reject) => {
+      timeoutId = setTimeout(() => reject(new Error(timeoutMessage)), ms);
+    });
+
+    return Promise.race([promise, timeoutPromise]).finally(() => clearTimeout(timeoutId));
+  };
+
   const fetchProfile = async (id, email) => {
+    const fallbackProfile = buildFallbackProfile(id, email);
+    // Never allow the UI to get stuck without a profile object.
+    setUserProfile((current) => current || fallbackProfile);
+
     try {
-      const { data, error } = await supabase.from('profiles').select('*').eq('id', id).single();
+      const { data, error } = await withTimeout(
+        supabase.from('profiles').select('*').eq('id', id).single(),
+        5000,
+        'Profile lookup timed out'
+      );
       
       if (error && error.code !== 'PGRST116') {
         throw error;
@@ -130,8 +147,12 @@ export default function App() {
         setUserProfile(data);
       } else {
         // Create profile if missing; if DB write fails, continue with a local fallback profile.
-        const newProfile = buildFallbackProfile(id, email);
-        const { error: upsertError } = await supabase.from('profiles').upsert(newProfile);
+        const newProfile = fallbackProfile;
+        const { error: upsertError } = await withTimeout(
+          supabase.from('profiles').upsert(newProfile),
+          5000,
+          'Profile upsert timed out'
+        );
         if (upsertError) {
           console.warn('[App] Profile upsert failed; continuing with fallback profile.', upsertError);
         }
@@ -140,7 +161,7 @@ export default function App() {
     } catch (err) {
       console.error('Profile fetch error:', err);
       // Never block the app on profile initialization issues.
-      setUserProfile(buildFallbackProfile(id, email));
+      setUserProfile(fallbackProfile);
     } finally {
       setLoading(false);
     }
