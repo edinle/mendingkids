@@ -8,7 +8,8 @@ import {
   Main,
 } from '@atlaskit/page-layout';
 import DynamicTable from '@atlaskit/dynamic-table';
-import Button, { IconButton } from '@atlaskit/button/new';
+import Button, { IconButton } from '@atlaskit/button';
+import Modal, { ModalTransition, ModalHeader, ModalTitle, ModalBody, ModalFooter } from '@atlaskit/modal-dialog';
 import AddIcon from '@atlaskit/icon/core/add';
 import EditIcon from '@atlaskit/icon/core/edit';
 import ShowMoreHorizontalIcon from '@atlaskit/icon/core/show-more-horizontal';
@@ -216,7 +217,7 @@ export default function InventoryPage({ onNavigate, user, onSwitchAccount, onLog
   const [activeTab, setActiveTab] = useState('available');
   const [missionFilter, setMissionFilter] = useState('');
   const [expirationFilter, setExpirationFilter] = useState('');
-  const [panel, setPanel] = useState({ isOpen: false, baseItem: null });
+  const [panel, setPanel] = useState({ isOpen: false, baseItem: null, isEdit: false });
   const [overview, setOverview] = useState({ isOpen: false, item: null });
   const [assignOpen, setAssignOpen] = useState(false);
   const [deploySuccess, setDeploySuccess] = useState({ isOpen: false, msg: '' });
@@ -268,7 +269,7 @@ export default function InventoryPage({ onNavigate, user, onSwitchAccount, onLog
     if (data) setMissions(data.map(m => m.name));
   };
 
-  const openAdd = (baseItem = null) => setPanel({ isOpen: true, baseItem });
+  const openAdd = (baseItem = null, isEdit = false) => setPanel({ isOpen: true, baseItem, isEdit });
   const closePanel = () => setPanel({ ...panel, isOpen: false });
   const openOverview = (item) => setOverview({ isOpen: true, item });
   const closeOverview = () => setOverview((p) => ({ ...p, isOpen: false }));
@@ -278,7 +279,7 @@ export default function InventoryPage({ onNavigate, user, onSwitchAccount, onLog
     if (action === 'assign') {
       setAssignOpen(true);
     } else if (action === 'new-entry' || action === 'add-shipment') {
-      openAdd(item);
+      openAdd(item, false);
     } else if (action === 'delete') {
       setConfirmModal({ isOpen: true, item, action: 'delete' });
     } else if (action === 'archive') {
@@ -311,7 +312,7 @@ export default function InventoryPage({ onNavigate, user, onSwitchAccount, onLog
   const handleOverviewEdit = () => {
     const item = overview.item;
     closeOverview();
-    openAdd(item);
+    openAdd(item, true);
   };
 
   const handleSave = () => {
@@ -357,7 +358,7 @@ export default function InventoryPage({ onNavigate, user, onSwitchAccount, onLog
               label="New Entry"
               appearance="subtle"
               spacing="compact"
-              onClick={() => openAdd(row)}
+              onClick={() => openAdd(row, false)}
             />
             <IconButton
               icon={EditIcon}
@@ -435,7 +436,7 @@ export default function InventoryPage({ onNavigate, user, onSwitchAccount, onLog
                     fontSize: 14, fontWeight: 500, fontFamily: 'inherit',
                     cursor: 'pointer', transition: 'background-color 0.2s',
                   }}
-                  onClick={openAdd}
+                  onClick={() => openAdd(null, false)}
                 >
                   <AddIcon label="" size="small" /> Add Item
                 </button>
@@ -585,6 +586,7 @@ export default function InventoryPage({ onNavigate, user, onSwitchAccount, onLog
         isOpen={panel.isOpen}
         onClose={closePanel}
         onSave={handleSave}
+        isEdit={panel.isEdit}
         baseItem={panel.baseItem}
       />
 

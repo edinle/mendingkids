@@ -576,16 +576,17 @@ Step3.propTypes = { s1: PropTypes.object, s2: PropTypes.object };
 
 // ─── Main Component ─────────────────────────────────────────────────────────
 
-const STEP_TITLES = {
-  1: 'New Entry',
+const STEP_TITLES = (isEdit) => ({
+  1: isEdit ? 'Edit Item' : 'New Entry',
   2: 'Add documentation',
   3: 'Review your inputs',
-};
+});
 
 const TOTAL_STEPS = 3;
 
-export default function ItemPanel({ isOpen, onClose, onSave, baseItem }) {
+export default function ItemPanel({ isOpen, onClose, onSave, isEdit, baseItem }) {
   const [step, setStep] = useState(1);
+  const titles = STEP_TITLES(isEdit);
   const [s1, setS1] = useState(INIT_S1);
   const [s2, setS2] = useState(INIT_S2);
   const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
@@ -594,20 +595,33 @@ export default function ItemPanel({ isOpen, onClose, onSave, baseItem }) {
   // Use effect to handle pre-filling when based on an existing item
   useEffect(() => {
     if (baseItem && isOpen) {
-      setS1({
-        ...INIT_S1,
-        description: baseItem.description || '',
-        company: baseItem.company || '',
-        referenceNum: baseItem.reference || '',
-        unitOfMeasure: baseItem.unitOfMeasure ? { label: baseItem.unitOfMeasure, value: baseItem.unitOfMeasure.toLowerCase() } : null,
-        quantity: baseItem.quantity?.toString() || '',
-        expirationDate: baseItem.expiration || '',
-        location: baseItem.location ? { label: baseItem.location, value: baseItem.location } : null,
-      });
+      if (isEdit) {
+        // Edit mode: Pre-fill everything
+        setS1({
+          ...INIT_S1,
+          description: baseItem.description || '',
+          company: baseItem.company || '',
+          referenceNum: baseItem.reference || '',
+          unitOfMeasure: baseItem.unitOfMeasure ? { label: baseItem.unitOfMeasure, value: baseItem.unitOfMeasure.toLowerCase() } : null,
+          quantity: baseItem.quantity?.toString() || '',
+          expirationDate: baseItem.expiration || '',
+          location: baseItem.location ? { label: baseItem.location, value: baseItem.location } : null,
+        });
+      } else {
+        // New Entry mode: Only pre-fill the "Catalog" info
+        setS1({
+          ...INIT_S1,
+          description: baseItem.description || '',
+          company: baseItem.company || '',
+          referenceNum: baseItem.reference || '',
+          unitOfMeasure: baseItem.unitOfMeasure ? { label: baseItem.unitOfMeasure, value: baseItem.unitOfMeasure.toLowerCase() } : null,
+          // quantity, expiration, location left blank for fresh entry
+        });
+      }
     } else if (!isOpen) {
       reset();
     }
-  }, [baseItem, isOpen]);
+  }, [baseItem, isOpen, isEdit]);
 
   const reset = () => {
     setStep(1);
@@ -655,16 +669,15 @@ export default function ItemPanel({ isOpen, onClose, onSave, baseItem }) {
       };
 
       let shipError;
-      if (baseItem?.id && typeof baseItem.id !== 'number') { 
-        // If we have a UUID (from DB), it's an update. 
-        // (Checking for number because our mock used Date.now())
+      if (isEdit && baseItem?.id && typeof baseItem.id !== 'number') { 
+        // Force update only if explicitly in edit mode and have a valid UUID
         const { error } = await supabase
           .from('shipments')
           .update(shipmentData)
           .eq('id', baseItem.id);
         shipError = error;
       } else {
-        // Otherwise, it's a new entry
+        // Always insert if not in explicit edit mode
         const { error } = await supabase
           .from('shipments')
           .insert(shipmentData);
@@ -690,7 +703,7 @@ export default function ItemPanel({ isOpen, onClose, onSave, baseItem }) {
       {/* ── Header ────────────────────────────────────────────────── */}
       <div style={{ padding: '12px 20px 12px 48px', borderBottom: '1px solid #e8e8e8', display: 'flex', alignItems: 'center', height: 53, boxSizing: 'border-box', backgroundColor: '#fff' }}>
         <h2 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: token('color.text', '#172B4D') }}>
-          {STEP_TITLES[step]}
+          {titles[step]}
         </h2>
       </div>
 
@@ -796,6 +809,7 @@ ItemPanel.propTypes = {
   isOpen:  PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
   onSave:  PropTypes.func,
+  isEdit:  PropTypes.bool,
   baseItem: PropTypes.object,
 };
 
