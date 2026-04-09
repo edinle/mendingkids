@@ -33,7 +33,8 @@ CREATE TABLE IF NOT EXISTS public.inventory (
   reference_number TEXT,
   unit_of_measure TEXT DEFAULT 'units',
   category TEXT,
-  created_at TIMESTAMPTZ DEFAULT NOW()
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE (description, reference_number)
 );
 
 -- 4. Inventory Entries (Shipments/Quantity batches)

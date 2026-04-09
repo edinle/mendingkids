@@ -308,25 +308,13 @@ export default function InventoryPage({ onNavigate, user, onSwitchAccount, onLog
   };
 
   const handleOverviewEdit = () => {
+    const item = overview.item;
     closeOverview();
-    openAdd();
+    openAdd(item);
   };
 
-  const handleSave = (form) => {
-    setRows((prev) => [
-      ...prev,
-      {
-        id: Date.now(),
-        description: form.description || 'New Item',
-        company: form.company || '',
-        reference: form.reference || '',
-        quantity: form.quantity || 0,
-        status: 'available',
-        mission: '',
-        location: form.location || '',
-        expiration: form.expiration || '—',
-      },
-    ]);
+  const handleSave = () => {
+    fetchInventory();
   };
 
   // Filter pipeline: tab → mission → expiration → search

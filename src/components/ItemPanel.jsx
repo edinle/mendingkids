@@ -6,6 +6,8 @@ import { DatePicker } from '@atlaskit/datetime-picker';
 import Textfield from '@atlaskit/textfield';
 import { token } from '@atlaskit/tokens';
 import SlidePanel from './SlidePanel';
+import Modal, { ModalTransition, ModalHeader, ModalTitle, ModalBody, ModalFooter } from '@atlaskit/modal-dialog';
+import Button from '@atlaskit/button';
 
 // ─── Options ───────────────────────────────────────────────────────────────
 
@@ -586,6 +588,8 @@ export default function ItemPanel({ isOpen, onClose, onSave, baseItem }) {
   const [step, setStep] = useState(1);
   const [s1, setS1] = useState(INIT_S1);
   const [s2, setS2] = useState(INIT_S2);
+  const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   // Use effect to handle pre-filling when based on an existing item
   useEffect(() => {
@@ -596,6 +600,9 @@ export default function ItemPanel({ isOpen, onClose, onSave, baseItem }) {
         company: baseItem.company || '',
         referenceNum: baseItem.reference || '',
         unitOfMeasure: baseItem.unitOfMeasure ? { label: baseItem.unitOfMeasure, value: baseItem.unitOfMeasure.toLowerCase() } : null,
+        quantity: baseItem.quantity?.toString() || '',
+        expirationDate: baseItem.expiration || '',
+        location: baseItem.location ? { label: baseItem.location, value: baseItem.location } : null,
       });
     } else if (!isOpen) {
       reset();
@@ -624,6 +631,7 @@ export default function ItemPanel({ isOpen, onClose, onSave, baseItem }) {
   const handleSave = async () => {
     try {
       // 1. Ensure inventory item exists (Upsert by reference number or description)
+      // Since we added a unique constraint on (description, reference_number), this will work.
       const { data: invData, error: invError } = await supabase
         .from('inventory')
         .upsert({
@@ -637,16 +645,31 @@ export default function ItemPanel({ isOpen, onClose, onSave, baseItem }) {
 
       if (invError) throw invError;
 
-      // 2. Create the shipment entry
-      const { error: shipError } = await supabase
-        .from('shipments')
-        .insert({
-          inventory_id: invData.id,
-          quantity: s1.quantity ? Number(s1.quantity) : 0,
-          location: s1.location?.value || '',
-          expiration_date: s1.expirationDate,
-          status: 'available'
-        });
+      // 2. Create or Update the shipment entry
+      const shipmentData = {
+        inventory_id: invData.id,
+        quantity: s1.quantity ? Number(s1.quantity) : 0,
+        location: s1.location?.value || '',
+        expiration_date: s1.expirationDate || null,
+        status: baseItem?.status || 'available'
+      };
+
+      let shipError;
+      if (baseItem?.id && typeof baseItem.id !== 'number') { 
+        // If we have a UUID (from DB), it's an update. 
+        // (Checking for number because our mock used Date.now())
+        const { error } = await supabase
+          .from('shipments')
+          .update(shipmentData)
+          .eq('id', baseItem.id);
+        shipError = error;
+      } else {
+        // Otherwise, it's a new entry
+        const { error } = await supabase
+          .from('shipments')
+          .insert(shipmentData);
+        shipError = error;
+      }
 
       if (shipError) throw shipError;
 
@@ -655,12 +678,14 @@ export default function ItemPanel({ isOpen, onClose, onSave, baseItem }) {
       onClose();
     } catch (err) {
       console.error('Save failed:', err);
-      alert('Failed to save item. See console for details.');
+      setErrorMessage(err.message || 'Failed to save item. Please try again.');
+      setIsErrorModalOpen(true);
     }
   };
 
   return (
-    <SlidePanel isOpen={isOpen} onClose={handleClose}>
+    <>
+      <SlidePanel isOpen={isOpen} onClose={handleClose}>
 
       {/* ── Header ────────────────────────────────────────────────── */}
       <div style={{ padding: '12px 20px 12px 48px', borderBottom: '1px solid #e8e8e8', display: 'flex', alignItems: 'center', height: 53, boxSizing: 'border-box', backgroundColor: '#fff' }}>
@@ -745,6 +770,25 @@ export default function ItemPanel({ isOpen, onClose, onSave, baseItem }) {
       </div>
 
     </SlidePanel>
+
+    <ModalTransition>
+      {isErrorModalOpen && (
+        <Modal onClose={() => setIsErrorModalOpen(false)}>
+          <ModalHeader>
+            <ModalTitle>Error Saving Item</ModalTitle>
+          </ModalHeader>
+          <ModalBody>
+            <p>{errorMessage}</p>
+          </ModalBody>
+          <ModalFooter>
+            <Button appearance="danger" onClick={() => setIsErrorModalOpen(false)}>
+              Close
+            </Button>
+          </ModalFooter>
+        </Modal>
+      )}
+    </ModalTransition>
+    </>
   );
 }
 
