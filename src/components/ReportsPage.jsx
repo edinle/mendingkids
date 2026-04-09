@@ -3,6 +3,7 @@ import { PageLayout, TopNavigation, LeftSidebar, Content, Main } from '@atlaskit
 import { token } from '@atlaskit/tokens';
 import Modal, { ModalTransition, ModalHeader, ModalTitle, ModalBody, ModalFooter } from '@atlaskit/modal-dialog';
 import Button from '@atlaskit/button';
+import { supabase } from '../utils/supabase';
 
 import TopNav from './TopNav';
 import SideNav from './SideNav';

@@ -4,6 +4,7 @@ import Textfield from '@atlaskit/textfield';
 import Select from '@atlaskit/select';
 import { token } from '@atlaskit/tokens';
 import SlidePanel from './SlidePanel';
+import { supabase } from '../utils/supabase';
 
 const ROLE_OPTIONS = [
   { label: 'Donor', value: 'Donor' },

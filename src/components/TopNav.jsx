@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { supabase } from '../utils/supabase';
 import {
   AtlassianNavigation,
   CustomProductHome,
@@ -54,7 +55,7 @@ const MOCK_NOTIFICATIONS = [
   { id: 3, type: 'info', title: 'New Item Request', desc: 'Dr. Adams requested items for Tanzania 2025.', time: '2h ago' },
 ];
 
-function NotificationsPopover({ isOpen, onClose }) {
+function NotificationsPopover({ isOpen, onClose, items }) {
   if (!isOpen) return null;
   return (
     <>
@@ -70,7 +71,7 @@ function NotificationsPopover({ isOpen, onClose }) {
           <button style={{ background: 'none', border: 'none', color: 'var(--ds-link)', fontSize: 13, cursor: 'pointer', fontWeight: 500 }}>Mark all as read</button>
         </div>
         <div style={{ maxHeight: 400, overflowY: 'auto' }}>
-          {MOCK_NOTIFICATIONS.map(n => (
+          {items.map(n => (
             <div key={n.id} style={{ display: 'flex', gap: 12, padding: '16px 20px', borderBottom: '1px solid #F4F5F7', cursor: 'pointer', /* hover effect handled by css normally, just keep simple here */ }}>
               <div style={{ flexShrink: 0, marginTop: 2 }}>
                 {n.type === 'success' && <CheckCircleIcon primaryColor="#1F845A" size="medium" />}
@@ -184,20 +185,58 @@ export default function TopNav({ user, onSwitchAccount, onLogout, onToggleMobile
   const [notifications, setNotifications] = useState([]);
   const navigate = useNavigate();
 
+  async function fetchNotifications() {
+    try {
+      const { data, error } = await supabase
+        .from('activity_log')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(5);
+
+      if (error) {
+        console.warn('[TopNav] Notification query failed:', error.message);
+        return;
+      }
+
+      if (data) {
+        setNotifications(data);
+      }
+    } catch (error) {
+      console.warn('[TopNav] Notification fetch failed:', error);
+    }
+  }
+
+  const feedItems = notifications.length > 0
+    ? notifications.map((row) => ({
+        id: String(row.id ?? row.created_at ?? row.title ?? row.message ?? 'activity'),
+        type: row.type || 'info',
+        title: row.title || 'Activity update',
+        desc: row.message || row.description || 'A new activity was recorded.',
+        time: row.created_at ? new Date(row.created_at).toLocaleString() : 'just now',
+      }))
+    : MOCK_NOTIFICATIONS;
+
   useEffect(() => {
     fetchNotifications();
-    
-    const sub = supabase.channel('activity-feed').on('postgres_changes', { event: '*', schema: 'public', table: 'activity_log' }, () => {
-      fetchNotifications();
-    }).subscribe();
 
-    return () => { supabase.removeChannel(sub); };
+    let sub;
+    try {
+      sub = supabase
+        .channel('activity-feed')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'activity_log' }, () => {
+          fetchNotifications();
+        })
+        .subscribe();
+    } catch (error) {
+      console.warn('[TopNav] Realtime notifications unavailable:', error);
+    }
+
+    return () => {
+      if (sub) {
+        supabase.removeChannel(sub);
+      }
+    };
   }, []);
-
-  const fetchNotifications = async () => {
-    const { data } = await supabase.from('activity_log').select('*').order('created_at', { ascending: false }).limit(5);
-    if (data) setNotifications(data);
-  };
 
   return (
     <>
@@ -234,7 +273,7 @@ export default function TopNav({ user, onSwitchAccount, onLogout, onToggleMobile
         renderSettings={() => <Settings onClick={() => navigate('/settings')} tooltip="Settings" />}
         renderProfile={() => <NavProfile user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} />}
       />
-      <NotificationsPopover isOpen={isNotificationsOpen} onClose={() => setIsNotificationsOpen(false)} />
+      <NotificationsPopover isOpen={isNotificationsOpen} onClose={() => setIsNotificationsOpen(false)} items={feedItems} />
       
       <style>{`
         @media (max-width: 768px) {

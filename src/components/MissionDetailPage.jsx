@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { token } from '@atlaskit/tokens';
 import { PageLayout, Content, Main, LeftSidebar, TopNavigation } from '@atlaskit/page-layout';
+import { supabase } from '../utils/supabase';
 import TopNav from './TopNav';
 import SideNav from './SideNav';
 import SlidePanel from './SlidePanel';
