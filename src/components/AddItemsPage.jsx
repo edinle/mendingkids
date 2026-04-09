@@ -74,6 +74,7 @@ export default function AddItemsPage({ user, onSwitchAccount, onLogout }) {
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
   const [saving, setSaving] = useState(false);
+  const [isScanModalOpen, setIsScanModalOpen] = useState(false);
 
   useEffect(() => {
     fetchMission();
@@ -135,16 +136,13 @@ export default function AddItemsPage({ user, onSwitchAccount, onLogout }) {
     return next;
   });
 
-  const filteredRec = RECOMMENDED_ITEMS.filter(item => {
-    if (companyFilter && item.company !== companyFilter)                             return false;
+  const filteredRec = inventory.filter(item => {
+    if (categoryFilter && item.category !== categoryFilter)                             return false;
     if (search && !item.description.toLowerCase().includes(search.toLowerCase()))   return false;
     return true;
   });
 
-  const selectedItems = [
-    ...SELECTED_PRELOADED.filter(i => selectedIds.has(i.id)),
-    ...RECOMMENDED_ITEMS.filter(i => selectedIds.has(i.id)),
-  ];
+  const selectedItems = inventory.filter(i => selectedIds.has(i.id));
 
   return (
     <PageLayout>
@@ -205,8 +203,8 @@ export default function AddItemsPage({ user, onSwitchAccount, onLogout }) {
               </h2>
               <div style={{ border: '1px solid #e8e8e8', borderRadius: 4, overflow: 'hidden' }}>
                 <TableHead />
-                {inventory.filter(i => !selectedIds.has(i.id)).map(item => (
-                  <TableRow key={item.id} item={item} checked={false} onToggle={() => toggleId(item.id)} />
+                {filteredRec.map(item => (
+                  <TableRow key={item.id} item={item} checked={selectedIds.has(item.id)} onToggle={() => toggleId(item.id)} />
                 ))}
               </div>
             </section>

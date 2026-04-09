@@ -36,15 +36,14 @@ function QtyBadge({ qty, flag }) {
 
 // ─── Add Items Panel (right side) ────────────────────────────────────────────
 
-function AddItemsPanel({ category = 'ENT', onClose, onNavigate }) {
+function AddItemsPanel({ category = 'ENT', onClose, onNavigate, inventory = [], missionId, onSuccess }) {
   const [search,   setSearch]   = useState('');
   const [selected, setSelected] = useState({});
   const [activeChip, setChip]   = useState(null);
-  const [page, setPage]         = useState(1);
 
   const toggle = id => setSelected(s => ({ ...s, [id]: !s[id] }));
 
-  const filtered = ADD_ITEMS_RECOMMENDED.filter(i =>
+  const filtered = inventory.filter(i =>
     !search || i.description.toLowerCase().includes(search.toLowerCase())
   );
 
@@ -199,6 +198,7 @@ export default function MissionDetailPage({ user, onSwitchAccount, onLogout }) {
     { id: 3, name: 'Elena Rodriguez', role: 'Nurse Practitioner', email: 'elena.r@health.gov' },
   ]);
   const [mission, setMission] = useState(null);
+  const [inventory, setInventory] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const [editing, setEditing] = useState(null);
@@ -217,8 +217,14 @@ export default function MissionDetailPage({ user, onSwitchAccount, onLogout }) {
     if (data) {
       setMission(data);
       fetchMissionItems();
+      fetchInventory();
     }
     setLoading(false);
+  };
+
+  const fetchInventory = async () => {
+    const { data } = await supabase.from('inventory').select('*').limit(50);
+    if (data) setInventory(data);
   };
 
   const fetchMissionItems = async () => {
@@ -573,8 +579,11 @@ export default function MissionDetailPage({ user, onSwitchAccount, onLogout }) {
             <SlidePanel isOpen={addPanelOpen} onClose={() => setAddPanel(false)} width={480}>
               <AddItemsPanel
                 category={m.specialty || 'ENT'}
+                inventory={inventory}
+                missionId={id}
                 onClose={() => setAddPanel(false)}
-                onNavigate={onNavigate}
+                onNavigate={navigate}
+                onSuccess={() => { fetchMissionItems(); }}
               />
             </SlidePanel>
 

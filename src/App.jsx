@@ -71,19 +71,30 @@ export default function App() {
         setSession(session);
         if (session) {
           await fetchProfile(session.user.id, session.user.email);
-        } else {
-          setLoading(false);
         }
       } catch (err) {
         console.error('Auth check error:', err);
+      } finally {
         setLoading(false);
       }
     };
 
     checkSession();
 
+    // Fallback timeout to prevent permanent loading if checkSession hangs
+    const timeoutId = setTimeout(() => {
+      setLoading(currentLoading => {
+        if (currentLoading) {
+          console.warn('[App] Loading timed out after 5s. Forcing resolve.');
+          return false;
+        }
+        return false;
+      });
+    }, 5000);
+
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      console.log('[App] Auth state change:', _event, !!session);
       setSession(session);
       if (session) {
         await fetchProfile(session.user.id, session.user.email);
@@ -93,7 +104,10 @@ export default function App() {
       }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      subscription.unsubscribe();
+      clearTimeout(timeoutId);
+    };
   }, []);
 
   const fetchProfile = async (id, email) => {
@@ -122,7 +136,7 @@ export default function App() {
       }
     } catch (err) {
       console.error('Profile fetch error:', err);
-      // Even if profile fails, we should stop loading to show "Initializing Profile..." or an error
+    } finally {
       setLoading(false);
     }
   };
