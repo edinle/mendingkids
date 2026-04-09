@@ -180,7 +180,7 @@ const NavSearch = () => (
   </div>
 );
 
-export default function TopNav({ onNavigate, user, onSwitchAccount, onLogout, onToggleMobileMenu }) {
+export default function TopNav({ user, onSwitchAccount, onLogout, onToggleMobileMenu }) {
   const [notifOpen, setNotifOpen] = useState(false);
   const navigate = useNavigate();
 

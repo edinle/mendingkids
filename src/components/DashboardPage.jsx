@@ -610,7 +610,7 @@ export default function DashboardPage({ user, onSwitchAccount, onLogout }) {
   return (
     <PageLayout>
       <TopNavigation isFixed>
-        <TopNav onNavigate={onNavigate} user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} onToggleMobileMenu={() => setMobileMenuOpen(!mobileMenuOpen)} />
+        <TopNav user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} onToggleMobileMenu={() => setMobileMenuOpen(!mobileMenuOpen)} />
       </TopNavigation>
 
       <Content>
@@ -618,7 +618,6 @@ export default function DashboardPage({ user, onSwitchAccount, onLogout }) {
           <div className={mobileMenuOpen ? "" : "sidebar-collapsed"} style={{ height: 'calc(100vh - 56px)' }}>
             <SideNav 
               active="dashboard" 
-              onNavigate={onNavigate} 
               user={user} 
               onSwitchAccount={onSwitchAccount} 
               onLogout={onLogout}

@@ -179,19 +179,21 @@ export default function App() {
   };
 
   return (
-    <>
-
-
-      {nav.page === 'dashboard'      && <DashboardPage      onNavigate={onNavigate} user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} />}
-      {nav.page === 'inventory'      && <InventoryPage      onNavigate={onNavigate} user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} />}
-      {nav.page === 'missions'       && <MissionsPage       onNavigate={onNavigate} user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} />}
-      {nav.page === 'mission-detail' && <MissionDetailPage  mission={nav.params}  onNavigate={onNavigate} user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} />}
-      {nav.page === 'add-items'      && <AddItemsPage       mission={nav.params}  onNavigate={onNavigate} user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} />}
-      {nav.page === 'donors'         && <DonorsPage         onNavigate={onNavigate} user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} />}
-      {nav.page === 'requests'       && <ItemRequestsPage   onNavigate={onNavigate} user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} />}
-      {nav.page === 'volunteers'     && <VolunteersPage     onNavigate={onNavigate} user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} />}
-      {nav.page === 'reports'        && <ReportsPage        onNavigate={onNavigate} user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} />}
-      {nav.page === 'settings'       && <SettingsPage       onNavigate={onNavigate} user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} />}
-    </>
+    <Routes>
+      <Route path="/" element={<Navigate to="/dashboard" replace />} />
+      <Route path="/dashboard" element={<DashboardPage user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} />} />
+      <Route path="/inventory" element={<InventoryPage user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} />} />
+      <Route path="/missions" element={<MissionsPage user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} />} />
+      <Route path="/missions/:id" element={<MissionDetailPage user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} />} />
+      <Route path="/missions/:id/add-items" element={<AddItemsPage user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} />} />
+      <Route path="/donors" element={<DonorsPage user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} />} />
+      <Route path="/requests" element={<ItemRequestsPage user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} />} />
+      <Route path="/volunteers" element={<VolunteersPage user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} />} />
+      <Route path="/reports" element={<ReportsPage user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} />} />
+      <Route path="/settings" element={<SettingsPage user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} />} />
+      
+      {/* Fallback */}
+      <Route path="*" element={<Navigate to="/dashboard" replace />} />
+    </Routes>
   );
 }

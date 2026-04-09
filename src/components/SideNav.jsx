@@ -26,7 +26,7 @@ const NAV_ITEMS = [
   { id: 'reports', label: 'Reports', Icon: GraphLineIcon },
 ];
 
-export default function SideNav({ onNavigate, user, onSwitchAccount, onLogout, accountOnly = false, isMobile = false, onCloseMobile }) {
+export default function SideNav({ user, onSwitchAccount, onLogout, accountOnly = false, isMobile = false, onCloseMobile }) {
   const [profileOpen, setProfileOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();

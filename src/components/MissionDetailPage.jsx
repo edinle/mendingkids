@@ -313,14 +313,13 @@ export default function MissionDetailPage({ user, onSwitchAccount, onLogout }) {
   return (
     <PageLayout>
       <TopNavigation isFixed>
-        <TopNav onNavigate={onNavigate} user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} onToggleMobileMenu={() => setMobileMenuOpen(!mobileMenuOpen)} />
+        <TopNav user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} onToggleMobileMenu={() => setMobileMenuOpen(!mobileMenuOpen)} />
       </TopNavigation>
       <Content>
         <LeftSidebar width={mobileMenuOpen ? '100vw' : 240}>
           <div className={mobileMenuOpen ? "" : "sidebar-collapsed"}>
             <SideNav 
               active="missions" 
-              onNavigate={onNavigate} 
               user={user} 
               onSwitchAccount={onSwitchAccount} 
               onLogout={onLogout}
