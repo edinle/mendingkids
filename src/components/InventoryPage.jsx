@@ -249,26 +249,54 @@ export default function InventoryPage({ user, onSwitchAccount, onLogout }) {
 
   const fetchInventory = async () => {
     setLoading(true);
-    const { data, error } = await supabase
+    const selectWithExtendedColumns = `
+      *,
+      inventory (
+        description,
+        company,
+        reference_number,
+        unit_of_measure,
+        shelf_life,
+        notes,
+        category
+      ),
+      missions (
+        name
+      )
+    `;
+    const selectFallback = `
+      *,
+      inventory (
+        description,
+        company,
+        reference_number,
+        unit_of_measure,
+        category
+      ),
+      missions (
+        name
+      )
+    `;
+
+    let result = await supabase
       .from('shipments')
-      .select(`
-        *,
-        inventory (
-          description,
-          company,
-          reference_number,
-          unit_of_measure,
-          shelf_life,
-          notes,
-          category
-        ),
-        missions (
-          name
-        )
-      `);
+      .select(selectWithExtendedColumns);
+
+    if (result.error && /does not exist/i.test(result.error.message || '')) {
+      console.warn('[Inventory] Missing optional columns in inventory table. Retrying with fallback select.');
+      result = await supabase
+        .from('shipments')
+        .select(selectFallback);
+    }
     
-    if (data) {
-      const mapped = data.map(s => ({
+    if (result.error) {
+      console.error('[Inventory] Failed to fetch inventory:', result.error);
+      setLoading(false);
+      return;
+    }
+
+    if (result.data) {
+      const mapped = result.data.map(s => ({
         id: s.id,
         inventory_id: s.inventory_id,
         description: s.inventory?.description || 'Unknown',

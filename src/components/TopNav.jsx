@@ -49,12 +49,6 @@ const ProductHome = () => {
   );
 };
 
-const MOCK_NOTIFICATIONS = [
-  { id: 1, type: 'success', title: 'Mission Approved', desc: 'Peru Cleft Lip 2026 has been approved by admin.', time: '10m ago' },
-  { id: 2, type: 'error', title: 'Low Stock Alert', desc: 'Surgical Masks are below the minimum threshold.', time: '1h ago' },
-  { id: 3, type: 'info', title: 'New Item Request', desc: 'Dr. Adams requested items for Tanzania 2025.', time: '2h ago' },
-];
-
 function NotificationsPopover({ isOpen, onClose, items }) {
   if (!isOpen) return null;
   return (
@@ -71,12 +65,16 @@ function NotificationsPopover({ isOpen, onClose, items }) {
           <button style={{ background: 'none', border: 'none', color: 'var(--ds-link)', fontSize: 13, cursor: 'pointer', fontWeight: 500 }}>Mark all as read</button>
         </div>
         <div style={{ maxHeight: 400, overflowY: 'auto' }}>
-          {items.map(n => (
+          {items.length === 0 ? (
+            <div style={{ padding: '16px 20px', color: '#626F86', fontSize: 13 }}>
+              No recent notifications.
+            </div>
+          ) : items.map(n => (
             <div key={n.id} style={{ display: 'flex', gap: 12, padding: '16px 20px', borderBottom: '1px solid #F4F5F7', cursor: 'pointer', /* hover effect handled by css normally, just keep simple here */ }}>
               <div style={{ flexShrink: 0, marginTop: 2 }}>
                 {n.type === 'success' && <CheckCircleIcon primaryColor="#1F845A" size="medium" />}
                 {n.type === 'error' && <ErrorIcon primaryColor="#AE2E24" size="medium" />}
-                {n.type === 'info' && <InfoIcon primaryColor="var(--ds-icon-brand)" size="medium" />}
+                {n.type !== 'success' && n.type !== 'error' && <InfoIcon primaryColor="var(--ds-icon-brand)" size="medium" />}
               </div>
               <div>
                 <p style={{ margin: '0 0 4px', fontSize: 14, fontWeight: 600, color: '#172B4D' }}>{n.title}</p>
@@ -206,15 +204,13 @@ export default function TopNav({ user, onSwitchAccount, onLogout, onToggleMobile
     }
   }
 
-  const feedItems = notifications.length > 0
-    ? notifications.map((row) => ({
-        id: String(row.id ?? row.created_at ?? row.title ?? row.message ?? 'activity'),
-        type: row.type || 'info',
-        title: row.title || 'Activity update',
-        desc: row.message || row.description || 'A new activity was recorded.',
-        time: row.created_at ? new Date(row.created_at).toLocaleString() : 'just now',
-      }))
-    : MOCK_NOTIFICATIONS;
+  const feedItems = notifications.map((row) => ({
+    id: String(row.id ?? row.created_at ?? row.title ?? row.message ?? 'activity'),
+    type: row.type || 'info',
+    title: row.title || 'Activity update',
+    desc: row.message || row.description || 'A new activity was recorded.',
+    time: row.created_at ? new Date(row.created_at).toLocaleString() : 'just now',
+  }));
 
   useEffect(() => {
     fetchNotifications();
