@@ -110,6 +110,14 @@ export default function App() {
     };
   }, []);
 
+  const buildFallbackProfile = (id, email) => ({
+    id,
+    name: email?.split('@')[0] || 'User',
+    email,
+    role: 'Administrator',
+    status: 'Active',
+  });
+
   const fetchProfile = async (id, email) => {
     try {
       const { data, error } = await supabase.from('profiles').select('*').eq('id', id).single();
@@ -121,21 +129,18 @@ export default function App() {
       if (data) {
         setUserProfile(data);
       } else {
-        // Create profile if missing
-        const { data: { user } } = await supabase.auth.getUser();
-        const newProfile = {
-          id: id,
-          name: user?.user_metadata?.full_name || email.split('@')[0],
-          email: email,
-          role: 'Administrator',
-          status: 'Active'
-        };
+        // Create profile if missing; if DB write fails, continue with a local fallback profile.
+        const newProfile = buildFallbackProfile(id, email);
         const { error: upsertError } = await supabase.from('profiles').upsert(newProfile);
-        if (upsertError) throw upsertError;
+        if (upsertError) {
+          console.warn('[App] Profile upsert failed; continuing with fallback profile.', upsertError);
+        }
         setUserProfile(newProfile);
       }
     } catch (err) {
       console.error('Profile fetch error:', err);
+      // Never block the app on profile initialization issues.
+      setUserProfile(buildFallbackProfile(id, email));
     } finally {
       setLoading(false);
     }
