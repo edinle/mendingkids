@@ -38,7 +38,7 @@ function StatusBadge({ status }) {
   );
 }
 
-export default function DonorsPage({ onNavigate, user, onSwitchAccount, onLogout }) {
+export default function DonorsPage({ user, onSwitchAccount, onLogout }) {
   const [search, setSearch] = useState('');
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -120,13 +120,12 @@ export default function DonorsPage({ onNavigate, user, onSwitchAccount, onLogout
 
   return (
     <PageLayout>
-      <TopNavigation isFixed><TopNav onNavigate={onNavigate} user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} onToggleMobileMenu={() => setMobileMenuOpen(!mobileMenuOpen)} /></TopNavigation>
+      <TopNavigation isFixed><TopNav user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} onToggleMobileMenu={() => setMobileMenuOpen(!mobileMenuOpen)} /></TopNavigation>
       <Content>
         <LeftSidebar width={mobileMenuOpen ? '100vw' : 240}>
           <div className={mobileMenuOpen ? "" : "sidebar-collapsed"} style={{ height: 'calc(100vh - 48px)' }}>
             <SideNav 
               active="donors" 
-              onNavigate={onNavigate} 
               user={user} 
               onSwitchAccount={onSwitchAccount} 
               onLogout={onLogout}

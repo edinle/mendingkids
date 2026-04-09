@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { token } from '@atlaskit/tokens';
 import { supabase } from '../utils/supabase';
 import { PageLayout, Content, Main, LeftSidebar, TopNavigation } from '@atlaskit/page-layout';
@@ -181,7 +182,8 @@ const DotsIcon = () => (
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
-export default function MissionsPage({ onNavigate, user, onSwitchAccount, onLogout }) {
+export default function MissionsPage({ user, onSwitchAccount, onLogout }) {
+  const navigate = useNavigate();
   const [tab, setTab]                   = useState('current');
   const [specialtyFilter, setSpecialty] = useState('');
   const [locationFilter, setLocation]   = useState('');
@@ -333,7 +335,7 @@ export default function MissionsPage({ onNavigate, user, onSwitchAccount, onLogo
                 <MissionCard
                   key={m.id}
                   mission={{ ...m, onDelete: setDeleteTarget }}
-                  onClick={() => onNavigate('mission-detail', m)}
+                  onClick={() => navigate(`/missions/${m.id}`)}
                 />
               ))}
             </div>
@@ -344,7 +346,6 @@ export default function MissionsPage({ onNavigate, user, onSwitchAccount, onLogo
       <CreateMissionPanel
         isOpen={createOpen}
         onClose={() => setCreateOpen(false)}
-        onNavigate={onNavigate}
       />
       <DeleteConfirmationModal
         isOpen={!!deleteTarget}

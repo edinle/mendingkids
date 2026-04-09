@@ -14,7 +14,7 @@ const REPORT_TYPES = [
   { id: 'donor-receipts', title: 'Donor Contribution Summaries', desc: 'Summarized records of items donated by specific partners over a specific timeframe.', icon: '🤝' },
 ];
 
-export default function ReportsPage({ onNavigate, user, onSwitchAccount, onLogout }) {
+export default function ReportsPage({ user, onSwitchAccount, onLogout }) {
   const [downloading, setDownloading] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [successModal, setSuccessModal] = useState({ isOpen: false, reportTitle: '' });
@@ -31,13 +31,12 @@ export default function ReportsPage({ onNavigate, user, onSwitchAccount, onLogou
 
   return (
     <PageLayout>
-      <TopNavigation isFixed><TopNav onNavigate={onNavigate} user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} onToggleMobileMenu={() => setMobileMenuOpen(!mobileMenuOpen)} /></TopNavigation>
+      <TopNavigation isFixed><TopNav user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} onToggleMobileMenu={() => setMobileMenuOpen(!mobileMenuOpen)} /></TopNavigation>
       <Content>
         <LeftSidebar width={mobileMenuOpen ? '100vw' : 240}>
           <div className={mobileMenuOpen ? "" : "sidebar-collapsed"}>
             <SideNav 
               active="reports" 
-              onNavigate={onNavigate} 
               user={user} 
               onSwitchAccount={onSwitchAccount} 
               onLogout={onLogout}

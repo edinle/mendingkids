@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { token } from '@atlaskit/tokens';
 import { PageLayout, Content, Main, LeftSidebar, TopNavigation } from '@atlaskit/page-layout';
 import TopNav from './TopNav';
@@ -168,7 +169,7 @@ function AddItemsPanel({ category = 'ENT', onClose, onNavigate }) {
       <div style={{ padding: '16px 24px', borderTop: `1px solid ${token('color.border', 'rgba(9,30,66,0.14)')}`, display: 'flex', justifyContent: 'flex-end', gap: 12, backgroundColor: '#fff' }}>
         <button onClick={onClose} style={{ height: 36, padding: '0 16px', border: '1px solid #d9d9d9', borderRadius: 4, background: '#fff', cursor: 'pointer', fontSize: 14, fontFamily: 'inherit' }}>Cancel</button>
         <button
-          onClick={() => onNavigate && onNavigate('add-items', { category })}
+          onClick={() => navigate('/missions')}
           style={{ height: 36, padding: '0 16px', border: 'none', borderRadius: 4, background: '#422670', color: '#fff', cursor: 'pointer', fontSize: 14, fontFamily: 'inherit', fontWeight: 600 }}
         >
           Add Selected
@@ -212,7 +213,22 @@ function AddPersonPanel({ onClose, onAdd }) {
 
 // ─── Main Detail Page ─────────────────────────────────────────────────────────
 
-export default function MissionDetailPage({ mission, onNavigate, user, onSwitchAccount, onLogout }) {
+export default function MissionDetailPage({ user, onSwitchAccount, onLogout }) {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [mission, setMission] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchMission();
+  }, [id]);
+
+  const fetchMission = async () => {
+    setLoading(true);
+    const { data, error } = await supabase.from('missions').select('*').eq('id', id).single();
+    if (data) setMission(data);
+    setLoading(false);
+  };
   const [tab, setTab] = useState('items');
   const [activeTab, setActiveTab] = useState('items');
   const [addPanelOpen, setAddPanel] = useState(false);
@@ -223,7 +239,10 @@ export default function MissionDetailPage({ mission, onNavigate, user, onSwitchA
   const [itemSearch, setItemSearch] = useState('');
   const [peopleSearch, setPeopleSearch] = useState('');
 
-  const m = mission || { name: 'Mission Name', specialty: 'ENT', location: 'Location Name', timeAway: '4 months away', items: 30 };
+  if (loading) return <div style={{ padding: 40 }}>Loading...</div>;
+  if (!mission) return <div style={{ padding: 40 }}>Mission not found.</div>;
+
+  const m = mission;
 
   const SPECIALTY_COLORS = {
     'Plastics': { bg: '#F3F0FF', text: '#5E4DB2' },
@@ -318,7 +337,7 @@ export default function MissionDetailPage({ mission, onNavigate, user, onSwitchA
               <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 24 }}>
                 <div>
                   <button
-                    onClick={() => onNavigate('missions')}
+                    onClick={() => navigate('/missions')}
                     style={{ background: 'none', border: 'none', color: 'var(--ds-link)', cursor: 'pointer', padding: 0, marginBottom: 8, fontSize: 14, fontWeight: 500 }}>
                     ← Back to Missions
                   </button>

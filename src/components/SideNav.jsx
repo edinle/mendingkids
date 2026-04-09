@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import {
   SideNavigation,
@@ -25,8 +26,13 @@ const NAV_ITEMS = [
   { id: 'reports', label: 'Reports', Icon: GraphLineIcon },
 ];
 
-export default function SideNav({ active = 'inventory', onNavigate, user, onSwitchAccount, onLogout, accountOnly = false, isMobile = false, onCloseMobile }) {
+export default function SideNav({ onNavigate, user, onSwitchAccount, onLogout, accountOnly = false, isMobile = false, onCloseMobile }) {
   const [profileOpen, setProfileOpen] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Determine active item from URL
+  const active = location.pathname.split('/')[1] || 'missions';
 
   const accountSwitcher = (
     <div style={{ padding: '8px 16px', borderTop: accountOnly ? 'none' : '1px solid #DFE1E6', marginTop: accountOnly ? 0 : 'auto', backgroundColor: accountOnly ? 'transparent' : '#F4F5F7' }}>
@@ -100,7 +106,7 @@ export default function SideNav({ active = 'inventory', onNavigate, user, onSwit
   if (accountOnly) return accountSwitcher;
 
   const handleNavClick = (id) => {
-    onNavigate?.(id);
+    navigate(`/${id}`);
     if (isMobile) onCloseMobile?.();
   };
 
@@ -133,6 +139,7 @@ export default function SideNav({ active = 'inventory', onNavigate, user, onSwit
 }
 
 SideNav.propTypes = {
-  active: PropTypes.string,
-  onNavigate: PropTypes.func,
+  user: PropTypes.object,
+  onSwitchAccount: PropTypes.func,
+  onLogout: PropTypes.func,
 };

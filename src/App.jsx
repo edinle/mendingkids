@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from './utils/supabase';
 import VolunteersPage   from './components/VolunteersPage';
 import InventoryPage     from './components/InventoryPage';
@@ -17,41 +18,45 @@ import SideNav from './components/SideNav';
 import LoginPage from './components/LoginPage';
 import SlidePanel from './components/SlidePanel';
 
-const PlaceholderPage = ({ title, onNavigate, id, user, onSwitchAccount, onLogout }) => (
-  <PageLayout>
-    <TopNavigation isFixed>
-      <TopNav 
-        onNavigate={onNavigate} 
-        user={user} 
-        onSwitchAccount={onSwitchAccount} 
-        onLogout={onLogout} 
-      />
-    </TopNavigation>
-    <Content>
-      <LeftSidebar width={240} id="app-sidebar" isFixed={false}>
-        <SideNav active={id} onNavigate={onNavigate} user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} />
-      </LeftSidebar>
-      <Main>
-        <div style={{ padding: 40, textAlign: 'center', marginTop: 100 }}>
-          <h1 style={{ color: '#172B4D', fontSize: 32 }}>{title}</h1>
-          <p style={{ color: '#6B778C', fontSize: 16 }}>This section is coming soon.</p>
-          <button
-            style={{ marginTop: 24, padding: '10px 20px', backgroundColor: '#422670', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer', fontWeight: 600 }}
-            onClick={() => onNavigate('dashboard')}
-          >
-            Back to Dashboard
-          </button>
-        </div>
-      </Main>
-    </Content>
-  </PageLayout>
-);
+const PlaceholderPage = ({ title, id, user, onSwitchAccount, onLogout }) => {
+  const navigate = useNavigate();
+  return (
+    <PageLayout>
+      <TopNavigation isFixed>
+        <TopNav 
+          onNavigate={(p) => navigate(`/${p}`)} 
+          user={user} 
+          onSwitchAccount={onSwitchAccount} 
+          onLogout={onLogout} 
+        />
+      </TopNavigation>
+      <Content>
+        <LeftSidebar width={240} id="app-sidebar" isFixed={false}>
+          <SideNav active={id} user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} />
+        </LeftSidebar>
+        <Main>
+          <div style={{ padding: 40, textAlign: 'center', marginTop: 100 }}>
+            <h1 style={{ color: '#172B4D', fontSize: 32 }}>{title}</h1>
+            <p style={{ color: '#6B778C', fontSize: 16 }}>This section is coming soon.</p>
+            <button
+              style={{ marginTop: 24, padding: '10px 20px', backgroundColor: '#422670', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer', fontWeight: 600 }}
+              onClick={() => navigate('/dashboard')}
+            >
+              Back to Dashboard
+            </button>
+          </div>
+        </Main>
+      </Content>
+    </PageLayout>
+  );
+};
 
 export default function App() {
   const [session, setSession] = useState(null);
   const [userProfile, setUserProfile] = useState(null);
-  const [nav, setNav] = useState({ page: 'missions' });
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     // Check active session
@@ -102,8 +107,6 @@ export default function App() {
     }
   };
 
-  const onNavigate = (page, params) => setNav({ page, params });
-  
   const onLogout = async () => {
     await supabase.auth.signOut();
   };

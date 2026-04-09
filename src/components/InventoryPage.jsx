@@ -211,7 +211,7 @@ const TABS = [
   { key: 'archived',  label: 'Archived' },
 ];
 
-export default function InventoryPage({ onNavigate, user, onSwitchAccount, onLogout }) {
+export default function InventoryPage({ user, onSwitchAccount, onLogout }) {
   const [search, setSearch] = useState('');
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -389,7 +389,7 @@ export default function InventoryPage({ onNavigate, user, onSwitchAccount, onLog
   return (
     <PageLayout>
       <TopNavigation isFixed id="top-navigation" skipLinkTitle="Top Navigation">
-        <TopNav onNavigate={onNavigate} user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} onToggleMobileMenu={() => setMobileMenuOpen(!mobileMenuOpen)} />
+        <TopNav user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} onToggleMobileMenu={() => setMobileMenuOpen(!mobileMenuOpen)} />
       </TopNavigation>
 
       <Content>
@@ -401,7 +401,6 @@ export default function InventoryPage({ onNavigate, user, onSwitchAccount, onLog
           <div className={mobileMenuOpen ? "" : "sidebar-collapsed"} style={{ height: 'calc(100vh - 56px)' }}>
             <SideNav 
               active="inventory" 
-              onNavigate={onNavigate} 
               user={user} 
               onSwitchAccount={onSwitchAccount} 
               onLogout={onLogout} 

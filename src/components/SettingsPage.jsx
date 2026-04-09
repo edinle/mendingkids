@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { PageLayout, TopNavigation, LeftSidebar, Content, Main } from '@atlaskit/page-layout';
 import TextField from '@atlaskit/textfield';
 import Select from '@atlaskit/select';
@@ -690,7 +691,8 @@ function AutomationRules({ onAdd, onEdit }) {
 
 // ─── Main Component ────────────────────────────────────────────────────────
 
-export default function SettingsPage({ onNavigate, user, onSwitchAccount, onLogout }) {
+export default function SettingsPage({ user, onSwitchAccount, onLogout }) {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('General configuration');
   const [isModalOpen, setIsModalOpen] = useState(null);
   const [editingItem, setEditingItem] = useState(null);
@@ -831,7 +833,7 @@ export default function SettingsPage({ onNavigate, user, onSwitchAccount, onLogo
   return (
     <PageLayout>
       <TopNavigation isFixed>
-        <TopNav onNavigate={onNavigate} user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} onToggleMobileMenu={() => setMobileMenuOpen(!mobileMenuOpen)} />
+        <TopNav user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} onToggleMobileMenu={() => setMobileMenuOpen(!mobileMenuOpen)} />
       </TopNavigation>
       <Content>
         <LeftSidebar width={mobileMenuOpen ? '100vw' : 240}>
@@ -849,7 +851,7 @@ export default function SettingsPage({ onNavigate, user, onSwitchAccount, onLogo
                   </h2>
                 </div>
                 <button 
-                  onClick={() => onNavigate('dashboard')}
+                  onClick={() => navigate('/dashboard')}
                   style={{ 
                     background: 'none', border: 'none', color: 'var(--ds-link)', cursor: 'pointer', 
                     fontSize: 14, fontWeight: 500, padding: 0, display: 'flex', alignItems: 'center', gap: 4

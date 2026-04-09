@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   AtlassianNavigation,
   CustomProductHome,
@@ -35,13 +36,17 @@ const NotificationBadge = () => (
   }}>9+</span>
 );
 
-const ProductHome = () => (
-  <CustomProductHome
-    logoUrl={LOGO_URL}
-    logoAlt="Mending Kids"
-    href="#"
-  />
-);
+const ProductHome = () => {
+  const navigate = useNavigate();
+  return (
+    <CustomProductHome
+      logoUrl={LOGO_URL}
+      logoAlt="Mending Kids"
+      onClick={(e) => { e.preventDefault(); navigate('/dashboard'); }}
+      href="/dashboard"
+    />
+  );
+};
 
 const MOCK_NOTIFICATIONS = [
   { id: 1, type: 'success', title: 'Mission Approved', desc: 'Peru Cleft Lip 2026 has been approved by admin.', time: '10m ago' },
@@ -177,6 +182,7 @@ const NavSearch = () => (
 
 export default function TopNav({ onNavigate, user, onSwitchAccount, onLogout, onToggleMobileMenu }) {
   const [notifOpen, setNotifOpen] = useState(false);
+  const navigate = useNavigate();
 
   return (
     <>
@@ -210,7 +216,7 @@ export default function TopNav({ onNavigate, user, onSwitchAccount, onLogout, on
           </div>
         )}
         renderNotifications={() => <Notifications badge={NotificationBadge} onClick={() => setNotifOpen(!notifOpen)} tooltip="Notifications" />}
-        renderSettings={() => <Settings onClick={() => onNavigate && onNavigate('settings')} tooltip="Settings" />}
+        renderSettings={() => <Settings onClick={() => navigate('/settings')} tooltip="Settings" />}
         renderProfile={() => <NavProfile user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} />}
       />
       <NotificationsPopover isOpen={notifOpen} onClose={() => setNotifOpen(false)} />

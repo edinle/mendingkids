@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   PageLayout, Content, Main, LeftSidebar, TopNavigation,
 } from '@atlaskit/page-layout';
@@ -410,7 +411,8 @@ function DetailField({ label, value }) {
   );
 }
 
-function MissionDetailPanel({ mission, onNavigate }) {
+function MissionDetailPanel({ mission }) {
+  const navigate = useNavigate();
   if (!mission) return null;
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
@@ -431,7 +433,7 @@ function MissionDetailPanel({ mission, onNavigate }) {
       </div>
       <div style={{ padding: '16px 24px', borderTop: '1px solid #E8E8E8', backgroundColor: '#fff', display: 'flex', flexDirection: 'column', gap: 8 }}>
         <button
-          onClick={() => onNavigate('mission-detail', mission)}
+          onClick={() => navigate(`/missions/${mission.id}`)}
           style={{
             width: '100%', height: 40, backgroundColor: '#422670', color: '#fff',
             border: 'none', borderRadius: 4, fontSize: 14, fontWeight: 600,
@@ -441,7 +443,7 @@ function MissionDetailPanel({ mission, onNavigate }) {
           Go to Mission Details
         </button>
         <button
-          onClick={() => onNavigate('missions')}
+          onClick={() => navigate('/missions')}
           style={{
             width: '100%', height: 40, backgroundColor: 'transparent', color: '#44546F',
             border: '1px solid #DFE1E6', borderRadius: 4, fontSize: 14, fontWeight: 500,
@@ -597,7 +599,8 @@ function ItemStatusRow({ item, onClick }) {
 
 // ─── Main Page ─────────────────────────────────────────────────────────────
 
-export default function DashboardPage({ onNavigate, user, onSwitchAccount, onLogout }) {
+export default function DashboardPage({ user, onSwitchAccount, onLogout }) {
+  const navigate = useNavigate();
   const [panel, setPanel] = useState({ type: null, data: null });
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -632,7 +635,7 @@ export default function DashboardPage({ onNavigate, user, onSwitchAccount, onLog
                 Dashboard
               </h1>
               <button 
-                onClick={() => onNavigate('inventory')}
+                onClick={() => navigate('/inventory')}
                 style={{ height: 32, padding: '0 16px', backgroundColor: '#422670', color: '#fff', border: 'none', borderRadius: 4, fontSize: 14, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit' }}>
                 Go to Inventory
               </button>
@@ -645,7 +648,7 @@ export default function DashboardPage({ onNavigate, user, onSwitchAccount, onLog
                 <h2 style={{ margin: '0 0 16px', fontSize: 15, fontWeight: 600, color: '#000' }}>Missions</h2>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                   {MISSIONS.map((m) => (
-                    <MissionCard key={m.id} mission={m} onClick={(mission) => onNavigate('mission-detail', mission)} />
+                    <MissionCard key={m.id} mission={m} onClick={(mission) => navigate(`/missions/${mission.id}`)} />
                   ))}
                 </div>
                 <Pagination current={1} total={10} compact />
@@ -709,7 +712,7 @@ export default function DashboardPage({ onNavigate, user, onSwitchAccount, onLog
 
       {/* Detail slide panel */}
       <SlidePanel isOpen={panel.type !== null} onClose={closePanel} width={400}>
-        {panel.type === 'mission'    && <MissionDetailPanel    mission={panel.data} onNavigate={onNavigate} />}
+        {panel.type === 'mission'    && <MissionDetailPanel    mission={panel.data} />}
         {panel.type === 'expiration' && <ExpirationDetailPanel alert={panel.data} />}
         {panel.type === 'activity'   && <ActivityDetailPanel   activity={panel.data} />}
         {panel.type === 'itemStatus' && <ItemStatusDetailPanel item={panel.data} />}

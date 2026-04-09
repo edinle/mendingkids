@@ -1,4 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { supabase } from '../utils/supabase';
 import { PageLayout, Content, Main, LeftSidebar, TopNavigation } from '@atlaskit/page-layout';
 import TopNav from './TopNav';
 import SideNav from './SideNav';
@@ -80,7 +82,22 @@ function TableRow({ item, checked, onToggle, showCheck = true }) {
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
-export default function AddItemsPage({ mission, onNavigate, user, onSwitchAccount, onLogout }) {
+export default function AddItemsPage({ user, onSwitchAccount, onLogout }) {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [mission, setMission] = useState(null);
+  const [fetching, setFetching] = useState(true);
+
+  useEffect(() => {
+    fetchMission();
+  }, [id]);
+
+  const fetchMission = async () => {
+    setFetching(true);
+    const { data } = await supabase.from('missions').select('*').eq('id', id).single();
+    if (data) setMission(data);
+    setFetching(false);
+  };
   const [itemTypeFilter, setItemType] = useState('');
   const [companyFilter,  setCompany]  = useState('');
   const [isScanModalOpen, setIsScanModalOpen] = useState(false);
@@ -109,11 +126,11 @@ export default function AddItemsPage({ mission, onNavigate, user, onSwitchAccoun
   return (
     <PageLayout>
       <TopNavigation isFixed>
-        <TopNav onNavigate={onNavigate} user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} />
+        <TopNav user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} />
       </TopNavigation>
       <Content>
         <LeftSidebar width={240}>
-          <SideNav active="missions" onNavigate={onNavigate} user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} />
+          <SideNav user={user} onSwitchAccount={onSwitchAccount} onLogout={onLogout} />
         </LeftSidebar>
         <Main>
           <div style={{ padding: '32px 40px', maxWidth: 1200, margin: '0 auto', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
@@ -121,7 +138,7 @@ export default function AddItemsPage({ mission, onNavigate, user, onSwitchAccoun
             <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 24 }}>
               <div>
                 <button 
-                  onClick={() => onNavigate('mission-detail', mission)}
+                  onClick={() => navigate(`/missions/${id}`)}
                   style={{ background: 'none', border: 'none', color: 'var(--ds-link)', cursor: 'pointer', padding: 0, marginBottom: 8, fontSize: 14, fontWeight: 500 }}>
                   ← Back to Mission
                 </button>
@@ -192,13 +209,13 @@ export default function AddItemsPage({ mission, onNavigate, user, onSwitchAccoun
             zIndex: 50,
           }}>
             <button
-              onClick={() => onNavigate('mission-detail', mission)}
+              onClick={() => navigate(`/missions/${id}`)}
               style={{ height: 36, padding: '0 20px', border: '1px solid #d9d9d9', borderRadius: 4, background: '#fff', cursor: 'pointer', fontSize: 14, fontFamily: 'inherit' }}
             >
               Cancel
             </button>
             <button
-              onClick={() => onNavigate('mission-detail', mission)}
+              onClick={() => navigate(`/missions/${id}`)}
               style={{
                 height: 36, padding: '0 20px',
                 border: 'none', borderRadius: 4,
