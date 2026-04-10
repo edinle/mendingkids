@@ -440,7 +440,7 @@ function DocumentationTab({ totalQuantity, isEditMode, values, draft, onDraftCha
             <circle cx="9" cy="9" r="7.5" stroke="#626F86" strokeWidth="1.3" />
             <path d="M9 4.5v1.2M9 12.3V13.5M6.8 7C6.8 5.9 7.8 5 9 5h.5C10.9 5 12 6.1 12 7.3c0 1-.6 1.8-1.5 2L9 9.5C8 10 6.8 11 6.8 12c0 1.1 1 2 2.2 2H9.5c1.2 0 2.2-.9 2.2-2" stroke="#626F86" strokeWidth="1.1" strokeLinecap="round" />
           </svg>
-          <span style={{ fontSize: 20, fontWeight: 700, color: token('color.text', '#172B4D') }}>\${totalValue}</span>
+          <span style={{ fontSize: 20, fontWeight: 700, color: token('color.text', '#172B4D') }}>${totalValue}</span>
         </div>
 
         <div style={{ display: 'flex', gap: 32, marginBottom: 14 }}>
@@ -467,7 +467,7 @@ function DocumentationTab({ totalQuantity, isEditMode, values, draft, onDraftCha
                 }}
               />
             ) : (
-              <p style={{ fontSize: 14, color: token('color.text', '#172B4D'), margin: 0 }}>\${marketValue}</p>
+              <p style={{ fontSize: 14, color: token('color.text', '#172B4D'), margin: 0 }}>${marketValue}</p>
             )}
           </div>
           <div>
@@ -869,6 +869,12 @@ function DetailsTab({ isFullEdit, onExitFullEdit, item, onSave }) {
 
   const metaLabel = { fontSize: 12, color: token('color.text.subtle', '#505258'), margin: '0 0 2px', display: 'block' };
   const metaValue = { fontSize: 14, color: token('color.text', '#172B4D'), margin: 0 };
+  const formatStamp = (value) => {
+    if (!value) return '—';
+    const d = new Date(value);
+    if (Number.isNaN(d.getTime())) return '—';
+    return d.toLocaleString();
+  };
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
@@ -936,14 +942,14 @@ function DetailsTab({ isFullEdit, onExitFullEdit, item, onSave }) {
         </div>
         <div style={{ flex: 1 }}>
           <span style={metaLabel}>Created Date</span>
-          <p style={metaValue}>01/22/2026</p>
+          <p style={metaValue}>{formatStamp(item?.created_at)}</p>
         </div>
       </div>
 
       {/* Last Updated */}
       <div>
         <span style={metaLabel}>Last Updated</span>
-        <p style={metaValue}>01/22/2026 12:13 AM</p>
+        <p style={metaValue}>{formatStamp(item?.updated_at)}</p>
       </div>
 
       {/* Internal Notes */}

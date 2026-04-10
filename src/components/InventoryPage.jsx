@@ -252,13 +252,16 @@ export default function InventoryPage({ user, onSwitchAccount, onLogout }) {
     const selectWithExtendedColumns = `
       *,
       inventory (
+        id,
         description,
         company,
         reference_number,
         unit_of_measure,
         shelf_life,
         notes,
-        category
+        category,
+        created_at,
+        updated_at
       ),
       missions (
         name
@@ -267,11 +270,14 @@ export default function InventoryPage({ user, onSwitchAccount, onLogout }) {
     const selectFallback = `
       *,
       inventory (
+        id,
         description,
         company,
         reference_number,
         unit_of_measure,
-        category
+        category,
+        created_at,
+        updated_at
       ),
       missions (
         name
@@ -314,7 +320,9 @@ export default function InventoryPage({ user, onSwitchAccount, onLogout }) {
         lot_number: s.lot_number || 'N/A',
         market_value: s.market_value,
         valuation_source: s.valuation_source,
-        acquisition_method: s.acquisition_method
+        acquisition_method: s.acquisition_method,
+        created_at: s.inventory?.created_at || s.created_at,
+        updated_at: s.updated_at || s.inventory?.updated_at || s.created_at,
       }));
       setInventory(mapped);
       setLoading(false);
