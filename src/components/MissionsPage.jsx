@@ -215,16 +215,50 @@ export default function MissionsPage({ user, onSwitchAccount, onLogout }) {
 
   const fetchMissions = async () => {
     setLoading(true);
-    let query = supabase.from('missions').select('*');
-    if (tab === 'archive') {
-      query = query.eq('status', 'ARCHIVED');
-    } else {
-      query = query.neq('status', 'ARCHIVED');
+    try {
+      let missionsQuery = supabase.from('missions').select('*');
+      if (tab === 'archive') {
+        missionsQuery = missionsQuery.eq('status', 'ARCHIVED');
+      } else {
+        missionsQuery = missionsQuery.neq('status', 'ARCHIVED');
+      }
+
+      const [missionsRes, shipmentsRes, peopleRes] = await Promise.all([
+        missionsQuery,
+        supabase.from('shipments').select('mission_id').not('mission_id', 'is', null),
+        supabase.from('mission_people').select('mission_id').not('mission_id', 'is', null),
+      ]);
+
+      if (missionsRes.error) throw missionsRes.error;
+
+      const itemCounts = {};
+      for (const s of shipmentsRes.data || []) {
+        if (!s.mission_id) continue;
+        itemCounts[s.mission_id] = (itemCounts[s.mission_id] || 0) + 1;
+      }
+
+      const peopleCounts = {};
+      if (peopleRes.error) {
+        // Table may not exist yet in older DBs; UI still works with zero counts.
+        console.warn('[Missions] mission_people query failed:', peopleRes.error.message);
+      } else {
+        for (const p of peopleRes.data || []) {
+          if (!p.mission_id) continue;
+          peopleCounts[p.mission_id] = (peopleCounts[p.mission_id] || 0) + 1;
+        }
+      }
+
+      const enriched = (missionsRes.data || []).map((m) => ({
+        ...m,
+        item_count: itemCounts[m.id] || 0,
+        people_count: peopleCounts[m.id] || 0,
+      }));
+      setMissions(enriched);
+    } catch (err) {
+      console.error('[Missions] Failed to fetch missions:', err);
+    } finally {
+      setLoading(false);
     }
-    
-    const { data } = await query;
-    if (data) setMissions(data);
-    setLoading(false);
   };
 
   const filtered = missions.filter(m => {

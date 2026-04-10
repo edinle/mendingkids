@@ -193,11 +193,7 @@ export default function MissionDetailPage({ user, onSwitchAccount, onLogout }) {
   const { id } = useParams();
   const navigate = useNavigate();
   const [items, setItems] = useState([]);
-  const [people, setPeople] = useState([
-    { id: 1, name: 'Dr. Sarah Jenkins', role: 'Lead Surgeon', email: 's.jenkins@hospital.org' },
-    { id: 2, name: 'Mark Thompson', role: 'Coordinator', email: 'm.thompson@mendingkids.org' },
-    { id: 3, name: 'Elena Rodriguez', role: 'Nurse Practitioner', email: 'elena.r@health.gov' },
-  ]);
+  const [people, setPeople] = useState([]);
   const [mission, setMission] = useState(null);
   const [inventory, setInventory] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -217,8 +213,7 @@ export default function MissionDetailPage({ user, onSwitchAccount, onLogout }) {
     const { data, error } = await supabase.from('missions').select('*').eq('id', id).single();
     if (data) {
       setMission(data);
-      fetchMissionItems();
-      fetchInventory();
+      await Promise.all([fetchMissionItems(), fetchInventory(), fetchMissionPeople()]);
     }
     setLoading(false);
   };
@@ -244,6 +239,28 @@ export default function MissionDetailPage({ user, onSwitchAccount, onLogout }) {
       }));
       setItems(mapped);
     }
+  };
+
+  const fetchMissionPeople = async () => {
+    const { data, error } = await supabase
+      .from('mission_people')
+      .select('*')
+      .eq('mission_id', id)
+      .order('created_at', { ascending: true });
+
+    if (error) {
+      console.warn('[MissionDetail] mission_people query failed:', error.message);
+      setPeople([]);
+      return;
+    }
+
+    const mapped = (data || []).map((p) => ({
+      id: p.id,
+      name: p.name || '',
+      role: p.role || '',
+      email: p.email || '',
+    }));
+    setPeople(mapped);
   };
 
   const startEdit = (field) => {
@@ -360,17 +377,48 @@ export default function MissionDetailPage({ user, onSwitchAccount, onLogout }) {
     setDeleteTarget({ type: 'person', data: person });
   };
 
-  const handleConfirmDelete = () => {
-    if (deleteTarget.type === 'item') {
-      setItems(prev => prev.filter(i => i.id !== deleteTarget.data.id));
-    } else {
-      setPeople(prev => prev.filter(p => p.id !== deleteTarget.data.id));
+  const handleConfirmDelete = async () => {
+    if (!deleteTarget) return;
+    try {
+      if (deleteTarget.type === 'item') {
+        await supabase.from('shipments').delete().eq('id', deleteTarget.data.id);
+        setItems(prev => prev.filter(i => i.id !== deleteTarget.data.id));
+      } else {
+        await supabase.from('mission_people').delete().eq('id', deleteTarget.data.id);
+        setPeople(prev => prev.filter(p => p.id !== deleteTarget.data.id));
+      }
+    } catch (err) {
+      console.error('[MissionDetail] delete failed:', err);
+    } finally {
+      setDeleteTarget(null);
     }
-    setDeleteTarget(null);
   };
 
-  const handleAddPerson = (newP) => {
-    setPeople(prev => [...prev, { ...newP, id: Date.now() }]);
+  const handleAddPerson = async (newP) => {
+    const payload = {
+      mission_id: id,
+      name: newP.name || '',
+      role: newP.role || '',
+      email: newP.email || '',
+    };
+    const { data, error } = await supabase
+      .from('mission_people')
+      .insert(payload)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('[MissionDetail] add person failed:', error);
+      alert('Failed to add person. Please try again.');
+      return;
+    }
+
+    setPeople(prev => [...prev, {
+      id: data.id,
+      name: data.name || '',
+      role: data.role || '',
+      email: data.email || '',
+    }]);
   };
 
   const handleUpdateItem = (id, field, value) => {
@@ -386,6 +434,14 @@ export default function MissionDetailPage({ user, onSwitchAccount, onLogout }) {
     p.name.toLowerCase().includes(peopleSearch.toLowerCase()) ||
     p.role.toLowerCase().includes(peopleSearch.toLowerCase())
   );
+  
+  const handleUpdatePersonField = async (personId, field, value) => {
+    setPeople(prev => prev.map(p => (p.id === personId ? { ...p, [field]: value } : p)));
+    const { error } = await supabase.from('mission_people').update({ [field]: value }).eq('id', personId);
+    if (error) {
+      console.error('[MissionDetail] update person failed:', error);
+    }
+  };
   const sc = SPECIALTY_COLORS[m.specialty] || { bg: '#626F86', text: '#fff' };
 
   return (
@@ -437,8 +493,8 @@ export default function MissionDetailPage({ user, onSwitchAccount, onLogout }) {
               {/* Tabs */}
               <div style={{ display: 'flex', borderBottom: '1px solid #e8e8e8', marginBottom: 16 }}>
                 {[
-                  { key: 'items', label: 'Items', count: m.item_count || items.length },
-                  { key: 'people', label: 'People', count: m.people_count || people.length }
+                  { key: 'items', label: 'Items', count: items.length },
+                  { key: 'people', label: 'People', count: people.length }
                 ].map(t => (
                   <button
                     key={t.key}
@@ -555,9 +611,33 @@ export default function MissionDetailPage({ user, onSwitchAccount, onLogout }) {
                     </div>
                     {filteredPeople.map(person => (
                       <div key={person.id} style={{ display: 'grid', gridTemplateColumns: '1fr 200px 240px 40px', padding: '12px 14px', gap: 8, alignItems: 'center', borderBottom: '1px solid #f4f4f4' }}>
-                        <span style={{ fontSize: 13, fontWeight: 500, color: '#172B4D' }}>{person.name}</span>
-                        <span style={{ fontSize: 13, color: '#44546F' }}>{person.role}</span>
-                        <span style={{ fontSize: 13, color: '#44546F' }}>{person.email}</span>
+                        <input
+                          type="text"
+                          value={person.name}
+                          onChange={(e) => handleUpdatePersonField(person.id, 'name', e.target.value)}
+                          style={{
+                            width: '100%', border: '1px solid transparent', padding: '4px 6px',
+                            fontSize: 13, fontWeight: 500, color: '#172B4D', borderRadius: 3, outline: 'none',
+                          }}
+                        />
+                        <input
+                          type="text"
+                          value={person.role}
+                          onChange={(e) => handleUpdatePersonField(person.id, 'role', e.target.value)}
+                          style={{
+                            width: '100%', border: '1px solid transparent', padding: '4px 6px',
+                            fontSize: 13, color: '#44546F', borderRadius: 3, outline: 'none',
+                          }}
+                        />
+                        <input
+                          type="email"
+                          value={person.email}
+                          onChange={(e) => handleUpdatePersonField(person.id, 'email', e.target.value)}
+                          style={{
+                            width: '100%', border: '1px solid transparent', padding: '4px 6px',
+                            fontSize: 13, color: '#44546F', borderRadius: 3, outline: 'none',
+                          }}
+                        />
                         <button 
                           onClick={() => handleDeletePerson(person)}
                           style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#626F86', padding: 4 }}>
