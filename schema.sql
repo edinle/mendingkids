@@ -200,6 +200,19 @@ CREATE POLICY "Allow authenticated all" ON public.locations FOR ALL TO authentic
 CREATE POLICY "Allow authenticated all" ON public.groups FOR ALL TO authenticated USING (true) WITH CHECK (true);
 CREATE POLICY "Allow authenticated all" ON public.user_groups FOR ALL TO authenticated USING (true) WITH CHECK (true);
 
+-- 13. Mission People (team members assigned to a mission)
+CREATE TABLE IF NOT EXISTS public.mission_people (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  mission_id UUID REFERENCES public.missions(id) ON DELETE CASCADE,
+  name TEXT NOT NULL DEFAULT '',
+  role TEXT DEFAULT '',
+  email TEXT DEFAULT '',
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE public.mission_people ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Allow authenticated all" ON public.mission_people FOR ALL TO authenticated USING (true) WITH CHECK (true);
+
 -- Seed Initial Data
 INSERT INTO public.organization_settings (name) VALUES ('Mending Kids') ON CONFLICT DO NOTHING;
 

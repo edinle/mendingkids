@@ -58,7 +58,7 @@ function DropItem({ label, active, onClick }) {
 
 // ─── Mission Card ─────────────────────────────────────────────────────────────
 
-function MissionCard({ mission, onClick }) {
+function MissionCard({ mission, onClick, isArchived }) {
   const [hov, setHov] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef(null);
@@ -127,11 +127,13 @@ function MissionCard({ mission, onClick }) {
               background: '#fff', border: '1px solid #e8e8e8', borderRadius: 4,
               boxShadow: '0 4px 12px rgba(9,30,66,0.12)', zIndex: 50, minWidth: 140,
             }}>
-              {['View', 'Edit', 'Archive', 'Delete'].map(action => (
-                <button 
-                  key={action} 
+              {(isArchived ? ['Restore', 'Delete'] : ['View', 'Edit', 'Archive', 'Delete']).map(action => (
+                <button
+                  key={action}
                   onClick={() => {
                     if (action === 'Delete') mission.onDelete(mission);
+                    if (action === 'Archive') mission.onArchive(mission);
+                    if (action === 'Restore') mission.onUnarchive(mission);
                     setMenuOpen(false);
                   }}
                   style={{
@@ -210,6 +212,28 @@ export default function MissionsPage({ user, onSwitchAccount, onLogout }) {
     } catch (err) {
       console.error('Delete failed:', err);
       setErrorModal({ isOpen: true, message: 'Failed to delete mission. Please check your permissions and try again.' });
+    }
+  };
+
+  const handleArchiveMission = async (mission) => {
+    try {
+      const { error } = await supabase.from('missions').update({ status: 'ARCHIVED' }).eq('id', mission.id);
+      if (error) throw error;
+      setMissions(prev => prev.filter(m => m.id !== mission.id));
+    } catch (err) {
+      console.error('Archive failed:', err);
+      setErrorModal({ isOpen: true, message: 'Failed to archive mission. Please try again.' });
+    }
+  };
+
+  const handleUnarchiveMission = async (mission) => {
+    try {
+      const { error } = await supabase.from('missions').update({ status: 'PENDING' }).eq('id', mission.id);
+      if (error) throw error;
+      setMissions(prev => prev.filter(m => m.id !== mission.id));
+    } catch (err) {
+      console.error('Unarchive failed:', err);
+      setErrorModal({ isOpen: true, message: 'Failed to restore mission. Please try again.' });
     }
   };
 
@@ -367,7 +391,8 @@ export default function MissionsPage({ user, onSwitchAccount, onLogout }) {
               {filtered.map(m => (
                 <MissionCard
                   key={m.id}
-                  mission={{ ...m, onDelete: setDeleteTarget }}
+                  mission={{ ...m, onDelete: setDeleteTarget, onArchive: handleArchiveMission, onUnarchive: handleUnarchiveMission }}
+                  isArchived={tab === 'archive'}
                   onClick={() => navigate(`/missions/${m.id}`)}
                 />
               ))}
