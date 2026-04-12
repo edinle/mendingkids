@@ -89,16 +89,39 @@ function GeneralConfig() {
     fetchConfig();
   }, []);
 
+  const DEFAULT_CONFIG = {
+    name: 'Mending Kids',
+    support_email: 'support@mendingkids.org',
+    base_url: 'https://inventory.mendingkids.org',
+    timezone: 'pt',
+    language: 'en-US',
+  };
+
   const fetchConfig = async () => {
     setLoading(true);
-    const { data } = await supabase.from('organization_settings').select('*').limit(1).single();
-    if (data) setConfig(data);
+    const { data, error } = await supabase.from('organization_settings').select('*').limit(1).maybeSingle();
+    if (data) {
+      setConfig(data);
+    } else {
+      // No row exists — insert defaults then use them
+      const { data: inserted } = await supabase
+        .from('organization_settings')
+        .insert(DEFAULT_CONFIG)
+        .select()
+        .single();
+      setConfig(inserted || DEFAULT_CONFIG);
+    }
     setLoading(false);
   };
 
   const handleSave = async () => {
     setSaving(true);
-    const { error } = await supabase.from('organization_settings').update(config).eq('id', config.id);
+    let error;
+    if (config.id) {
+      ({ error } = await supabase.from('organization_settings').update(config).eq('id', config.id));
+    } else {
+      ({ error } = await supabase.from('organization_settings').upsert(config));
+    }
     setSaving(false);
     if (!error) {
       alert('Settings saved successfully.');
@@ -106,6 +129,7 @@ function GeneralConfig() {
   };
 
   if (loading) return <p>Loading configuration...</p>;
+  if (!config) return <p>Unable to load settings. Please reload.</p>;
 
   return (
     <>
