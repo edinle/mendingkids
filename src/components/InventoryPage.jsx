@@ -181,6 +181,43 @@ function FilterOption({ label, isSelected, onClick }) {
   );
 }
 
+// ── Button Tooltip ─────────────────────────────────────────────────────────
+
+function BtnTooltip({ label, children, position = 'top' }) {
+  const [show, setShow] = useState(false);
+  const isTop = position !== 'bottom';
+  return (
+    <div
+      style={{ position: 'relative', display: 'inline-flex' }}
+      onMouseEnter={() => setShow(true)}
+      onMouseLeave={() => setShow(false)}
+    >
+      {children}
+      {show && label && (
+        <div style={{
+          position: 'absolute',
+          ...(isTop ? { bottom: 'calc(100% + 7px)' } : { top: 'calc(100% + 7px)' }),
+          left: '50%', transform: 'translateX(-50%)',
+          zIndex: 1200, whiteSpace: 'nowrap',
+          backgroundColor: '#172B4D', color: '#fff',
+          borderRadius: 4, padding: '5px 10px',
+          fontSize: 12, lineHeight: 1.4,
+          boxShadow: '0 2px 8px rgba(9,30,66,0.22)',
+          pointerEvents: 'none',
+        }}>
+          {label}
+          <div style={{
+            position: 'absolute',
+            ...(isTop ? { top: '100%', borderColor: '#172B4D transparent transparent' } : { bottom: '100%', borderColor: 'transparent transparent #172B4D' }),
+            left: '50%', transform: 'translateX(-50%)',
+            borderWidth: '4px 4px 0', borderStyle: 'solid',
+          }} />
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── Expiration categories ──────────────────────────────────────────────────
 const EXPIRATION_OPTIONS = ['Expired', '0-3 Months', '3-6 Months', '6-12 Months', '1+ year'];
 
@@ -234,7 +271,12 @@ export default function InventoryPage({ user, onSwitchAccount, onLogout }) {
   const [selectedItem, setSelectedItem] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [confirmModal, setConfirmModal] = useState({ isOpen: false, item: null, action: null });
-  const [missions, setMissions] = useState([]);
+  const [missions, setMissions]             = useState([]);
+  const [missionsList, setMissionsList]     = useState([]);   // {id, name}
+  const [selectedIds, setSelectedIds]       = useState(new Set());
+  const [companyFilter, setCompanyFilter]   = useState('');
+  const [bulkConfirm, setBulkConfirm]       = useState({ isOpen: false });
+  const [bulkAssignOpen, setBulkAssignOpen] = useState(false);
 
   useEffect(() => {
     fetchInventory();
@@ -333,8 +375,11 @@ export default function InventoryPage({ user, onSwitchAccount, onLogout }) {
   };
 
   const fetchMissionsList = async () => {
-    const { data } = await supabase.from('missions').select('name');
-    if (data) setMissions(data.map(m => m.name));
+    const { data } = await supabase.from('missions').select('id, name').neq('status', 'ARCHIVED');
+    if (data) {
+      setMissions(data.map(m => m.name));
+      setMissionsList(data);
+    }
   };
 
   const openAdd = (baseItem = null, isEdit = false) => setPanel({ isOpen: true, baseItem, isEdit });
@@ -383,6 +428,47 @@ export default function InventoryPage({ user, onSwitchAccount, onLogout }) {
     openAdd(item, true);
   };
 
+  // ── Bulk select helpers ───────────────────────────────────────────────────
+
+  const toggleSelectRow = (id, e) => {
+    e.stopPropagation();
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  };
+
+  const handleBulkAction = async (action) => {
+    const ids = [...selectedIds];
+    if (!ids.length) return;
+    if (action === 'delete') { setBulkConfirm({ isOpen: true }); return; }
+    if (action === 'assign') { setBulkAssignOpen(true); return; }
+    if (action === 'archive') {
+      await supabase.from('shipments').update({ status: 'archived' }).in('id', ids);
+    } else if (action === 'restore') {
+      await supabase.from('shipments').update({ status: 'available' }).in('id', ids);
+    }
+    setSelectedIds(new Set());
+    fetchInventory();
+  };
+
+  const handleBulkDelete = async () => {
+    await supabase.from('shipments').delete().in('id', [...selectedIds]);
+    setSelectedIds(new Set());
+    setBulkConfirm({ isOpen: false });
+    fetchInventory();
+  };
+
+  const handleBulkAssign = async (missionId) => {
+    await supabase.from('shipments')
+      .update({ mission_id: missionId, status: 'in-use' })
+      .in('id', [...selectedIds]);
+    setSelectedIds(new Set());
+    setBulkAssignOpen(false);
+    fetchInventory();
+  };
+
   const handleSave = async () => {
     const latest = await fetchInventory();
     if (overview.isOpen && overview.item && latest.length > 0) {
@@ -393,24 +479,60 @@ export default function InventoryPage({ user, onSwitchAccount, onLogout }) {
     }
   };
 
-  // Filter pipeline: tab → mission → expiration → search
+  // ── Derived values for filters ────────────────────────────────────────────
+  const allCompanies = [...new Set(inventory.map(r => r.company).filter(c => c && c !== 'Unknown'))].sort();
+
+  // Filter pipeline: tab → search → category → company → mission → expiration
   const filtered = inventory.filter((r) => {
-    // Tab filter
     if (r.status !== activeTab) return false;
-    // Search filter
-    if (search && !r.description.toLowerCase().includes(search.toLowerCase())) return false;
-    // Category filter
+    if (search && !r.description.toLowerCase().includes(search.toLowerCase()) &&
+        !r.company.toLowerCase().includes(search.toLowerCase())) return false;
     if (category && r.category !== category) return false;
-    // Mission filter
+    if (companyFilter && r.company !== companyFilter) return false;
     if (missionFilter && r.mission !== missionFilter) return false;
-    // Expiration filter
     if (expirationFilter && getExpirationCategory(r.expiration) !== expirationFilter) return false;
     return true;
   });
 
   const isInUse = activeTab === 'in-use';
 
+  // ── Checkbox-augmented heads ──────────────────────────────────────────────
+  const filteredIds = filtered.map(r => r.id);
+  const isAllSelected = filteredIds.length > 0 && filteredIds.every(id => selectedIds.has(id));
+  const isPartial = selectedIds.size > 0 && !isAllSelected;
+
+  const checkboxHeadCell = {
+    key: 'select',
+    content: (
+      <input
+        type="checkbox"
+        checked={isAllSelected}
+        ref={el => { if (el) el.indeterminate = isPartial; }}
+        onChange={() => setSelectedIds(isAllSelected ? new Set() : new Set(filteredIds))}
+        onClick={e => e.stopPropagation()}
+        style={{ cursor: 'pointer', accentColor: '#422670', width: 15, height: 15 }}
+      />
+    ),
+    width: 3,
+  };
+
+  const baseHead = activeTab === 'available' ? AVAILABLE_HEAD : activeTab === 'in-use' ? IN_USE_HEAD : ARCHIVED_HEAD;
+  const activeHead = { cells: [checkboxHeadCell, ...baseHead.cells] };
+
   const tableRows = filtered.map((row) => {
+    const checkboxCell = {
+      key: 'select',
+      content: (
+        <input
+          type="checkbox"
+          checked={selectedIds.has(row.id)}
+          onChange={e => toggleSelectRow(row.id, e)}
+          onClick={e => e.stopPropagation()}
+          style={{ cursor: 'pointer', accentColor: '#422670', width: 15, height: 15 }}
+        />
+      ),
+    };
+
     const baseCells = [
       { key: 'description', content: row.description },
       { key: 'company',     content: row.company },
@@ -429,21 +551,15 @@ export default function InventoryPage({ user, onSwitchAccount, onLogout }) {
         key: 'actions',
         content: (
           <span style={{ display: 'flex', gap: 4 }} onClick={(e) => e.stopPropagation()}>
-            <IconButton
-              icon={AddIcon}
-              label="New Entry"
-              appearance="subtle"
-              spacing="compact"
-              onClick={() => openAdd(row, false)}
-            />
-            <IconButton
-              icon={EditIcon}
-              label="Edit"
-              appearance="subtle"
-              spacing="compact"
-              onClick={() => openOverview(row)}
-            />
-            <ActionMenu item={row} onItemAction={(action) => handleItemAction(row, action)} />
+            <BtnTooltip label="Add a new shipment entry for this item">
+              <IconButton icon={AddIcon} label="New Entry" appearance="subtle" spacing="compact" onClick={() => openAdd(row, false)} />
+            </BtnTooltip>
+            <BtnTooltip label="View and edit item details">
+              <IconButton icon={EditIcon} label="Edit" appearance="subtle" spacing="compact" onClick={() => openOverview(row)} />
+            </BtnTooltip>
+              <BtnTooltip label="Archive, assign, delete and more">
+                <span><ActionMenu item={row} onItemAction={(action) => handleItemAction(row, action)} /></span>
+              </BtnTooltip>
           </span>
         ),
       },
@@ -452,7 +568,8 @@ export default function InventoryPage({ user, onSwitchAccount, onLogout }) {
     return {
       key: String(row.id),
       onClick: () => openOverview(row),
-      cells: baseCells,
+      style: selectedIds.has(row.id) ? { backgroundColor: '#F8F6FF' } : undefined,
+      cells: [checkboxCell, ...baseCells],
     };
   });
 
@@ -500,26 +617,30 @@ export default function InventoryPage({ user, onSwitchAccount, onLogout }) {
                 Inventory
               </h1>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <button
-                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#331D58'}
-                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#422670'}
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: 6,
-                    height: 32, padding: '0 12px',
-                    backgroundColor: '#422670', color: '#fff',
-                    border: 'none', borderRadius: 3,
-                    fontSize: 14, fontWeight: 500, fontFamily: 'inherit',
-                    cursor: 'pointer', transition: 'background-color 0.2s',
-                  }}
-                  onClick={() => openAdd(null, false)}
-                >
-                  <AddIcon label="" size="small" /> Add Item
-                </button>
-                <IconButton
-                  icon={ShowMoreHorizontalIcon}
-                  label="More options"
-                  appearance="default"
-                />
+                <BtnTooltip label="Add a new inventory item or shipment">
+                  <button
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#331D58'}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#422670'}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: 6,
+                      height: 32, padding: '0 12px',
+                      backgroundColor: '#422670', color: '#fff',
+                      border: 'none', borderRadius: 3,
+                      fontSize: 14, fontWeight: 500, fontFamily: 'inherit',
+                      cursor: 'pointer', transition: 'background-color 0.2s',
+                    }}
+                    onClick={() => openAdd(null, false)}
+                  >
+                    <AddIcon label="" size="small" /> Add Item
+                  </button>
+                </BtnTooltip>
+                <BtnTooltip label="Export, print, or import inventory in bulk">
+                  <IconButton
+                    icon={ShowMoreHorizontalIcon}
+                    label="More options"
+                    appearance="default"
+                  />
+                </BtnTooltip>
               </div>
             </div>
 
@@ -540,6 +661,8 @@ export default function InventoryPage({ user, onSwitchAccount, onLogout }) {
                         setActiveTab(tab.key);
                         setMissionFilter('');
                         setExpirationFilter('');
+                        setCompanyFilter('');
+                        setSelectedIds(new Set());
                       }}
                       style={{
                         position: 'relative',
@@ -583,22 +706,12 @@ export default function InventoryPage({ user, onSwitchAccount, onLogout }) {
             {/* Filters & Search Row */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <FilterDropdown label="Category" options={categories} selected={category} onSelect={setCategory} />
+                <FilterDropdown label="Category"   options={categories}       selected={category}       onSelect={setCategory} />
+                <FilterDropdown label="Company"    options={allCompanies}     selected={companyFilter}  onSelect={setCompanyFilter} />
                 {isInUse && (
-                  <FilterDropdown
-                    label="Mission"
-                    options={missions}
-                    selected={missionFilter}
-                    onSelect={setMissionFilter}
-                  />
+                  <FilterDropdown label="Mission"  options={missions}         selected={missionFilter}  onSelect={setMissionFilter} />
                 )}
-                <FilterDropdown
-                  label="Expiration"
-                  hasIcon
-                  options={EXPIRATION_OPTIONS}
-                  selected={expirationFilter}
-                  onSelect={setExpirationFilter}
-                />
+                <FilterDropdown label="Expiration" hasIcon options={EXPIRATION_OPTIONS} selected={expirationFilter} onSelect={setExpirationFilter} />
               </div>
 
               <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
@@ -628,8 +741,32 @@ export default function InventoryPage({ user, onSwitchAccount, onLogout }) {
               </div>
             </div>
 
+            {/* Bulk action bar */}
+            {selectedIds.size > 0 && (
+              <div style={{
+                display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap',
+                padding: '10px 16px', marginBottom: 12,
+                backgroundColor: '#F3F0FF', border: '1px solid #c4b5e0', borderRadius: 6,
+              }}>
+                <span style={{ fontSize: 13, fontWeight: 600, color: '#422670' }}>
+                  {selectedIds.size} item{selectedIds.size > 1 ? 's' : ''} selected
+                </span>
+                <div style={{ width: 1, height: 16, backgroundColor: '#c4b5e0' }} />
+                {activeTab !== 'archived' && <>
+                  <button onClick={() => handleBulkAction('archive')} style={{ padding: '4px 12px', border: '1px solid #c4b5e0', borderRadius: 4, background: '#fff', cursor: 'pointer', fontSize: 13, fontFamily: 'inherit', color: '#172B4D' }}>Archive</button>
+                  <button onClick={() => handleBulkAction('assign')} style={{ padding: '4px 12px', border: '1px solid #c4b5e0', borderRadius: 4, background: '#fff', cursor: 'pointer', fontSize: 13, fontFamily: 'inherit', color: '#172B4D' }}>Assign to Mission</button>
+                </>}
+                {activeTab === 'archived' &&
+                  <button onClick={() => handleBulkAction('restore')} style={{ padding: '4px 12px', border: '1px solid #c4b5e0', borderRadius: 4, background: '#fff', cursor: 'pointer', fontSize: 13, fontFamily: 'inherit', color: '#172B4D' }}>Restore</button>
+                }
+                <button onClick={() => handleBulkAction('delete')} style={{ padding: '4px 12px', border: '1px solid #F87168', borderRadius: 4, background: '#fff', cursor: 'pointer', fontSize: 13, fontFamily: 'inherit', color: '#AE2E24' }}>Delete</button>
+                <div style={{ flex: 1 }} />
+                <button onClick={() => setSelectedIds(new Set())} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, color: '#626F86', fontFamily: 'inherit' }}>✕ Deselect all</button>
+              </div>
+            )}
+
             <DynamicTable
-              head={activeTab === 'available' ? AVAILABLE_HEAD : activeTab === 'in-use' ? IN_USE_HEAD : ARCHIVED_HEAD}
+              head={activeHead}
               rows={tableRows}
               rowsPerPage={15}
               defaultPage={1}
@@ -718,6 +855,57 @@ export default function InventoryPage({ user, onSwitchAccount, onLogout }) {
           'Delete'
         }
       />
+      {/* Bulk delete confirmation */}
+      <ModalTransition>
+        {bulkConfirm.isOpen && (
+          <Modal onClose={() => setBulkConfirm({ isOpen: false })}>
+            <ModalHeader>
+              <ModalTitle appearance="danger">Delete {selectedIds.size} item{selectedIds.size !== 1 ? 's' : ''}?</ModalTitle>
+            </ModalHeader>
+            <ModalBody>
+              <p>This will permanently remove <strong>{selectedIds.size}</strong> selected item{selectedIds.size !== 1 ? 's' : ''} from inventory. This action cannot be undone.</p>
+            </ModalBody>
+            <ModalFooter>
+              <Button onClick={() => setBulkConfirm({ isOpen: false })}>Cancel</Button>
+              <Button appearance="danger" onClick={handleBulkDelete}>Delete All</Button>
+            </ModalFooter>
+          </Modal>
+        )}
+      </ModalTransition>
+
+      {/* Bulk assign to mission */}
+      <ModalTransition>
+        {bulkAssignOpen && (
+          <Modal onClose={() => setBulkAssignOpen(false)}>
+            <ModalHeader>
+              <ModalTitle>Assign {selectedIds.size} item{selectedIds.size !== 1 ? 's' : ''} to Mission</ModalTitle>
+            </ModalHeader>
+            <ModalBody>
+              <p style={{ marginBottom: 16, color: '#626F86', fontSize: 14 }}>
+                Select a mission. All selected items will be marked <strong>In Use</strong> and linked to that mission.
+              </p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {missionsList.length === 0 && <p style={{ color: '#8590A2', fontSize: 13 }}>No active missions found.</p>}
+                {missionsList.map(m => (
+                  <button
+                    key={m.id}
+                    onClick={() => handleBulkAssign(m.id)}
+                    onMouseEnter={e => e.currentTarget.style.backgroundColor = '#F4F5F7'}
+                    onMouseLeave={e => e.currentTarget.style.backgroundColor = '#fff'}
+                    style={{ padding: '10px 16px', border: '1px solid #DFE1E6', borderRadius: 4, background: '#fff', cursor: 'pointer', fontSize: 14, fontFamily: 'inherit', textAlign: 'left', color: '#172B4D', transition: 'background 0.1s' }}
+                  >
+                    {m.name}
+                  </button>
+                ))}
+              </div>
+            </ModalBody>
+            <ModalFooter>
+              <Button onClick={() => setBulkAssignOpen(false)}>Cancel</Button>
+            </ModalFooter>
+          </Modal>
+        )}
+      </ModalTransition>
+
       <ModalTransition>
         {deploySuccess.isOpen && (
           <Modal onClose={() => setDeploySuccess({ ...deploySuccess, isOpen: false })}>
