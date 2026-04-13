@@ -681,7 +681,8 @@ function DetailsTab({ isFullEdit, onExitFullEdit, item, onSave }) {
 
     const boxBase = {
       width: '100%', boxSizing: 'border-box',
-      padding: isTextArea ? '8px 10px' : '8px 10px',
+      height: isTextArea ? 'auto' : 40,
+      padding: isTextArea ? '8px 10px' : '0 10px',
       borderRadius: 3, fontSize: 14, fontFamily: 'inherit',
       color: token('color.text', '#172B4D'),
       backgroundColor: isEditing ? '#fff' : isHov ? '#fff' : 'rgba(9,30,66,0.04)',
@@ -744,7 +745,7 @@ function DetailsTab({ isFullEdit, onExitFullEdit, item, onSave }) {
 
     return (
       <div
-        style={{ ...boxBase, display: 'flex', alignItems: 'center', cursor: 'pointer', minHeight: 36 }}
+        style={{ ...boxBase, display: 'flex', alignItems: 'center', cursor: 'pointer' }}
         onClick={() => startEdit(field)}
         onMouseEnter={() => setHovered(field)}
         onMouseLeave={() => setHovered(null)}
@@ -758,7 +759,7 @@ function DetailsTab({ isFullEdit, onExitFullEdit, item, onSave }) {
   const renderFullEditField = (field, isTextArea = false, isSelect = false) => {
     const inputSt = {
       width: '100%', boxSizing: 'border-box',
-      padding: '8px 10px', borderRadius: 3,
+      height: 40, padding: '0 10px', borderRadius: 3,
       border: `1px solid rgba(9,30,66,0.20)`,
       fontSize: 14, fontFamily: 'inherit',
       color: token('color.text', '#172B4D'),

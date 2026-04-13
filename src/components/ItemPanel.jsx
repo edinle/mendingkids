@@ -9,6 +9,15 @@ import SlidePanel from './SlidePanel';
 import Modal, { ModalTransition, ModalHeader, ModalTitle, ModalBody, ModalFooter } from '@atlaskit/modal-dialog';
 import Button from '@atlaskit/button';
 
+// ─── Shared form-control height ────────────────────────────────────────────
+// Forces Atlaskit Select and DatePicker to match Textfield's 40 px height.
+const CTRL_HEIGHT = 40;
+const selectStyles = {
+  control: (base) => ({ ...base, minHeight: CTRL_HEIGHT, height: CTRL_HEIGHT }),
+  valueContainer: (base) => ({ ...base, height: CTRL_HEIGHT, padding: '0 8px' }),
+  indicatorsContainer: (base) => ({ ...base, height: CTRL_HEIGHT }),
+};
+
 // ─── Options ───────────────────────────────────────────────────────────────
 
 const UNIT_OPTIONS = [
@@ -162,6 +171,7 @@ function Step1({ values, onChange, locations, categories }) {
           onChange={set('location')}
           options={locations}
           placeholder="Select Location"
+          styles={selectStyles}
         />
       </div>
 
@@ -191,6 +201,7 @@ function Step1({ values, onChange, locations, categories }) {
             onChange={set('unitOfMeasure')}
             options={UNIT_OPTIONS}
             placeholder="Select Unit"
+            styles={selectStyles}
           />
         </div>
         <div style={{ flex: 1 }}>
@@ -219,6 +230,7 @@ function Step1({ values, onChange, locations, categories }) {
           value={values.expirationDate}
           onChange={set('expirationDate')}
           placeholder="Select date"
+          selectProps={{ styles: selectStyles }}
         />
       </div>
 
@@ -351,6 +363,7 @@ function Step2({ values, onChange }) {
           onChange={set('acquisitionMethod')}
           options={ACQUISITION_OPTIONS}
           placeholder="Select acquisition method"
+          styles={selectStyles}
         />
       </div>
 
