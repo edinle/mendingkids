@@ -3,20 +3,59 @@ import { supabase } from '../utils/supabase';
 import PropTypes from 'prop-types';
 import Select from '@atlaskit/select';
 import { DatePicker } from '@atlaskit/datetime-picker';
-import Textfield from '@atlaskit/textfield';
 import { token } from '@atlaskit/tokens';
 import SlidePanel from './SlidePanel';
 import Modal, { ModalTransition, ModalHeader, ModalTitle, ModalBody, ModalFooter } from '@atlaskit/modal-dialog';
 import Button from '@atlaskit/button';
 
 // ─── Shared form-control height ────────────────────────────────────────────
-// Forces Atlaskit Select and DatePicker to match Textfield's 40 px height.
 const CTRL_HEIGHT = 40;
+
+// Atlaskit Select / DatePicker style override
 const selectStyles = {
   control: (base) => ({ ...base, minHeight: CTRL_HEIGHT, height: CTRL_HEIGHT }),
   valueContainer: (base) => ({ ...base, height: CTRL_HEIGHT, padding: '0 8px' }),
   indicatorsContainer: (base) => ({ ...base, height: CTRL_HEIGHT }),
 };
+
+// Plain <input> style — matches Select's border/radius/font exactly
+const inputSt = {
+  width: '100%', boxSizing: 'border-box',
+  height: CTRL_HEIGHT, padding: '0 10px',
+  border: '2px solid #DFE1E6', borderRadius: 4,
+  fontSize: 14, fontFamily: 'inherit',
+  color: '#172B4D', backgroundColor: '#FAFBFC',
+  outline: 'none',
+};
+
+// Input with a left icon prefix (mirrors Atlaskit's elemBeforeInput)
+function InputWithIcon({ icon, value, onChange, placeholder, autoFocus }) {
+  const [focused, setFocused] = useState(false);
+  return (
+    <div style={{
+      display: 'flex', alignItems: 'center',
+      height: CTRL_HEIGHT, boxSizing: 'border-box',
+      border: focused ? '2px solid #4C9AFF' : '2px solid #DFE1E6',
+      borderRadius: 4, backgroundColor: '#FAFBFC', overflow: 'hidden',
+    }}>
+      {icon}
+      <input
+        value={value}
+        onChange={onChange}
+        placeholder={placeholder}
+        autoFocus={autoFocus}
+        onFocus={() => setFocused(true)}
+        onBlur={() => setFocused(false)}
+        style={{
+          flex: 1, height: '100%', border: 'none', outline: 'none',
+          fontSize: 14, fontFamily: 'inherit',
+          color: '#172B4D', backgroundColor: 'transparent',
+          padding: '0 10px 0 0',
+        }}
+      />
+    </div>
+  );
+}
 
 // ─── Options ───────────────────────────────────────────────────────────────
 
@@ -146,21 +185,22 @@ function Step1({ values, onChange, locations, categories }) {
 
       <div>
         <FieldLabel text="Item Description" required />
-        <Textfield
+        <InputWithIcon
+          icon={<AssetsPrefix />}
           value={values.description}
           onChange={setE('description')}
           placeholder="e.g. Surgical Gown, Size L"
-          elemBeforeInput={<AssetsPrefix />}
           autoFocus={!values.description}
         />
       </div>
 
       <div>
         <FieldLabel text="Manufacturing Company" />
-        <Textfield
+        <input
           value={values.company}
           onChange={setE('company')}
           placeholder="Add company"
+          style={inputSt}
         />
       </div>
 
@@ -177,19 +217,21 @@ function Step1({ values, onChange, locations, categories }) {
 
       <div>
         <FieldLabel text="Reference Number #" />
-        <Textfield
+        <input
           value={values.referenceNum}
           onChange={setE('referenceNum')}
           placeholder="Add reference number"
+          style={inputSt}
         />
       </div>
 
       <div>
         <FieldLabel text="Lot Number" />
-        <Textfield
+        <input
           value={values.lotNumber}
           onChange={setE('lotNumber')}
           placeholder="Add lot number"
+          style={inputSt}
         />
       </div>
 
@@ -206,21 +248,22 @@ function Step1({ values, onChange, locations, categories }) {
         </div>
         <div style={{ flex: 1 }}>
           <FieldLabel text="Typical Shelf Life" />
-          <Textfield
+          <input
             value={values.shelfLife}
             onChange={setE('shelfLife')}
             placeholder="Add Shelf Life"
+            style={inputSt}
           />
         </div>
       </div>
 
       <div>
         <FieldLabel text="Quantity" required />
-        <Textfield
+        <InputWithIcon
+          icon={<AssetsPrefix />}
           value={values.quantity}
           onChange={setE('quantity')}
           placeholder="Add quantity"
-          elemBeforeInput={<AssetsPrefix />}
         />
       </div>
 
@@ -299,21 +342,21 @@ function Step2({ values, onChange }) {
 
       <div>
         <FieldLabel text="Market Value per Unit" required />
-        <Textfield
+        <InputWithIcon
+          icon={<DollarPrefix />}
           value={values.marketValue}
           onChange={setE('marketValue')}
           placeholder="Add market value"
-          elemBeforeInput={<DollarPrefix />}
         />
       </div>
 
       <div>
         <FieldLabel text="Valuation Source" />
-        <Textfield
+        <InputWithIcon
+          icon={<LinkPrefix />}
           value={values.valuationSource}
           onChange={setE('valuationSource')}
           placeholder="Add a valuation source"
-          elemBeforeInput={<LinkPrefix />}
         />
       </div>
 
