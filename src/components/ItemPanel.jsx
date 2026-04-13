@@ -186,15 +186,6 @@ function Step1({ values, onChange, locations, categories }) {
       </div>
 
       <div>
-        <FieldLabel text="Manufacturing Company" />
-        <Textfield
-          value={values.company}
-          onChange={setE('company')}
-          placeholder="Add manufacturing company"
-        />
-      </div>
-
-      <div>
         <FieldLabel text="Lot Number" />
         <Textfield
           value={values.lotNumber}
@@ -239,16 +230,6 @@ function Step1({ values, onChange, locations, categories }) {
           value={values.expirationDate}
           onChange={set('expirationDate')}
           placeholder="Select date"
-        />
-      </div>
-
-      <div>
-        <FieldLabel text="Location" required />
-        <Select
-          value={values.location}
-          onChange={set('location')}
-          options={LOCATION_OPTIONS}
-          placeholder="Select Location"
         />
       </div>
 

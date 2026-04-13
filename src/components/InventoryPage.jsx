@@ -286,7 +286,7 @@ export default function InventoryPage({ user, onSwitchAccount, onLogout }) {
 
   const fetchCategories = async () => {
     const { data } = await supabase.from('categories').select('name');
-    if (data) setCategories(data.map(c => c.name));
+    if (data) setCategories(data.map(c => ({ label: c.name, value: c.name })));
   };
 
   const fetchInventory = async () => {
