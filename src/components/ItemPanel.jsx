@@ -146,24 +146,13 @@ function Step1({ values, onChange, locations, categories }) {
         />
       </div>
 
-      <div style={{ display: 'flex', gap: 12 }}>
-        <div style={{ flex: 1 }}>
-          <FieldLabel text="Category" required />
-          <Select
-            value={values.category}
-            onChange={set('category')}
-            options={categories}
-            placeholder="Select Category"
-          />
-        </div>
-        <div style={{ flex: 1 }}>
-          <FieldLabel text="Manufacturing Company" />
-          <Textfield
-            value={values.company}
-            onChange={setE('company')}
-            placeholder="Add company"
-          />
-        </div>
+      <div>
+        <FieldLabel text="Manufacturing Company" />
+        <Textfield
+          value={values.company}
+          onChange={setE('company')}
+          placeholder="Add company"
+        />
       </div>
 
       <div>
