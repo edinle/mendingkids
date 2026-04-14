@@ -97,7 +97,7 @@ export default function DonorsPage({ user, onSwitchAccount, onLogout }) {
     onClick: () => handleRowClick(row),
     cells: [
       { key: 'name', content: <div style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' }}>
-          <div style={{ width: 28, height: 28, backgroundColor: '#0747A6', color: '#fff', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 'bold' }}>
+          <div style={{ width: 28, height: 28, backgroundColor: '#422670', color: '#fff', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 'bold' }}>
             {row.name.charAt(0)}
           </div>
           <span style={{ fontWeight: 500, color: '#172B4D' }}>{row.name}</span>
@@ -137,7 +137,7 @@ export default function DonorsPage({ user, onSwitchAccount, onLogout }) {
           <div className="main-content">
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
               <h1 style={{ margin: 0, fontSize: 24, fontWeight: 600, color: token('color.text', '#172B4D') }}>Donors & Partners</h1>
-              <button onClick={handleAddUserClick} style={{ height: 32, padding: '0 16px', backgroundColor: '#0747A6', color: '#fff', border: 'none', borderRadius: 4, fontSize: 14, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit' }}>
+              <button onClick={handleAddUserClick} style={{ height: 32, padding: '0 16px', backgroundColor: '#422670', color: '#fff', border: 'none', borderRadius: 4, fontSize: 14, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit' }}>
                 Add User
               </button>
             </div>

@@ -6,45 +6,45 @@ body {
 }
 
 :root {
-  --ds-background-brand: #0747A6 !important;
-  --ds-background-brand-hovered: #043584 !important;
-  --ds-background-brand-pressed: #032966 !important;
-  --ds-background-brand-bold: #0747A6 !important;
-  --ds-background-brand-bold-hovered: #043584 !important;
-  --ds-background-brand-bold-pressed: #032966 !important;
+  --ds-background-brand: #422670 !important;
+  --ds-background-brand-hovered: #331d58 !important;
+  --ds-background-brand-pressed: #251343 !important;
+  --ds-background-brand-bold: #422670 !important;
+  --ds-background-brand-bold-hovered: #331d58 !important;
+  --ds-background-brand-bold-pressed: #251343 !important;
   
-  --ds-text-brand: #0052CC !important;
-  --ds-text-selected: #0747A6 !important;
-  --ds-background-selected: #DEEBFF !important;
-  --ds-background-selected-hovered: #B3D4FF !important;
-  --ds-background-selected-pressed: #A1C5FF !important;
+  --ds-text-brand: #5137a2 !important;
+  --ds-text-selected: #422670 !important;
+  --ds-background-selected: #F3F0FF !important;
+  --ds-background-selected-hovered: #EADEFA !important;
+  --ds-background-selected-pressed: #E4D9FE !important;
   
   /* Link colours */
-  --ds-link: #0052CC !important;
-  --ds-link-pressed: #043584 !important;
+  --ds-link: #5137a2 !important;
+  --ds-link-pressed: #331d58 !important;
   
   /* Icon colours */
-  --ds-icon-brand: #0747A6 !important;
-  --ds-icon-selected: #0747A6 !important;
-  --ds-icon-information: #0052CC !important;
+  --ds-icon-brand: #422670 !important;
+  --ds-icon-selected: #422670 !important;
+  --ds-icon-information: #5137a2 !important;
 
   /* Border colours */
-  --ds-border-brand: #0052CC !important;
-  --ds-border-focused: #0052CC !important;
-  --ds-border-selected: #0052CC !important;
+  --ds-border-brand: #5137a2 !important;
+  --ds-border-focused: #5137a2 !important;
+  --ds-border-selected: #5137a2 !important;
 
   /* Button / generic blue UI fixes */
-  --ds-background-information: #DEEBFF !important;
-  --ds-background-information-hovered: #B3D4FF !important;
-  --ds-background-information-pressed: #A1C5FF !important;
-  --ds-border-information: #0747A6 !important;
-  --ds-icon-information: #0747A6 !important;
+  --ds-background-information: #F3F0FF !important;
+  --ds-background-information-hovered: #EADEFA !important;
+  --ds-background-information-pressed: #E4D9FE !important;
+  --ds-border-information: #422670 !important;
+  --ds-icon-information: #422670 !important;
   
-  --ds-background-neutral-pressed: rgba(7, 71, 166, 0.16) !important;
-  --ds-background-neutral-hovered: rgba(7, 71, 166, 0.08) !important;
-  --ds-background-neutral-subtle-hovered: rgba(7, 71, 166, 0.08) !important;
-  --ds-background-neutral-subtle-pressed: rgba(7, 71, 166, 0.16) !important;
-  --ds-border-input: #0052CC !important;
+  --ds-background-neutral-pressed: rgba(66, 38, 112, 0.16) !important;
+  --ds-background-neutral-hovered: rgba(66, 38, 112, 0.08) !important;
+  --ds-background-neutral-subtle-hovered: rgba(66, 38, 112, 0.08) !important;
+  --ds-background-neutral-subtle-pressed: rgba(66, 38, 112, 0.16) !important;
+  --ds-border-input: #5137a2 !important;
 
 /* Make sure TopNavigation stretches */
   --nav-layout-width: 100vw;

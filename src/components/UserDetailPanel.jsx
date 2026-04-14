@@ -132,7 +132,7 @@ export default function UserDetailPanel({ isOpen, onClose, user, onEdit, onSave 
         </div>
         <div style={{ padding: '24px', flex: 1, overflowY: 'auto' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 32 }}>
-            <div style={{ width: 64, height: 64, backgroundColor: '#0747A6', color: '#fff', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28, fontWeight: 'bold' }}>
+            <div style={{ width: 64, height: 64, backgroundColor: '#422670', color: '#fff', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28, fontWeight: 'bold' }}>
               {user.name.charAt(0)}
             </div>
             <div>
@@ -141,7 +141,7 @@ export default function UserDetailPanel({ isOpen, onClose, user, onEdit, onSave 
           </div>
 
         <div style={{ display: 'flex', gap: 12, marginBottom: 32 }}>
-          <button onClick={() => onEdit(user)} style={{ flex: 1, padding: '8px 16px', backgroundColor: '#0747A6', color: '#fff', border: 'none', borderRadius: 4, fontSize: 14, fontWeight: 500, cursor: 'pointer' }}>
+          <button onClick={() => onEdit(user)} style={{ flex: 1, padding: '8px 16px', backgroundColor: '#422670', color: '#fff', border: 'none', borderRadius: 4, fontSize: 14, fontWeight: 500, cursor: 'pointer' }}>
             Edit Profile
           </button>
           <button style={{ flex: 1, padding: '8px 16px', backgroundColor: '#fff', color: '#172B4D', border: '1px solid #d9d9d9', borderRadius: 4, fontSize: 14, fontWeight: 500, cursor: 'pointer' }}>

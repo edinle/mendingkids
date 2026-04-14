@@ -68,7 +68,7 @@ export default function ItemStatusModal({ isOpen, onClose, itemName = "Selected 
           <Button 
             appearance="primary" 
             onClick={() => onSave?.(selectedStatus?.value, reason)}
-            style={{ backgroundColor: '#0747A6', color: '#fff' }}
+            style={{ backgroundColor: '#422670', color: '#fff' }}
           >
             Update Status
           </Button>

@@ -18,8 +18,8 @@ export default function FilterDropdown({ label, options, selected, onSelect }) {
           display: 'flex', alignItems: 'center', gap: 6,
           height: 32, padding: '0 10px',
           border: '1px solid #d9d9d9', borderRadius: 4,
-          background: selected ? '#DEEBFF' : '#fff',
-          color: selected ? '#0747A6' : '#172B4D',
+          background: selected ? '#F3F0FF' : '#fff',
+          color: selected ? '#422670' : '#172B4D',
           cursor: 'pointer', fontSize: 13, fontFamily: 'inherit',
           fontWeight: selected ? 500 : 400,
         }}
@@ -41,8 +41,8 @@ export default function FilterDropdown({ label, options, selected, onSelect }) {
             onClick={() => { onSelect(''); setOpen(false); }}
             style={{
               display: 'block', width: '100%', padding: '7px 12px', border: 'none',
-              background: !selected ? '#DEEBFF' : 'transparent',
-              color: !selected ? '#0747A6' : '#172B4D',
+              background: !selected ? '#F3F0FF' : 'transparent',
+              color: !selected ? '#422670' : '#172B4D',
               fontSize: 13, fontFamily: 'inherit', textAlign: 'left',
               fontWeight: !selected ? 600 : 400, cursor: 'pointer',
             }}
@@ -55,8 +55,8 @@ export default function FilterDropdown({ label, options, selected, onSelect }) {
               onClick={() => { onSelect(o); setOpen(false); }}
               style={{
                 display: 'block', width: '100%', padding: '7px 12px', border: 'none',
-                background: selected === o ? '#DEEBFF' : 'transparent',
-                color: selected === o ? '#0747A6' : '#172B4D',
+                background: selected === o ? '#F3F0FF' : 'transparent',
+                color: selected === o ? '#422670' : '#172B4D',
                 fontSize: 13, fontFamily: 'inherit', textAlign: 'left',
                 fontWeight: selected === o ? 600 : 400, cursor: 'pointer',
               }}

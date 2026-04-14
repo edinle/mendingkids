@@ -105,7 +105,7 @@ export default function UserFormPanel({ isOpen, onClose, user, onSave, category 
       
       <div style={{ padding: '16px 24px', borderTop: `1px solid ${token('color.border', 'rgba(9,30,66,0.14)')}`, display: 'flex', gap: 8, justifyContent: 'flex-end', backgroundColor: '#fff' }}>
         <button onClick={onClose} style={{ padding: '8px 16px', border: '1px solid #d9d9d9', borderRadius: 4, background: '#fff', cursor: 'pointer', fontSize: 14 }}>Cancel</button>
-        <button onClick={handleSave} style={{ padding: '8px 16px', border: 'none', borderRadius: 4, background: '#0747A6', color: '#fff', cursor: 'pointer', fontSize: 14, fontWeight: 500 }}>
+        <button onClick={handleSave} style={{ padding: '8px 16px', border: 'none', borderRadius: 4, background: '#422670', color: '#fff', cursor: 'pointer', fontSize: 14, fontWeight: 500 }}>
           {user ? 'Save Changes' : 'Add User'}
         </button>
       </div>

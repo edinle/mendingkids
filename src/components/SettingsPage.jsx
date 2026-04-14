@@ -47,7 +47,7 @@ function PrimaryButton({ children, onClick, style }) {
     <button 
       onClick={onClick}
       style={{
-        height: 32, padding: '0 16px', backgroundColor: '#0747A6', color: '#fff',
+        height: 32, padding: '0 16px', backgroundColor: '#422670', color: '#fff',
         border: 'none', borderRadius: 4, fontSize: 14, fontWeight: 500,
         cursor: 'pointer', fontFamily: 'inherit',
         ...style
@@ -359,7 +359,7 @@ function Users({ onInvite, onEdit }) {
     cells: [
       { content: (
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <div style={{ width: 24, height: 24, borderRadius: '50%', backgroundColor: '#0747A6', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 700 }}>
+          <div style={{ width: 24, height: 24, borderRadius: '50%', backgroundColor: '#422670', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 700 }}>
             {u.initials || u.name[0]}
           </div>
           <strong>{u.name}</strong>
@@ -989,7 +989,7 @@ export default function SettingsPage({ user, onSwitchAccount, onLogout }) {
             <div style={{ flex: 1, padding: '24px 16px', overflowY: 'auto' }}>
               <div style={{ padding: '0 8px 16px', borderBottom: '1px solid #DFE1E6', marginBottom: 16 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
-                  <div style={{ width: 32, height: 32, backgroundColor: '#0747A6', borderRadius: 3, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <div style={{ width: 32, height: 32, backgroundColor: '#422670', borderRadius: 3, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <svg width="16" height="16" viewBox="0 0 16 16" fill="white">
                       <path d="M14 2H2v12h12V2zM8 12.5a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9zm0-2.5a2 2 0 1 0 0-4 2 2 0 0 0 0 4z" />
                     </svg>
@@ -1021,7 +1021,7 @@ export default function SettingsPage({ user, onSwitchAccount, onLogout }) {
                       style={{
                         padding: '8px 12px', borderRadius: 4, fontSize: 14, cursor: 'pointer',
                         backgroundColor: activeTab === item ? 'rgba(66, 38, 112, 0.08)' : 'transparent',
-                        color: activeTab === item ? '#0747A6' : '#44546F',
+                        color: activeTab === item ? '#422670' : '#44546F',
                         fontWeight: activeTab === item ? 600 : 400,
                         marginBottom: 2
                       }}
@@ -1291,7 +1291,7 @@ export default function SettingsPage({ user, onSwitchAccount, onLogout }) {
                       { id: 'p4', name: 'View Reports', desc: 'Can view audit logs and financial mission reports.' },
                     ].map(p => (
                       <div key={p.id} style={{ display: 'flex', gap: 12, alignItems: 'flex-start', padding: '10px', borderRadius: 6, border: '1px solid #f0f0f0' }}>
-                        <Checkbox theme={(t) => ({ ...t, color: '#0747A6' })} />
+                        <Checkbox theme={(t) => ({ ...t, color: '#422670' })} />
                         <div>
                           <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#172B4D' }}>{p.name}</label>
                           <span style={{ fontSize: 12, color: '#626F86' }}>{p.desc}</span>

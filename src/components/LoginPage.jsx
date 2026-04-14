@@ -59,10 +59,10 @@ export default function LoginPage() {
       alignItems: 'center', backgroundColor: '#F4F5F7', fontFamily: 'inherit' 
     }}>
       <div style={{ marginTop: 64, marginBottom: 40, display: 'flex', alignItems: 'center', gap: 12 }}>
-        <div style={{ width: 40, height: 40, backgroundColor: '#0747A6', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ width: 40, height: 40, backgroundColor: '#422670', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <span style={{ color: '#fff', fontWeight: 'bold', fontSize: 20 }}>MK</span>
         </div>
-        <h1 style={{ fontSize: 24, fontWeight: 700, color: '#0747A6', margin: 0 }}>MENDING KIDS</h1>
+        <h1 style={{ fontSize: 24, fontWeight: 700, color: '#422670', margin: 0 }}>MENDING KIDS</h1>
       </div>
 
       <div style={{ 
@@ -110,7 +110,7 @@ export default function LoginPage() {
             type="submit"
             disabled={loading}
             style={{ 
-              backgroundColor: '#0747A6', color: '#fff', border: 'none', 
+              backgroundColor: '#422670', color: '#fff', border: 'none', 
               borderRadius: 3, padding: '10px', fontSize: 14, fontWeight: 600, 
               cursor: loading ? 'not-allowed' : 'pointer', marginTop: 8,
               opacity: loading ? 0.7 : 1

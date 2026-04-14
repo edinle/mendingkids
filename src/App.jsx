@@ -39,7 +39,7 @@ const PlaceholderPage = ({ title, id, user, onSwitchAccount, onLogout }) => {
             <h1 style={{ color: '#172B4D', fontSize: 32 }}>{title}</h1>
             <p style={{ color: '#6B778C', fontSize: 16 }}>This section is coming soon.</p>
             <button
-              style={{ marginTop: 24, padding: '10px 20px', backgroundColor: '#0747A6', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer', fontWeight: 600 }}
+              style={{ marginTop: 24, padding: '10px 20px', backgroundColor: '#422670', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer', fontWeight: 600 }}
               onClick={() => navigate('/dashboard')}
             >
               Back to Dashboard
@@ -229,7 +229,7 @@ export default function App() {
         alignItems: 'center', justifyContent: 'center', backgroundColor: '#F4F5F7',
         textAlign: 'center', padding: 20
       }}>
-        <div style={{ width: 64, height: 64, backgroundColor: '#0747A6', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 24 }}>
+        <div style={{ width: 64, height: 64, backgroundColor: '#422670', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 24 }}>
           <span style={{ color: '#fff', fontWeight: 'bold', fontSize: 32 }}>MK</span>
         </div>
         <h1 style={{ fontSize: 28, fontWeight: 700, color: '#172B4D', margin: '0 0 12px' }}>Approval Pending</h1>

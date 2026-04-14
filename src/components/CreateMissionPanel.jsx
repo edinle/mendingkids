@@ -44,7 +44,7 @@ function TextInput({ placeholder, value, onChange, type = 'text' }) {
       onBlur={() => setFocused(false)}
       style={{
         width: '100%', height: 36, padding: '0 10px',
-        border: `1px solid ${focused ? '#0747A6' : '#d9d9d9'}`,
+        border: `1px solid ${focused ? '#422670' : '#d9d9d9'}`,
         borderRadius: 4, fontSize: 14, fontFamily: 'inherit',
         outline: 'none', boxSizing: 'border-box',
         backgroundColor: '#fff',
@@ -64,7 +64,7 @@ function SelectInput({ placeholder, options, value, onChange }) {
         onBlur={() => setFocused(false)}
         style={{
           width: '100%', height: 36, padding: '0 10px',
-          border: `1px solid ${focused ? '#0747A6' : '#d9d9d9'}`,
+          border: `1px solid ${focused ? '#422670' : '#d9d9d9'}`,
           borderRadius: 4, fontSize: 14, fontFamily: 'inherit',
           outline: 'none', appearance: 'none', cursor: 'pointer',
           backgroundColor: '#fff', color: value ? '#172B4D' : '#8590A2',
@@ -206,7 +206,7 @@ function Step1({ form, setForm, onCancel, onNext }) {
           style={{
             height: 36, padding: '0 16px',
             border: 'none', borderRadius: 4,
-            background: form.name && form.category && form.doctorName && form.doctorEmail ? '#0747A6' : '#e8e8e8',
+            background: form.name && form.category && form.doctorName && form.doctorEmail ? '#422670' : '#e8e8e8',
             color: form.name && form.category && form.doctorName && form.doctorEmail ? '#fff' : '#8590A2',
             cursor: 'pointer', fontSize: 14, fontFamily: 'inherit',
             display: 'flex', alignItems: 'center', gap: 6,
@@ -295,7 +295,7 @@ function Step2({ form, onCancel, onBack, onSkip }) {
                 type="checkbox"
                 checked={!!selected[item.id]}
                 onChange={() => toggle(item.id)}
-                style={{ width: 16, height: 16, cursor: 'pointer', accentColor: '#0747A6' }}
+                style={{ width: 16, height: 16, cursor: 'pointer', accentColor: '#422670' }}
               />
               {item.qty > 0 ? (
                 <span style={{
@@ -333,7 +333,7 @@ function Step2({ form, onCancel, onBack, onSkip }) {
           </button>
           <button
             onClick={onSkip}
-            style={{ height: 36, padding: '0 16px', border: 'none', borderRadius: 4, background: '#0747A6', color: '#fff', cursor: 'pointer', fontSize: 14, fontFamily: 'inherit', fontWeight: 500 }}
+            style={{ height: 36, padding: '0 16px', border: 'none', borderRadius: 4, background: '#422670', color: '#fff', cursor: 'pointer', fontSize: 14, fontFamily: 'inherit', fontWeight: 500 }}
           >
             Skip
           </button>
