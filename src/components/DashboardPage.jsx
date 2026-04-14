@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../utils/supabase';
 import { PageLayout, Content, Main, LeftSidebar, TopNavigation } from '@atlaskit/page-layout';
@@ -22,10 +23,22 @@ const DEFAULT_ORDER = ['missions','alerts','calendar','activity'];
 
 function InfoTooltip({ text }) {
   const [show, setShow] = useState(false);
+  const btnRef = useRef(null);
+  const [pos, setPos] = useState({ top: 0, left: 0 });
+
+  const handleEnter = () => {
+    if (btnRef.current) {
+      const rect = btnRef.current.getBoundingClientRect();
+      setPos({ top: rect.top + rect.height / 2, left: rect.right + 8 });
+    }
+    setShow(true);
+  };
+
   return (
     <div style={{ position:'relative', display:'inline-flex', alignItems:'center' }}>
       <button
-        onMouseEnter={() => setShow(true)} onMouseLeave={() => setShow(false)}
+        ref={btnRef}
+        onMouseEnter={handleEnter} onMouseLeave={() => setShow(false)}
         style={{ background:'none', border:'none', cursor:'pointer', padding:'0 0 0 5px', color:'#8590A2', display:'flex', alignItems:'center' }}
       >
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
@@ -34,15 +47,16 @@ function InfoTooltip({ text }) {
           <circle cx="7" cy="4.5" r="0.65" fill="currentColor"/>
         </svg>
       </button>
-      {show && (
+      {show && createPortal(
         <div style={{
-          position:'absolute', left:'110%', top:'50%', transform:'translateY(-50%)',
-          zIndex:200, width:230, backgroundColor:'#172B4D', color:'#fff',
+          position:'fixed', left:pos.left, top:pos.top, transform:'translateY(-50%)',
+          zIndex:10000, width:230, backgroundColor:'#172B4D', color:'#fff',
           borderRadius:5, padding:'9px 13px', fontSize:12, lineHeight:1.55,
           boxShadow:'0 4px 16px rgba(9,30,66,0.22)', pointerEvents:'none',
         }}>
           {text}
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
@@ -189,6 +203,9 @@ function MissionCard({ mission, onClick }) {
 
 // ─── Calendar ─────────────────────────────────────────────────────────────────
 
+const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const MONTH_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
 function buildEvents(missions, year, month) {
   const events = {};
   missions.forEach(m => {
@@ -210,66 +227,95 @@ function buildEvents(missions, year, month) {
   return events;
 }
 
-function CalendarWidget({ missions, onDayClick }) {
+function getMissionsForMonth(missions, year, month) {
+  return missions.filter(m => {
+    if (!m.dates) return false;
+    const match = m.dates.match(/(\w{3})\s+(\d+)\s*[-–]\s*(\w{3})\s+(\d+),?\s*(\d{4})/);
+    if (!match) return false;
+    const [, sM, sD, eM, eD, yr] = match;
+    const start = new Date(parseInt(yr), MONTH_MAP[sM]??0, parseInt(sD));
+    const end   = new Date(parseInt(yr), MONTH_MAP[eM]??0, parseInt(eD));
+    const monthStart = new Date(year, month, 1);
+    const monthEnd = new Date(year, month + 1, 0);
+    return start <= monthEnd && end >= monthStart;
+  });
+}
+
+function ChevronLeft({ size = 16 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 16 16" fill="none">
+      <path d="M10 3L5 8l5 5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  );
+}
+
+function ChevronRight({ size = 16 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 16 16" fill="none">
+      <path d="M6 3l5 5-5 5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  );
+}
+
+function ExpandIcon({ size = 14 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 16 16" fill="none">
+      <path d="M2 10v4h4M14 6V2h-4M2 10l4.5-4.5M14 6l-4.5 4.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  );
+}
+
+function CalendarGrid({ missions, year, month, onDayClick, cellHeight = 42, fontSize = 12, dotSize = 4 }) {
   const now = new Date();
-  const year = now.getFullYear(), month = now.getMonth(), todayDay = now.getDate();
-  const monthName = now.toLocaleString('default', { month:'long' });
+  const todayDay = (now.getFullYear() === year && now.getMonth() === month) ? now.getDate() : -1;
 
   const firstDay = new Date(year, month, 1).getDay();
-  const daysInMonth = new Date(year, month+1, 0).getDate();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
   const allDays = [...Array(firstDay).fill(null)];
-  for (let d=1; d<=daysInMonth; d++) allDays.push(d);
-  while (allDays.length%7) allDays.push(null);
-  const weeks = [];
-  for (let i=0; i<allDays.length; i+=7) weeks.push(allDays.slice(i,i+7));
+  for (let d = 1; d <= daysInMonth; d++) allDays.push(d);
+  while (allDays.length % 7) allDays.push(null);
 
   const events = buildEvents(missions, year, month);
-  const monthMissions = missions.filter(m => m.dates && m.dates.includes(monthName.slice(0,3)));
 
   return (
-    <div>
-      <span style={{ fontSize:15, fontWeight:600, color:'#000', display:'block', marginBottom:4 }}>
-        {monthName} {year}
-      </span>
-      <SectionSubtitle>Mission dates this month. Click a highlighted date to see active missions.</SectionSubtitle>
-
+    <>
       <div style={{ display:'grid', gridTemplateColumns:'repeat(7,1fr)', textAlign:'center', marginBottom:4 }}>
         {['Su','Mo','Tu','We','Th','Fr','Sa'].map(d => (
-          <span key={d} style={{ fontSize:10, fontWeight:700, color:'#626F86', padding:'3px 0' }}>{d}</span>
+          <span key={d} style={{ fontSize: Math.max(10, fontSize - 2), fontWeight:700, color:'#626F86', padding:'3px 0' }}>{d}</span>
         ))}
       </div>
 
       <div style={{ display:'grid', gridTemplateColumns:'repeat(7,1fr)', gap:'1px', backgroundColor:'#EBECF0', border:'1px solid #EBECF0', borderRadius:4, overflow:'hidden' }}>
-        {weeks.flat().map((day, i) => {
-          const isToday = day===todayDay;
+        {allDays.map((day, i) => {
+          const isToday = day === todayDay;
           const dayEvents = day ? events[day] : null;
-          const hasEvents = !!(dayEvents&&dayEvents.length);
+          const hasEvents = !!(dayEvents && dayEvents.length);
           return (
             <div
               key={i}
-              onClick={() => hasEvents && onDayClick(day)}
+              onClick={() => hasEvents && onDayClick && onDayClick(day)}
               style={{
-                height:42,
-                backgroundColor: day?(isToday?'#F4F5FF':'#fff'):'#FBFBFC',
+                height: cellHeight,
+                backgroundColor: day ? (isToday ? '#F4F5FF' : '#fff') : '#FBFBFC',
                 display:'flex', flexDirection:'column',
                 alignItems:'center', justifyContent:'center',
-                cursor: hasEvents?'pointer':'default',
+                cursor: hasEvents ? 'pointer' : 'default',
                 transition:'background-color 0.1s',
               }}
-              onMouseEnter={e => { if(hasEvents&&day) e.currentTarget.style.backgroundColor='#F4F5F7'; }}
-              onMouseLeave={e => { if(day) e.currentTarget.style.backgroundColor=isToday?'#F4F5FF':'#fff'; }}
+              onMouseEnter={e => { if (hasEvents && day) e.currentTarget.style.backgroundColor='#F4F5F7'; }}
+              onMouseLeave={e => { if (day) e.currentTarget.style.backgroundColor = isToday ? '#F4F5FF' : '#fff'; }}
             >
               {day && (
                 <>
                   <span style={{
-                    fontSize:12, marginBottom:dayEvents?2:0,
-                    fontWeight:isToday?700:hasEvents?600:400,
-                    color:isToday?'#422670':hasEvents?'#172B4D':'#8590A2',
+                    fontSize, marginBottom: dayEvents ? 2 : 0,
+                    fontWeight: isToday ? 700 : hasEvents ? 600 : 400,
+                    color: isToday ? '#422670' : hasEvents ? '#172B4D' : '#8590A2',
                   }}>{day}</span>
                   {dayEvents && (
                     <div style={{ display:'flex', gap:2 }}>
-                      {dayEvents.slice(0,3).map((c,ci) => (
-                        <div key={ci} style={{ width:4, height:4, borderRadius:'50%', backgroundColor:c }}/>
+                      {dayEvents.slice(0, 3).map((c, ci) => (
+                        <div key={ci} style={{ width: dotSize, height: dotSize, borderRadius:'50%', backgroundColor:c }}/>
                       ))}
                     </div>
                   )}
@@ -279,10 +325,58 @@ function CalendarWidget({ missions, onDayClick }) {
           );
         })}
       </div>
+    </>
+  );
+}
 
-      {monthMissions.length>0 && (
+function CalendarWidget({ missions, year, month, onPrevMonth, onNextMonth, onDayClick, onExpand }) {
+  const monthMissions = getMissionsForMonth(missions, year, month);
+
+  return (
+    <div>
+      {/* Month navigation header */}
+      <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:4 }}>
+        <div style={{ display:'flex', alignItems:'center', gap:4 }}>
+          <button
+            onClick={onPrevMonth}
+            style={{ background:'none', border:'none', cursor:'pointer', padding:4, borderRadius:4, color:'#626F86', display:'flex', alignItems:'center', transition:'color 0.12s' }}
+            onMouseEnter={e => e.currentTarget.style.color='#172B4D'}
+            onMouseLeave={e => e.currentTarget.style.color='#626F86'}
+            title="Previous month"
+          >
+            <ChevronLeft size={16}/>
+          </button>
+          <span style={{ fontSize:15, fontWeight:600, color:'#000', minWidth:120, textAlign:'center' }}>
+            {MONTH_NAMES[month]} {year}
+          </span>
+          <button
+            onClick={onNextMonth}
+            style={{ background:'none', border:'none', cursor:'pointer', padding:4, borderRadius:4, color:'#626F86', display:'flex', alignItems:'center', transition:'color 0.12s' }}
+            onMouseEnter={e => e.currentTarget.style.color='#172B4D'}
+            onMouseLeave={e => e.currentTarget.style.color='#626F86'}
+            title="Next month"
+          >
+            <ChevronRight size={16}/>
+          </button>
+        </div>
+        <button
+          onClick={onExpand}
+          style={{ background:'none', border:'1px solid #d9d9d9', cursor:'pointer', padding:'4px 8px', borderRadius:4, color:'#626F86', display:'flex', alignItems:'center', gap:5, fontSize:11, fontWeight:500, fontFamily:'inherit', transition:'all 0.12s' }}
+          onMouseEnter={e => { e.currentTarget.style.borderColor='#422670'; e.currentTarget.style.color='#422670'; }}
+          onMouseLeave={e => { e.currentTarget.style.borderColor='#d9d9d9'; e.currentTarget.style.color='#626F86'; }}
+          title="Expand calendar"
+        >
+          <ExpandIcon size={12}/>
+          Expand
+        </button>
+      </div>
+      <SectionSubtitle>Mission dates this month. Click a highlighted date to see active missions.</SectionSubtitle>
+
+      <CalendarGrid missions={missions} year={year} month={month} onDayClick={onDayClick}/>
+
+      {monthMissions.length > 0 && (
         <div style={{ marginTop:14, display:'flex', flexDirection:'column', gap:7 }}>
-          {monthMissions.slice(0,3).map(m => (
+          {monthMissions.slice(0, 3).map(m => (
             <div key={m.id} style={{ display:'flex', alignItems:'center', gap:8 }}>
               <div style={{ width:8, height:8, borderRadius:'50%', backgroundColor:SPECIALTY_COLORS[m.specialty]||'#626F86', flexShrink:0 }}/>
               <span style={{ fontSize:12, color:'#44546F', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{m.name}</span>
@@ -291,6 +385,218 @@ function CalendarWidget({ missions, onDayClick }) {
         </div>
       )}
     </div>
+  );
+}
+
+// ─── Calendar Modal ───────────────────────────────────────────────────────────
+
+function CalendarModal({ isOpen, onClose, missions, initialYear, initialMonth, onDayClick, navigate }) {
+  const [year, setYear] = useState(initialYear);
+  const [month, setMonth] = useState(initialMonth);
+  const [selectedDay, setSelectedDay] = useState(null);
+
+  useEffect(() => {
+    if (isOpen) {
+      setYear(initialYear);
+      setMonth(initialMonth);
+      setSelectedDay(null);
+    }
+  }, [isOpen, initialYear, initialMonth]);
+
+  if (!isOpen) return null;
+
+  const prevMonth = () => {
+    if (month === 0) { setMonth(11); setYear(y => y - 1); }
+    else setMonth(m => m - 1);
+    setSelectedDay(null);
+  };
+  const nextMonth = () => {
+    if (month === 11) { setMonth(0); setYear(y => y + 1); }
+    else setMonth(m => m + 1);
+    setSelectedDay(null);
+  };
+  const goToToday = () => {
+    const now = new Date();
+    setYear(now.getFullYear());
+    setMonth(now.getMonth());
+    setSelectedDay(null);
+  };
+
+  const handleDayClick = (day) => {
+    setSelectedDay(day);
+  };
+
+  const monthMissions = getMissionsForMonth(missions, year, month);
+  const dayMissions = selectedDay ? missions.filter(m => {
+    if (!m.dates) return false;
+    const match = m.dates.match(/(\w{3})\s+(\d+)\s*[-–]\s*(\w{3})\s+(\d+),?\s*(\d{4})/);
+    if (!match) return false;
+    const [, sM, sD, eM, eD, yr] = match;
+    const start = new Date(parseInt(yr), MONTH_MAP[sM]??0, parseInt(sD));
+    const end   = new Date(parseInt(yr), MONTH_MAP[eM]??0, parseInt(eD));
+    const check = new Date(year, month, selectedDay);
+    return check >= start && check <= end;
+  }) : [];
+
+  return createPortal(
+    <div
+      style={{
+        position:'fixed', inset:0, zIndex:9000,
+        backgroundColor:'rgba(9,30,66,0.54)',
+        display:'flex', alignItems:'center', justifyContent:'center',
+        animation:'fadeIn 0.2s ease',
+      }}
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+    >
+      <div style={{
+        backgroundColor:'#fff', borderRadius:10,
+        width:'min(800px, 90vw)', maxHeight:'90vh',
+        display:'flex', flexDirection:'column',
+        boxShadow:'0 12px 48px rgba(9,30,66,0.25), 0 2px 8px rgba(9,30,66,0.08)',
+        animation:'slideUp 0.25s ease',
+        overflow:'hidden',
+      }}>
+        {/* Header */}
+        <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'20px 24px', borderBottom:'1px solid #E8E8E8' }}>
+          <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+            <h2 style={{ margin:0, fontSize:20, fontWeight:700, color:'#172B4D' }}>Mission Calendar</h2>
+          </div>
+          <button
+            onClick={onClose}
+            style={{ background:'none', border:'none', cursor:'pointer', padding:6, borderRadius:4, color:'#626F86', display:'flex', alignItems:'center', transition:'color 0.12s' }}
+            onMouseEnter={e => e.currentTarget.style.color='#172B4D'}
+            onMouseLeave={e => e.currentTarget.style.color='#626F86'}
+          >
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <path d="M5 5l10 10M15 5L5 15" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
+            </svg>
+          </button>
+        </div>
+
+        {/* Body */}
+        <div style={{ flex:1, overflowY:'auto', padding:'20px 24px 24px', display:'flex', gap:24 }}>
+          {/* Calendar side */}
+          <div style={{ flex:1, minWidth:0 }}>
+            {/* Month navigation */}
+            <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:16 }}>
+              <div style={{ display:'flex', alignItems:'center', gap:6 }}>
+                <button
+                  onClick={prevMonth}
+                  style={{ background:'none', border:'1px solid #d9d9d9', cursor:'pointer', padding:'6px 8px', borderRadius:4, color:'#44546F', display:'flex', alignItems:'center', transition:'all 0.12s' }}
+                  onMouseEnter={e => { e.currentTarget.style.borderColor='#422670'; e.currentTarget.style.color='#422670'; }}
+                  onMouseLeave={e => { e.currentTarget.style.borderColor='#d9d9d9'; e.currentTarget.style.color='#44546F'; }}
+                >
+                  <ChevronLeft size={18}/>
+                </button>
+                <span style={{ fontSize:18, fontWeight:700, color:'#172B4D', minWidth:160, textAlign:'center' }}>
+                  {MONTH_NAMES[month]} {year}
+                </span>
+                <button
+                  onClick={nextMonth}
+                  style={{ background:'none', border:'1px solid #d9d9d9', cursor:'pointer', padding:'6px 8px', borderRadius:4, color:'#44546F', display:'flex', alignItems:'center', transition:'all 0.12s' }}
+                  onMouseEnter={e => { e.currentTarget.style.borderColor='#422670'; e.currentTarget.style.color='#422670'; }}
+                  onMouseLeave={e => { e.currentTarget.style.borderColor='#d9d9d9'; e.currentTarget.style.color='#44546F'; }}
+                >
+                  <ChevronRight size={18}/>
+                </button>
+              </div>
+              <button
+                onClick={goToToday}
+                style={{ background:'#F3F0FF', border:'1px solid #c4b5e0', cursor:'pointer', padding:'5px 14px', borderRadius:4, color:'#422670', fontSize:13, fontWeight:500, fontFamily:'inherit', transition:'all 0.12s' }}
+                onMouseEnter={e => { e.currentTarget.style.backgroundColor='#EDE9FF'; }}
+                onMouseLeave={e => { e.currentTarget.style.backgroundColor='#F3F0FF'; }}
+              >
+                Today
+              </button>
+            </div>
+
+            <CalendarGrid
+              missions={missions}
+              year={year}
+              month={month}
+              onDayClick={handleDayClick}
+              cellHeight={56}
+              fontSize={14}
+              dotSize={6}
+            />
+
+            {/* Specialty legend */}
+            <div style={{ marginTop:16, display:'flex', flexWrap:'wrap', gap:12 }}>
+              {Object.entries(SPECIALTY_COLORS).map(([label, color]) => (
+                <div key={label} style={{ display:'flex', alignItems:'center', gap:6 }}>
+                  <div style={{ width:8, height:8, borderRadius:'50%', backgroundColor:color }}/>
+                  <span style={{ fontSize:12, color:'#44546F' }}>{label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Right sidebar — missions for selected day or month missions list */}
+          <div style={{ width:240, flexShrink:0, borderLeft:'1px solid #E8E8E8', paddingLeft:20 }}>
+            {selectedDay ? (
+              <>
+                <h3 style={{ margin:'0 0 4px', fontSize:14, fontWeight:700, color:'#172B4D' }}>
+                  {MONTH_NAMES[month]} {selectedDay}
+                </h3>
+                <p style={{ margin:'0 0 14px', fontSize:12, color:'#626F86' }}>
+                  {dayMissions.length} mission{dayMissions.length !== 1 ? 's' : ''} active
+                </p>
+                {dayMissions.length === 0 ? (
+                  <p style={{ fontSize:13, color:'#8590A2' }}>No missions on this date.</p>
+                ) : (
+                  <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
+                    {dayMissions.map(m => (
+                      <div
+                        key={m.id}
+                        onClick={() => navigate(`/missions/${m.id}`)}
+                        onMouseEnter={e => e.currentTarget.style.borderColor='#b7b9be'}
+                        onMouseLeave={e => e.currentTarget.style.borderColor='#e8e8e8'}
+                        style={{ border:'1px solid #e8e8e8', borderRadius:6, padding:10, cursor:'pointer', transition:'border-color 0.12s' }}
+                      >
+                        <div style={{ fontSize:13, fontWeight:600, color:'#172B4D', marginBottom:4 }}>{m.name}</div>
+                        <CategoryBadge label={m.specialty||'General'} color={SPECIALTY_COLORS[m.specialty]||'#626F86'}/>
+                        <div style={{ fontSize:11, color:'#626F86', marginTop:6 }}>{m.dates}</div>
+                        <div style={{ marginTop:4 }}><StatusBadge status={m.status}/></div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </>
+            ) : (
+              <>
+                <h3 style={{ margin:'0 0 4px', fontSize:14, fontWeight:700, color:'#172B4D' }}>This Month</h3>
+                <p style={{ margin:'0 0 14px', fontSize:12, color:'#626F86' }}>
+                  {monthMissions.length} mission{monthMissions.length !== 1 ? 's' : ''} scheduled
+                </p>
+                {monthMissions.length === 0 ? (
+                  <p style={{ fontSize:13, color:'#8590A2' }}>No missions this month.</p>
+                ) : (
+                  <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
+                    {monthMissions.map(m => (
+                      <div
+                        key={m.id}
+                        onClick={() => navigate(`/missions/${m.id}`)}
+                        onMouseEnter={e => e.currentTarget.style.backgroundColor='#FAFBFC'}
+                        onMouseLeave={e => e.currentTarget.style.backgroundColor='transparent'}
+                        style={{ display:'flex', alignItems:'center', gap:8, padding:'6px 8px', borderRadius:4, cursor:'pointer', transition:'background-color 0.12s' }}
+                      >
+                        <div style={{ width:8, height:8, borderRadius:'50%', backgroundColor:SPECIALTY_COLORS[m.specialty]||'#626F86', flexShrink:0 }}/>
+                        <div style={{ flex:1, minWidth:0 }}>
+                          <div style={{ fontSize:13, color:'#172B4D', fontWeight:500, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{m.name}</div>
+                          <div style={{ fontSize:11, color:'#8590A2' }}>{m.dates || 'TBD'}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <p style={{ marginTop:12, fontSize:11, color:'#8590A2' }}>Click a highlighted date to see details.</p>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>,
+    document.body
   );
 }
 
@@ -537,6 +843,9 @@ function CalendarDayPanel({ data, navigate }) {
 export default function DashboardPage({ user, onSwitchAccount, onLogout }) {
   const navigate = useNavigate();
   const [panel, setPanel]           = useState({ type:null, data:null });
+  const [calYear, setCalYear]       = useState(() => new Date().getFullYear());
+  const [calMonth, setCalMonth]     = useState(() => new Date().getMonth());
+  const [calModalOpen, setCalModalOpen] = useState(false);
   const [mobileMenuOpen, setMobile] = useState(false);
   const [missionTab, setMissionTab] = useState('ongoing');
   const [editMode, setEditMode]     = useState(false);
@@ -617,8 +926,7 @@ export default function DashboardPage({ user, onSwitchAccount, onLogout }) {
   };
 
   const getMissionsForDay = (day) => {
-    const now = new Date();
-    const check = new Date(now.getFullYear(), now.getMonth(), day);
+    const check = new Date(calYear, calMonth, day);
     return [...ongoingMissions,...upcomingMissions].filter(m => {
       if (!m.dates) return false;
       const match = m.dates.match(/(\w{3})\s+(\d+)\s*[-–]\s*(\w{3})\s+(\d+),?\s*(\d{4})/);
@@ -628,6 +936,15 @@ export default function DashboardPage({ user, onSwitchAccount, onLogout }) {
       const end   = new Date(parseInt(yr), MONTH_MAP[eM]??0, parseInt(eD));
       return check>=start && check<=end;
     });
+  };
+
+  const prevCalMonth = () => {
+    if (calMonth === 0) { setCalMonth(11); setCalYear(y => y - 1); }
+    else setCalMonth(m => m - 1);
+  };
+  const nextCalMonth = () => {
+    if (calMonth === 11) { setCalMonth(0); setCalYear(y => y + 1); }
+    else setCalMonth(m => m + 1);
   };
 
   // Drag handlers
@@ -734,9 +1051,17 @@ export default function DashboardPage({ user, onSwitchAccount, onLogout }) {
       <div style={{ padding:'16px 20px' }}>
         <SectionHeader
           title="Mission Calendar"
-          tooltip="Shows mission date ranges for this month. Dots = specialty color. Click a highlighted date to see which missions are active on that day."
+          tooltip="Shows mission date ranges for this month. Dots = specialty color. Click a highlighted date to see which missions are active on that day. Use arrows to change months or Expand for a larger view."
         />
-        <CalendarWidget missions={allMissions} onDayClick={day => openPanel('calendarDay',{day,missions:getMissionsForDay(day)})}/>
+        <CalendarWidget
+          missions={allMissions}
+          year={calYear}
+          month={calMonth}
+          onPrevMonth={prevCalMonth}
+          onNextMonth={nextCalMonth}
+          onDayClick={day => openPanel('calendarDay',{day,missions:getMissionsForDay(day)})}
+          onExpand={() => setCalModalOpen(true)}
+        />
       </div>
     ),
 
@@ -842,6 +1167,16 @@ export default function DashboardPage({ user, onSwitchAccount, onLogout }) {
         {panel.type==='activity'    && <ActivityDetailPanel  entry={panel.data}/>}
         {panel.type==='calendarDay' && <CalendarDayPanel     data={panel.data}     navigate={navigate}/>}
       </SlidePanel>
+
+      <CalendarModal
+        isOpen={calModalOpen}
+        onClose={() => setCalModalOpen(false)}
+        missions={allMissions}
+        initialYear={calYear}
+        initialMonth={calMonth}
+        onDayClick={day => openPanel('calendarDay',{day,missions:getMissionsForDay(day)})}
+        navigate={navigate}
+      />
     </PageLayout>
   );
 }
