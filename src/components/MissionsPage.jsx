@@ -14,7 +14,7 @@ import Button from '@atlaskit/button';
 // Missions data is now fetched from Supabase.
 
 const SPECIALTY_COLORS = {
-  'Plastics': { bg: '#F3F0FF', text: '#5E4DB2' },
+  'Plastics': { bg: '#DEEBFF', text: '#0747A6' },
   'Ortho':    { bg: '#E9F2FF', text: '#0055CC' },
   'Cardiac':  { bg: '#FFF3EB', text: '#974F0C' },
   'General':  { bg: '#E3FCEF', text: '#006644' },
@@ -45,8 +45,8 @@ function DropItem({ label, active, onClick }) {
       onMouseLeave={() => setHov(false)}
       style={{
         display: 'block', width: '100%', padding: '7px 12px', border: 'none',
-        background: active ? '#F3F0FF' : hov ? '#FAFBFC' : 'transparent',
-        color: active ? '#422670' : '#172B4D',
+        background: active ? '#DEEBFF' : hov ? '#FAFBFC' : 'transparent',
+        color: active ? '#0747A6' : '#172B4D',
         fontSize: 13, fontFamily: 'inherit', textAlign: 'left',
         fontWeight: active ? 600 : 400, cursor: 'pointer',
       }}
@@ -321,7 +321,7 @@ export default function MissionsPage({ user, onSwitchAccount, onLogout }) {
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <button
                   onClick={() => setCreateOpen(true)}
-                  style={{ height: 32, padding: '0 16px', backgroundColor: '#422670', color: '#fff', border: 'none', borderRadius: 4, fontSize: 14, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit' }}
+                  style={{ height: 32, padding: '0 16px', backgroundColor: '#0747A6', color: '#fff', border: 'none', borderRadius: 4, fontSize: 14, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit' }}
                 >
                   Create Mission
                 </button>

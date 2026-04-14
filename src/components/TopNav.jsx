@@ -17,10 +17,10 @@ import InfoIcon from '@atlaskit/icon/core/information';
 
 // Inline SVG data URLs for logo (purple box with "MK" text)
 const LOGO_URL =
-  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='124' height='32' viewBox='0 0 124 32'%3E%3Crect width='124' height='32' rx='6' fill='%23251343'/%3E%3Ctext x='62' y='21' font-family='Arial' font-size='13' font-weight='700' fill='white' text-anchor='middle'%3EMENDING KIDS%3C/text%3E%3C/svg%3E";
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='124' height='32' viewBox='0 0 124 32'%3E%3Crect width='124' height='32' rx='6' fill='%23032966'/%3E%3Ctext x='62' y='21' font-family='Arial' font-size='13' font-weight='700' fill='white' text-anchor='middle'%3EMENDING KIDS%3C/text%3E%3C/svg%3E";
 
 const ICON_URL =
-  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23251343'/%3E%3Ctext x='16' y='21' font-family='Arial' font-size='11' font-weight='700' fill='white' text-anchor='middle'%3EMK%3C/text%3E%3C/svg%3E";
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23032966'/%3E%3Ctext x='16' y='21' font-family='Arial' font-size='11' font-weight='700' fill='white' text-anchor='middle'%3EMK%3C/text%3E%3C/svg%3E";
 
 const NotificationBadge = () => (
   <span style={{
@@ -112,7 +112,7 @@ const NavProfile = ({ user, onSwitchAccount, onLogout }) => {
         icon={() => (
           <span style={{
             width: 24, height: 24, borderRadius: '50%',
-            backgroundColor: '#6554C0',
+            backgroundColor: '#0747A6',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             fontSize: 11, fontWeight: 600, color: '#fff', cursor: 'pointer'
           }}>{user?.name?.charAt(0).toUpperCase()}</span>

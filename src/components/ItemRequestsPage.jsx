@@ -161,7 +161,7 @@ export default function ItemRequestsPage({ user, onSwitchAccount, onLogout }) {
               <h1 style={{ margin: 0, fontSize: 24, fontWeight: 600, color: token('color.text', '#172B4D') }}>Item Requests</h1>
               <button 
                 onClick={() => setFormOpen(true)}
-                style={{ height: 32, padding: '0 16px', backgroundColor: '#422670', color: '#fff', border: 'none', borderRadius: 4, fontSize: 14, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit' }}>
+                style={{ height: 32, padding: '0 16px', backgroundColor: '#0747A6', color: '#fff', border: 'none', borderRadius: 4, fontSize: 14, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit' }}>
                 New Request
               </button>
             </div>

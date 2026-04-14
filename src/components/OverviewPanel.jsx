@@ -54,9 +54,9 @@ StatusDot.propTypes = { status: PropTypes.string };
 const ACTIVITY_CONFIGS = {
   added:   { bg: '#DCFFF1', color: '#216E4E' },
   removed: { bg: '#FFEDEB', color: '#AE2E24' },
-  mission: { bg: '#EADEFA', color: '#422670' },
+  mission: { bg: '#B3D4FF', color: '#0747A6' },
   expired: { bg: '#FFF3EB', color: '#E56910' },
-  updated: { bg: '#F3F0FF', color: '#5E4DB2' },
+  updated: { bg: '#DEEBFF', color: '#0747A6' },
 };
 
 function ActivityIcon({ type }) {
@@ -171,7 +171,7 @@ function TabBar({ active, onChange }) {
               background: 'none', border: 'none', cursor: 'pointer',
               fontSize: 13, fontWeight: isActive ? 600 : 400,
               fontFamily: 'inherit',
-              color: isActive ? '#422670' : token('color.text.subtle', '#505258'),
+              color: isActive ? '#0747A6' : token('color.text.subtle', '#505258'),
               position: 'relative', marginBottom: -2,
             }}
           >
@@ -179,7 +179,7 @@ function TabBar({ active, onChange }) {
             {isActive && (
               <span style={{
                 position: 'absolute', bottom: 0, left: 4, right: 4,
-                height: 3, backgroundColor: '#422670', borderRadius: '1px 1px 0 0',
+                height: 3, backgroundColor: '#0747A6', borderRadius: '1px 1px 0 0',
               }} />
             )}
           </button>
@@ -257,11 +257,11 @@ function OverviewTab({ totalQuantity, onAssign, onNewEntry, entries = [] }) {
       <div style={{ display: 'flex', gap: 8, marginBottom: 24 }}>
           <button
             onClick={onNewEntry}
-            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#331D58'}
-            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#422670'}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#043584'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#0747A6'}
             style={{
             flex: 1, height: 48, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-            backgroundColor: '#422670', color: '#fff', border: 'none', borderRadius: 4,
+            backgroundColor: '#0747A6', color: '#fff', border: 'none', borderRadius: 4,
             fontSize: 14, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit',
             transition: 'background-color 0.2s',
           }}>
@@ -366,10 +366,10 @@ function ActivityTab() {
 
   const btnStyle = (active) => ({
     minWidth: 24, height: 24, padding: '0 5px',
-    border: active ? '2px solid #422670' : '1px solid transparent',
+    border: active ? '2px solid #0747A6' : '1px solid transparent',
     borderRadius: 3, background: 'none', cursor: 'pointer',
     fontSize: 12, fontWeight: active ? 700 : 400,
-    color: active ? '#422670' : token('color.text', '#172B4D'),
+    color: active ? '#0747A6' : token('color.text', '#172B4D'),
     fontFamily: 'inherit',
   });
 
@@ -891,7 +891,7 @@ function DetailsTab({ isFullEdit, onExitFullEdit, item, onSave }) {
           }}>Cancel</button>
           <button onClick={saveAll} style={{
             padding: '4px 12px', borderRadius: 3,
-            border: 'none', background: '#422670',
+            border: 'none', background: '#0747A6',
             cursor: 'pointer', fontSize: 13, fontFamily: 'inherit', color: '#fff',
           }}>Save</button>
         </div>
@@ -1182,12 +1182,12 @@ export default function OverviewPanel({ isOpen, onClose, item, onEdit, onAssign,
           borderTop: `1px solid ${token('color.border', 'rgba(9,30,66,0.14)')}`,
         }}>
           <button
-            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#331D58'}
-            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#422670'}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#043584'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#0747A6'}
             style={{
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               height: 32, padding: '0 12px',
-              backgroundColor: '#422670', color: '#fff',
+              backgroundColor: '#0747A6', color: '#fff',
               border: 'none', borderRadius: 3,
               fontSize: 14, fontWeight: 500, fontFamily: 'inherit',
               cursor: 'pointer', transition: 'background-color 0.2s',

@@ -78,7 +78,7 @@ export default function ReportsPage({ user, onSwitchAccount, onLogout }) {
           <div className="main-content">
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
               <h1 style={{ margin: 0, fontSize: 24, fontWeight: 600, color: token('color.text', '#172B4D') }}>Reports & Analytics</h1>
-              <button style={{ height: 32, padding: '0 16px', backgroundColor: '#422670', color: '#fff', border: 'none', borderRadius: 4, fontSize: 14, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit' }}>
+              <button style={{ height: 32, padding: '0 16px', backgroundColor: '#0747A6', color: '#fff', border: 'none', borderRadius: 4, fontSize: 14, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit' }}>
                 Create Custom Report
               </button>
             </div>

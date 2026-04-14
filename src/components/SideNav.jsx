@@ -46,7 +46,7 @@ export default function SideNav({ user, onSwitchAccount, onLogout, accountOnly =
         onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}
       >
         <div style={{ 
-          width: 32, height: 32, backgroundColor: '#6554C0', color: '#fff', 
+          width: 32, height: 32, backgroundColor: '#0747A6', color: '#fff', 
           borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
           fontSize: 14, fontWeight: 600, flexShrink: 0
         }}>

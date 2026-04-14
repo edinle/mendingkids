@@ -843,7 +843,7 @@ export default function ItemPanel({ isOpen, onClose, onSave, isEdit, baseItem, u
           <div style={{
             height: '100%',
             width: `${(step / TOTAL_STEPS) * 100}%`,
-            backgroundColor: '#422670',
+            backgroundColor: '#0747A6',
             transition: 'width 0.3s ease',
           }} />
         </div>
@@ -956,7 +956,7 @@ function footerBtnPrimary() {
   return {
     display: 'flex', alignItems: 'center', gap: 6,
     padding: '6px 16px', borderRadius: 4,
-    border: 'none', backgroundColor: '#422670',
+    border: 'none', backgroundColor: '#0747A6',
     cursor: 'pointer', fontSize: 14, fontFamily: 'inherit', color: '#fff',
     fontWeight: 500,
   };

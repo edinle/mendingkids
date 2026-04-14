@@ -94,7 +94,7 @@ function MissionBadge({ mission }) {
   if (!mission) return <span style={{ color: '#8590A2' }}>—</span>;
 
   const colorMap = {
-    'Benin Cleft Lip & Palate': { bg: '#F3F0FF', color: '#5E4DB2', border: '#DFD8FD' },
+    'Benin Cleft Lip & Palate': { bg: '#DEEBFF', color: '#0747A6', border: '#B3D4FF' },
     'Guatemala Orthopedic 2026': { bg: '#E9F2FF', color: '#0055CC', border: '#B3D4FF' },
     'Tanzania Cardiac Relief':   { bg: '#FFF3EB', color: '#974F0C', border: '#FAE1C7' },
   };
@@ -169,7 +169,7 @@ function FilterOption({ label, isSelected, onClick }) {
       style={{
         display: 'block', width: '100%', padding: '8px 12px',
         border: 'none', 
-        background: isSelected ? '#F3F0FF' : hover ? '#FAFBFC' : 'transparent',
+        background: isSelected ? '#DEEBFF' : hover ? '#FAFBFC' : 'transparent',
         cursor: 'pointer', fontSize: 13, fontFamily: 'inherit',
         color: token('color.text', '#172B4D'), textAlign: 'left',
         fontWeight: isSelected ? 600 : 400,
@@ -510,7 +510,7 @@ export default function InventoryPage({ user, onSwitchAccount, onLogout }) {
         ref={el => { if (el) el.indeterminate = isPartial; }}
         onChange={() => setSelectedIds(isAllSelected ? new Set() : new Set(filteredIds))}
         onClick={e => e.stopPropagation()}
-        style={{ cursor: 'pointer', accentColor: '#422670', width: 15, height: 15 }}
+        style={{ cursor: 'pointer', accentColor: '#0747A6', width: 15, height: 15 }}
       />
     ),
     width: 3,
@@ -528,7 +528,7 @@ export default function InventoryPage({ user, onSwitchAccount, onLogout }) {
           checked={selectedIds.has(row.id)}
           onChange={e => toggleSelectRow(row.id, e)}
           onClick={e => e.stopPropagation()}
-          style={{ cursor: 'pointer', accentColor: '#422670', width: 15, height: 15 }}
+          style={{ cursor: 'pointer', accentColor: '#0747A6', width: 15, height: 15 }}
         />
       ),
     };
@@ -619,12 +619,12 @@ export default function InventoryPage({ user, onSwitchAccount, onLogout }) {
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <BtnTooltip label="Add a new inventory item or shipment">
                   <button
-                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#331D58'}
-                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#422670'}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#043584'}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#0747A6'}
                     style={{
                       display: 'flex', alignItems: 'center', gap: 6,
                       height: 32, padding: '0 12px',
-                      backgroundColor: '#422670', color: '#fff',
+                      backgroundColor: '#0747A6', color: '#fff',
                       border: 'none', borderRadius: 3,
                       fontSize: 14, fontWeight: 500, fontFamily: 'inherit',
                       cursor: 'pointer', transition: 'background-color 0.2s',
@@ -673,7 +673,7 @@ export default function InventoryPage({ user, onSwitchAccount, onLogout }) {
                         cursor: 'pointer',
                         fontSize: 14,
                         fontWeight: isActive ? 600 : 400,
-                        color: isActive ? '#422670' : token('color.text.subtle', '#44546F'),
+                        color: isActive ? '#0747A6' : token('color.text.subtle', '#44546F'),
                         fontFamily: 'inherit',
                       }}
                     >
@@ -681,8 +681,8 @@ export default function InventoryPage({ user, onSwitchAccount, onLogout }) {
                       <span style={{
                         marginLeft: 6, padding: '1px 6px',
                         borderRadius: 10, fontSize: 11, fontWeight: 600,
-                        backgroundColor: isActive ? '#F3F0FF' : '#F1F2F4',
-                        color: isActive ? '#422670' : '#626F86',
+                        backgroundColor: isActive ? '#DEEBFF' : '#F1F2F4',
+                        color: isActive ? '#0747A6' : '#626F86',
                       }}>
                         {tab.key === 'available' ? availableCount : tab.key === 'in-use' ? inUseCount : archivedCount}
                       </span>
@@ -693,7 +693,7 @@ export default function InventoryPage({ user, onSwitchAccount, onLogout }) {
                           left: 4,
                           right: 4,
                           height: 3,
-                          backgroundColor: '#422670',
+                          backgroundColor: '#0747A6',
                           borderRadius: '1px 1px 0 0',
                         }} />
                       )}
@@ -746,18 +746,18 @@ export default function InventoryPage({ user, onSwitchAccount, onLogout }) {
               <div style={{
                 display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap',
                 padding: '10px 16px', marginBottom: 12,
-                backgroundColor: '#F3F0FF', border: '1px solid #c4b5e0', borderRadius: 6,
+                backgroundColor: '#DEEBFF', border: '1px solid #8ABAFF', borderRadius: 6,
               }}>
-                <span style={{ fontSize: 13, fontWeight: 600, color: '#422670' }}>
+                <span style={{ fontSize: 13, fontWeight: 600, color: '#0747A6' }}>
                   {selectedIds.size} item{selectedIds.size > 1 ? 's' : ''} selected
                 </span>
-                <div style={{ width: 1, height: 16, backgroundColor: '#c4b5e0' }} />
+                <div style={{ width: 1, height: 16, backgroundColor: '#8ABAFF' }} />
                 {activeTab !== 'archived' && <>
-                  <button onClick={() => handleBulkAction('archive')} style={{ padding: '4px 12px', border: '1px solid #c4b5e0', borderRadius: 4, background: '#fff', cursor: 'pointer', fontSize: 13, fontFamily: 'inherit', color: '#172B4D' }}>Archive</button>
-                  <button onClick={() => handleBulkAction('assign')} style={{ padding: '4px 12px', border: '1px solid #c4b5e0', borderRadius: 4, background: '#fff', cursor: 'pointer', fontSize: 13, fontFamily: 'inherit', color: '#172B4D' }}>Assign to Mission</button>
+                  <button onClick={() => handleBulkAction('archive')} style={{ padding: '4px 12px', border: '1px solid #8ABAFF', borderRadius: 4, background: '#fff', cursor: 'pointer', fontSize: 13, fontFamily: 'inherit', color: '#172B4D' }}>Archive</button>
+                  <button onClick={() => handleBulkAction('assign')} style={{ padding: '4px 12px', border: '1px solid #8ABAFF', borderRadius: 4, background: '#fff', cursor: 'pointer', fontSize: 13, fontFamily: 'inherit', color: '#172B4D' }}>Assign to Mission</button>
                 </>}
                 {activeTab === 'archived' &&
-                  <button onClick={() => handleBulkAction('restore')} style={{ padding: '4px 12px', border: '1px solid #c4b5e0', borderRadius: 4, background: '#fff', cursor: 'pointer', fontSize: 13, fontFamily: 'inherit', color: '#172B4D' }}>Restore</button>
+                  <button onClick={() => handleBulkAction('restore')} style={{ padding: '4px 12px', border: '1px solid #8ABAFF', borderRadius: 4, background: '#fff', cursor: 'pointer', fontSize: 13, fontFamily: 'inherit', color: '#172B4D' }}>Restore</button>
                 }
                 <button onClick={() => handleBulkAction('delete')} style={{ padding: '4px 12px', border: '1px solid #F87168', borderRadius: 4, background: '#fff', cursor: 'pointer', fontSize: 13, fontFamily: 'inherit', color: '#AE2E24' }}>Delete</button>
                 <div style={{ flex: 1 }} />

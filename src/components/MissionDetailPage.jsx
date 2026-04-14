@@ -13,8 +13,8 @@ import FilterDropdown from './FilterDropdown';
 // ─── Primitives ───────────────────────────────────────────────────────────────
 
 const CATEGORY_CHIPS = ['Syringes', 'Patches', 'Chest Tubes', 'Bandages'];
-const CHIP_COLORS = { Syringes: '#E9F2FF', Patches: '#FFF3EB', 'Chest Tubes': '#E3FCEF', Bandages: '#F3F0FF' };
-const CHIP_TEXT   = { Syringes: '#0055CC', Patches: '#974F0C', 'Chest Tubes': '#006644', Bandages: '#5E4DB2' };
+const CHIP_COLORS = { Syringes: '#E9F2FF', Patches: '#FFF3EB', 'Chest Tubes': '#E3FCEF', Bandages: '#DEEBFF' };
+const CHIP_TEXT   = { Syringes: '#0055CC', Patches: '#974F0C', 'Chest Tubes': '#006644', Bandages: '#0747A6' };
 
 // ─── Quantity Badge ───────────────────────────────────────────────────────────
 
@@ -117,7 +117,7 @@ function AddItemsPanel({ category = 'ENT', onClose, onNavigate, inventory = [], 
               borderBottom: '1px solid #f4f4f4',
               backgroundColor: selected[item.id] ? '#F8F6FF' : '#fff',
             }}>
-              <input type="checkbox" checked={!!selected[item.id]} onChange={() => toggle(item.id)} style={{ width: 16, height: 16, cursor: 'pointer', accentColor: '#422670' }} />
+              <input type="checkbox" checked={!!selected[item.id]} onChange={() => toggle(item.id)} style={{ width: 16, height: 16, cursor: 'pointer', accentColor: '#0747A6' }} />
               <span style={{ fontSize: 13, color: '#172B4D', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.description}</span>
               <span style={{ fontSize: 12, color: '#626F86' }}>{item.company}</span>
             </div>
@@ -146,7 +146,7 @@ function AddItemsPanel({ category = 'ENT', onClose, onNavigate, inventory = [], 
             }
           }}
           disabled={Object.values(selected).filter(Boolean).length === 0}
-          style={{ height: 36, padding: '0 16px', border: 'none', borderRadius: 4, background: '#422670', color: '#fff', cursor: 'pointer', fontSize: 14, fontFamily: 'inherit', fontWeight: 600 }}
+          style={{ height: 36, padding: '0 16px', border: 'none', borderRadius: 4, background: '#0747A6', color: '#fff', cursor: 'pointer', fontSize: 14, fontFamily: 'inherit', fontWeight: 600 }}
         >
           Add Selected
         </button>
@@ -181,7 +181,7 @@ function AddPersonPanel({ onClose, onAdd }) {
       </div>
       <div style={{ padding: '16px 24px', borderTop: `1px solid ${token('color.border', 'rgba(9,30,66,0.14)')}`, display: 'flex', justifyContent: 'flex-end', gap: 12, backgroundColor: '#fff' }}>
         <button onClick={onClose} style={{ height: 36, padding: '0 16px', background: '#fff', border: '1px solid #d9d9d9', borderRadius: 4, cursor: 'pointer', fontSize: 14 }}>Cancel</button>
-        <button onClick={() => { onAdd({ name, role, email }); onClose(); }} style={{ height: 36, padding: '0 16px', background: '#422670', color: '#fff', border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 14, fontWeight: 600 }}>Save Person</button>
+        <button onClick={() => { onAdd({ name, role, email }); onClose(); }} style={{ height: 36, padding: '0 16px', background: '#0747A6', color: '#fff', border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 14, fontWeight: 600 }}>Save Person</button>
       </div>
     </div>
   );
@@ -345,7 +345,7 @@ export default function MissionDetailPage({ user, onSwitchAccount, onLogout }) {
   const m = mission;
 
   const SPECIALTY_COLORS = {
-    'Plastics': { bg: '#F3F0FF', text: '#5E4DB2' },
+    'Plastics': { bg: '#DEEBFF', text: '#0747A6' },
     'Ortho':    { bg: '#E9F2FF', text: '#0055CC' },
     'Cardiac':  { bg: '#FFF3EB', text: '#974F0C' },
     'General':  { bg: '#E3FCEF', text: '#006644' },
@@ -478,7 +478,7 @@ export default function MissionDetailPage({ user, onSwitchAccount, onLogout }) {
                 </div>
                 <button 
                   onClick={() => activeTab === 'items' ? setAddPanel(true) : setPersonPanel(true)}
-                  style={{ height: 32, padding: '0 16px', backgroundColor: '#422670', color: '#fff', border: 'none', borderRadius: 4, fontSize: 14, fontWeight: 500, cursor: 'pointer', marginTop: 16, fontFamily: 'inherit' }}>
+                  style={{ height: 32, padding: '0 16px', backgroundColor: '#0747A6', color: '#fff', border: 'none', borderRadius: 4, fontSize: 14, fontWeight: 500, cursor: 'pointer', marginTop: 16, fontFamily: 'inherit' }}>
                   {activeTab === 'items' ? 'Add Items' : 'Add Person'}
                 </button>
               </div>
@@ -512,8 +512,8 @@ export default function MissionDetailPage({ user, onSwitchAccount, onLogout }) {
                     {t.label}
                     <span style={{ 
                       fontSize: 11, padding: '1px 6px', borderRadius: 10, 
-                      backgroundColor: activeTab === t.key ? '#F3F0FF' : '#F4F5F7',
-                      color: activeTab === t.key ? '#422670' : '#626F86'
+                      backgroundColor: activeTab === t.key ? '#DEEBFF' : '#F4F5F7',
+                      color: activeTab === t.key ? '#0747A6' : '#626F86'
                     }}>
                       {t.count}
                     </span>

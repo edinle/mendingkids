@@ -49,7 +49,7 @@ function TableRow({ item, checked, onToggle, showCheck = true }) {
   return (
     <div style={{ display: 'grid', gridTemplateColumns: COL, padding: '10px 14px', gap: 8, alignItems: 'center', borderBottom: '1px solid #f4f4f4', backgroundColor: checked ? '#F8F6FF' : '#fff' }}>
       {showCheck
-        ? <input type="checkbox" checked={checked} onChange={onToggle} style={{ width: 16, height: 16, cursor: 'pointer', accentColor: '#422670' }} />
+        ? <input type="checkbox" checked={checked} onChange={onToggle} style={{ width: 16, height: 16, cursor: 'pointer', accentColor: '#0747A6' }} />
         : <span />
       }
       <span style={{ fontSize: 13, color: '#172B4D' }}>{item.description}</span>
@@ -167,7 +167,7 @@ export default function AddItemsPage({ user, onSwitchAccount, onLogout }) {
               </div>
               <button 
                 onClick={handleScanOpen}
-                style={{ height: 32, padding: '0 16px', backgroundColor: '#422670', color: '#fff', border: 'none', borderRadius: 4, fontSize: 14, fontWeight: 500, cursor: 'pointer', marginTop: 16, fontFamily: 'inherit' }}>
+                style={{ height: 32, padding: '0 16px', backgroundColor: '#0747A6', color: '#fff', border: 'none', borderRadius: 4, fontSize: 14, fontWeight: 500, cursor: 'pointer', marginTop: 16, fontFamily: 'inherit' }}>
                 Scan Barcode
               </button>
             </div>
@@ -230,7 +230,7 @@ export default function AddItemsPage({ user, onSwitchAccount, onLogout }) {
               style={{
                 height: 36, padding: '0 20px',
                 border: 'none', borderRadius: 4,
-                background: selectedIds.size > 0 && !saving ? '#422670' : '#e8e8e8',
+                background: selectedIds.size > 0 && !saving ? '#0747A6' : '#e8e8e8',
                 color: selectedIds.size > 0 && !saving ? '#fff' : '#8590A2',
                 cursor: selectedIds.size > 0 && !saving ? 'pointer' : 'not-allowed',
                 fontSize: 14, fontFamily: 'inherit', fontWeight: 500,

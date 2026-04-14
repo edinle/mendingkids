@@ -10,7 +10,7 @@ import SlidePanel from './SlidePanel';
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const SPECIALTY_COLORS = {
-  Plastics: '#6d28d9', Ortho: '#0e7490', Cardiac: '#1561cc', General: '#cf4f27',
+  Plastics: '#0747A6', Ortho: '#0e7490', Cardiac: '#1561cc', General: '#cf4f27',
 };
 
 const MONTH_MAP = {
@@ -139,7 +139,7 @@ function ArrowIcon() {
 }
 
 function UserAvatar({ initials }) {
-  const cols = { JD:'#5137a2',SM:'#1561cc',KL:'#1a7f37',AL:'#d63c8a' };
+  const cols = { JD:'#0052CC',SM:'#1561cc',KL:'#1a7f37',AL:'#d63c8a' };
   return (
     <div style={{
       width:28, height:28, borderRadius:'50%',
@@ -310,7 +310,7 @@ function CalendarGrid({ missions, year, month, onDayClick, cellHeight = 42, font
                   <span style={{
                     fontSize, marginBottom: dayEvents ? 2 : 0,
                     fontWeight: isToday ? 700 : hasEvents ? 600 : 400,
-                    color: isToday ? '#422670' : hasEvents ? '#172B4D' : '#8590A2',
+                    color: isToday ? '#0747A6' : hasEvents ? '#172B4D' : '#8590A2',
                   }}>{day}</span>
                   {dayEvents && (
                     <div style={{ display:'flex', gap:2 }}>
@@ -362,7 +362,7 @@ function CalendarWidget({ missions, year, month, onPrevMonth, onNextMonth, onDay
         <button
           onClick={onExpand}
           style={{ background:'none', border:'1px solid #d9d9d9', cursor:'pointer', padding:'4px 8px', borderRadius:4, color:'#626F86', display:'flex', alignItems:'center', gap:5, fontSize:11, fontWeight:500, fontFamily:'inherit', transition:'all 0.12s' }}
-          onMouseEnter={e => { e.currentTarget.style.borderColor='#422670'; e.currentTarget.style.color='#422670'; }}
+          onMouseEnter={e => { e.currentTarget.style.borderColor='#0747A6'; e.currentTarget.style.color='#0747A6'; }}
           onMouseLeave={e => { e.currentTarget.style.borderColor='#d9d9d9'; e.currentTarget.style.color='#626F86'; }}
           title="Expand calendar"
         >
@@ -483,7 +483,7 @@ function CalendarModal({ isOpen, onClose, missions, initialYear, initialMonth, o
                 <button
                   onClick={prevMonth}
                   style={{ background:'none', border:'1px solid #d9d9d9', cursor:'pointer', padding:'6px 8px', borderRadius:4, color:'#44546F', display:'flex', alignItems:'center', transition:'all 0.12s' }}
-                  onMouseEnter={e => { e.currentTarget.style.borderColor='#422670'; e.currentTarget.style.color='#422670'; }}
+                  onMouseEnter={e => { e.currentTarget.style.borderColor='#0747A6'; e.currentTarget.style.color='#0747A6'; }}
                   onMouseLeave={e => { e.currentTarget.style.borderColor='#d9d9d9'; e.currentTarget.style.color='#44546F'; }}
                 >
                   <ChevronLeft size={18}/>
@@ -494,7 +494,7 @@ function CalendarModal({ isOpen, onClose, missions, initialYear, initialMonth, o
                 <button
                   onClick={nextMonth}
                   style={{ background:'none', border:'1px solid #d9d9d9', cursor:'pointer', padding:'6px 8px', borderRadius:4, color:'#44546F', display:'flex', alignItems:'center', transition:'all 0.12s' }}
-                  onMouseEnter={e => { e.currentTarget.style.borderColor='#422670'; e.currentTarget.style.color='#422670'; }}
+                  onMouseEnter={e => { e.currentTarget.style.borderColor='#0747A6'; e.currentTarget.style.color='#0747A6'; }}
                   onMouseLeave={e => { e.currentTarget.style.borderColor='#d9d9d9'; e.currentTarget.style.color='#44546F'; }}
                 >
                   <ChevronRight size={18}/>
@@ -502,9 +502,9 @@ function CalendarModal({ isOpen, onClose, missions, initialYear, initialMonth, o
               </div>
               <button
                 onClick={goToToday}
-                style={{ background:'#F3F0FF', border:'1px solid #c4b5e0', cursor:'pointer', padding:'5px 14px', borderRadius:4, color:'#422670', fontSize:13, fontWeight:500, fontFamily:'inherit', transition:'all 0.12s' }}
+                style={{ background:'#DEEBFF', border:'1px solid #8ABAFF', cursor:'pointer', padding:'5px 14px', borderRadius:4, color:'#0747A6', fontSize:13, fontWeight:500, fontFamily:'inherit', transition:'all 0.12s' }}
                 onMouseEnter={e => { e.currentTarget.style.backgroundColor='#EDE9FF'; }}
-                onMouseLeave={e => { e.currentTarget.style.backgroundColor='#F3F0FF'; }}
+                onMouseLeave={e => { e.currentTarget.style.backgroundColor='#DEEBFF'; }}
               >
                 Today
               </button>
@@ -665,7 +665,7 @@ function WidgetWrapper({ id, editMode, dragFrom, dragOver, onDragStart, onDragOv
       onDragEnd={onDragEnd}
       style={{
         border: editMode
-          ? `2px ${isDropTarget?'solid #422670':'dashed #c4b5e0'}`
+          ? `2px ${isDropTarget?'solid #0747A6':'dashed #8ABAFF'}`
           : '1px solid #e8e8e8',
         borderRadius:6, position:'relative',
         opacity:isBeingDragged?0.4:1,
@@ -680,9 +680,9 @@ function WidgetWrapper({ id, editMode, dragFrom, dragOver, onDragStart, onDragOv
         <div style={{
           position:'absolute', top:0, left:0, right:0, height:30, zIndex:10,
           display:'flex', alignItems:'center', justifyContent:'center', gap:6,
-          backgroundColor:isDropTarget?'#EDE9FF':'#F3F0FF',
-          borderBottom:'1px solid #c4b5e0',
-          color:'#5E4DB2', fontSize:12, fontWeight:500, pointerEvents:'none',
+          backgroundColor:isDropTarget?'#EDE9FF':'#DEEBFF',
+          borderBottom:'1px solid #8ABAFF',
+          color:'#0747A6', fontSize:12, fontWeight:500, pointerEvents:'none',
         }}>
           <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor">
             <circle cx="3" cy="2.5" r="1.1"/><circle cx="9" cy="2.5" r="1.1"/>
@@ -726,7 +726,7 @@ function MissionDetailPanel({ mission, navigate }) {
         <DetailField label="Budget" value={mission.budget?`$${Number(mission.budget).toLocaleString()}`:'—'}/>
       </div>
       <div style={{ padding:'16px 24px', borderTop:'1px solid #E8E8E8', display:'flex', flexDirection:'column', gap:8 }}>
-        <button onClick={() => navigate(`/missions/${mission.id}`)} style={{ width:'100%', height:40, backgroundColor:'#422670', color:'#fff', border:'none', borderRadius:4, fontSize:14, fontWeight:600, cursor:'pointer', fontFamily:'inherit' }}>
+        <button onClick={() => navigate(`/missions/${mission.id}`)} style={{ width:'100%', height:40, backgroundColor:'#0747A6', color:'#fff', border:'none', borderRadius:4, fontSize:14, fontWeight:600, cursor:'pointer', fontFamily:'inherit' }}>
           Go to Mission Details
         </button>
         <button onClick={() => navigate('/missions')} style={{ width:'100%', height:40, backgroundColor:'transparent', color:'#44546F', border:'1px solid #DFE1E6', borderRadius:4, fontSize:14, fontWeight:500, cursor:'pointer', fontFamily:'inherit' }}>
@@ -996,8 +996,8 @@ export default function DashboardPage({ user, onSwitchAccount, onLogout }) {
                 {label}
                 <span style={{
                   fontSize:11, padding:'1px 6px', borderRadius:10,
-                  backgroundColor:missionTab===key?'#F3F0FF':'#F4F5F7',
-                  color:missionTab===key?'#422670':'#626F86',
+                  backgroundColor:missionTab===key?'#DEEBFF':'#F4F5F7',
+                  color:missionTab===key?'#0747A6':'#626F86',
                 }}>
                   {count}{more?'+':''}
                 </span>
@@ -1112,7 +1112,7 @@ export default function DashboardPage({ user, onSwitchAccount, onLogout }) {
                   onClick={() => setEditMode(e=>!e)}
                   style={{
                     height:32, padding:'0 16px',
-                    backgroundColor:editMode?'#422670':'#fff',
+                    backgroundColor:editMode?'#0747A6':'#fff',
                     color:editMode?'#fff':'#44546F',
                     border:editMode?'none':'1px solid #d9d9d9',
                     borderRadius:4, fontSize:14, fontWeight:500,
@@ -1123,7 +1123,7 @@ export default function DashboardPage({ user, onSwitchAccount, onLogout }) {
                 </button>
                 {!editMode && (
                   <button onClick={() => navigate('/inventory')} style={{
-                    height:32, padding:'0 16px', backgroundColor:'#422670', color:'#fff',
+                    height:32, padding:'0 16px', backgroundColor:'#0747A6', color:'#fff',
                     border:'none', borderRadius:4, fontSize:14, fontWeight:500,
                     cursor:'pointer', fontFamily:'inherit',
                   }}>
@@ -1137,12 +1137,12 @@ export default function DashboardPage({ user, onSwitchAccount, onLogout }) {
             {editMode && (
               <div style={{
                 marginBottom:16, padding:'10px 16px',
-                backgroundColor:'#F3F0FF', border:'1px solid #c4b5e0',
-                borderRadius:6, fontSize:13, color:'#5E4DB2',
+                backgroundColor:'#DEEBFF', border:'1px solid #8ABAFF',
+                borderRadius:6, fontSize:13, color:'#0747A6',
                 display:'flex', alignItems:'center', gap:8,
               }}>
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                  <path d="M11 2.5L13.5 5L6 12.5H3.5V10L11 2.5Z" stroke="#5E4DB2" strokeWidth="1.4" strokeLinejoin="round"/>
+                  <path d="M11 2.5L13.5 5L6 12.5H3.5V10L11 2.5Z" stroke="#0747A6" strokeWidth="1.4" strokeLinejoin="round"/>
                 </svg>
                 Drag widgets to rearrange your dashboard. Click <strong style={{ marginLeft:3 }}>Done</strong> when finished — your layout is saved automatically.
               </div>

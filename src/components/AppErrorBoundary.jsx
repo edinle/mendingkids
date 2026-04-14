@@ -55,7 +55,7 @@ export default class AppErrorBoundary extends React.Component {
             style={{
               border: 'none',
               borderRadius: 4,
-              backgroundColor: '#422670',
+              backgroundColor: '#0747A6',
               color: '#FFFFFF',
               padding: '10px 16px',
               fontWeight: 600,
