@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { supabase } from '../utils/supabase';
 import PropTypes from 'prop-types';
 import Select from '@atlaskit/select';
+import Textfield from '@atlaskit/textfield';
 import { DatePicker } from '@atlaskit/datetime-picker';
 import { token } from '@atlaskit/tokens';
 import SlidePanel from './SlidePanel';
@@ -196,11 +197,10 @@ function Step1({ values, onChange, locations, categories }) {
 
       <div>
         <FieldLabel text="Manufacturing Company" />
-        <input
+        <Textfield
           value={values.company}
           onChange={setE('company')}
           placeholder="Add company"
-          style={inputSt}
         />
       </div>
 
@@ -217,21 +217,19 @@ function Step1({ values, onChange, locations, categories }) {
 
       <div>
         <FieldLabel text="Reference Number #" />
-        <input
+        <Textfield
           value={values.referenceNum}
           onChange={setE('referenceNum')}
           placeholder="Add reference number"
-          style={inputSt}
         />
       </div>
 
       <div>
         <FieldLabel text="Lot Number" />
-        <input
+        <Textfield
           value={values.lotNumber}
           onChange={setE('lotNumber')}
           placeholder="Add lot number"
-          style={inputSt}
         />
       </div>
 
@@ -248,11 +246,10 @@ function Step1({ values, onChange, locations, categories }) {
         </div>
         <div style={{ flex: 1 }}>
           <FieldLabel text="Typical Shelf Life" />
-          <input
+          <Textfield
             value={values.shelfLife}
             onChange={setE('shelfLife')}
             placeholder="Add Shelf Life"
-            style={inputSt}
           />
         </div>
       </div>

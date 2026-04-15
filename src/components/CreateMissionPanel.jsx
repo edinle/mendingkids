@@ -3,6 +3,10 @@ import { supabase } from '../utils/supabase';
 import SlidePanel from './SlidePanel';
 import Modal, { ModalTransition, ModalHeader, ModalTitle, ModalBody, ModalFooter } from '@atlaskit/modal-dialog';
 import Button from '@atlaskit/button';
+import Textfield from '@atlaskit/textfield';
+import Select from '@atlaskit/select';
+import { Checkbox } from '@atlaskit/checkbox';
+import { token } from '@atlaskit/tokens';
 
 // ─── Sample inventory for suggested items ─────────────────────────────────────
 
@@ -19,8 +23,28 @@ const SUGGESTED_ITEMS = [
   { id: 10, description: 'Text',                        company: 'Text',    qty: 0,    ref: '',          warning: false },
 ];
 
-const CATEGORIES = ['ENT', 'Cardiac', 'General', 'Ortho', 'Plastics', 'Infections', 'Dental'];
-const LOCATIONS  = ['Dar es Salaam', 'Kampala', 'Guatemala City', 'Lima', 'Hanoi'];
+const CATEGORIES = [
+  { label: 'ENT', value: 'ENT' },
+  { label: 'Cardiac', value: 'Cardiac' },
+  { label: 'General', value: 'General' },
+  { label: 'Ortho', value: 'Ortho' },
+  { label: 'Plastics', value: 'Plastics' },
+  { label: 'Infections', value: 'Infections' },
+  { label: 'Dental', value: 'Dental' },
+];
+const LOCATIONS = [
+  { label: 'Dar es Salaam', value: 'Dar es Salaam' },
+  { label: 'Kampala', value: 'Kampala' },
+  { label: 'Guatemala City', value: 'Guatemala City' },
+  { label: 'Lima', value: 'Lima' },
+  { label: 'Hanoi', value: 'Hanoi' },
+];
+const TEAM_MEMBERS = [
+  { label: 'Dr. Smith', value: 'Dr. Smith' },
+  { label: 'Dr. Jones', value: 'Dr. Jones' },
+  { label: 'Nurse Joy', value: 'Nurse Joy' },
+  { label: 'Dr. Kim', value: 'Dr. Kim' },
+];
 
 // ─── Shared Form Primitives ───────────────────────────────────────────────────
 
@@ -29,56 +53,6 @@ function Label({ children, required }) {
     <label style={{ display: 'block', fontSize: 13, fontWeight: 500, color: '#172B4D', marginBottom: 4 }}>
       {children}{required && <span style={{ color: '#c62828' }}> *</span>}
     </label>
-  );
-}
-
-function TextInput({ placeholder, value, onChange, type = 'text' }) {
-  const [focused, setFocused] = useState(false);
-  return (
-    <input
-      type={type}
-      placeholder={placeholder}
-      value={value}
-      onChange={e => onChange(e.target.value)}
-      onFocus={() => setFocused(true)}
-      onBlur={() => setFocused(false)}
-      style={{
-        width: '100%', height: 36, padding: '0 10px',
-        border: `1px solid ${focused ? '#422670' : '#d9d9d9'}`,
-        borderRadius: 4, fontSize: 14, fontFamily: 'inherit',
-        outline: 'none', boxSizing: 'border-box',
-        backgroundColor: '#fff',
-      }}
-    />
-  );
-}
-
-function SelectInput({ placeholder, options, value, onChange }) {
-  const [focused, setFocused] = useState(false);
-  return (
-    <div style={{ position: 'relative' }}>
-      <select
-        value={value}
-        onChange={e => onChange(e.target.value)}
-        onFocus={() => setFocused(true)}
-        onBlur={() => setFocused(false)}
-        style={{
-          width: '100%', height: 36, padding: '0 10px',
-          border: `1px solid ${focused ? '#422670' : '#d9d9d9'}`,
-          borderRadius: 4, fontSize: 14, fontFamily: 'inherit',
-          outline: 'none', appearance: 'none', cursor: 'pointer',
-          backgroundColor: '#fff', color: value ? '#172B4D' : '#8590A2',
-        }}
-      >
-        <option value="">{placeholder}</option>
-        {options.map(o => <option key={o} value={o}>{o}</option>)}
-      </select>
-      <span style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', color: '#626F86' }}>
-        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-          <path d="M3 4l3 3 3-3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-        </svg>
-      </span>
-    </div>
   );
 }
 
@@ -97,83 +71,86 @@ function Step1({ form, setForm, onCancel, onNext }) {
       <div style={{ flex: 1, overflowY: 'auto', padding: '20px 24px' }}>
         <div style={{ marginBottom: 16 }}>
           <Label required>Name</Label>
-          <TextInput placeholder="Placeholder" value={form.name} onChange={v => setForm(f => ({ ...f, name: v }))} />
+          <Textfield placeholder="Placeholder" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} />
         </div>
 
         <div style={{ marginBottom: 16 }}>
           <Label>Description</Label>
-          <TextInput placeholder="Placeholder" value={form.description} onChange={v => setForm(f => ({ ...f, description: v }))} />
+          <Textfield placeholder="Placeholder" value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} />
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 }}>
           <div>
             <Label required>Date</Label>
-            <div style={{ position: 'relative' }}>
-              <input
-                type="text"
-                placeholder="12/18/22 - 12/24/22"
-                value={form.date}
-                onChange={e => setForm(f => ({ ...f, date: e.target.value }))}
-                style={{
-                  width: '100%', height: 36, padding: '0 30px 0 10px',
-                  border: '1px solid #d9d9d9', borderRadius: 4,
-                  fontSize: 13, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box',
-                }}
-              />
-              <span style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', color: '#626F86' }}>
-                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                  <rect x="1" y="2" width="12" height="11" rx="1" stroke="currentColor" strokeWidth="1.2"/>
-                  <path d="M5 1v2M9 1v2M1 5h12" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
-                </svg>
-              </span>
-            </div>
+            <Textfield
+              placeholder="12/18/22 - 12/24/22"
+              value={form.date}
+              onChange={e => setForm(f => ({ ...f, date: e.target.value }))}
+              elemAfterInput={
+                <span style={{ paddingRight: 8, display: 'flex', color: '#626F86' }}>
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                    <rect x="1" y="2" width="12" height="11" rx="1" stroke="currentColor" strokeWidth="1.2"/>
+                    <path d="M5 1v2M9 1v2M1 5h12" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
+                  </svg>
+                </span>
+              }
+            />
           </div>
           <div>
             <Label required>Category</Label>
-            <SelectInput placeholder="Select" options={CATEGORIES} value={form.category} onChange={v => setForm(f => ({ ...f, category: v }))} />
+            <Select
+              placeholder="Select"
+              options={CATEGORIES}
+              value={form.category ? CATEGORIES.find(c => c.value === form.category) : null}
+              onChange={v => setForm(f => ({ ...f, category: v?.value || '' }))}
+            />
           </div>
         </div>
 
         <div style={{ marginBottom: 16 }}>
           <Label required>Location</Label>
-          <SelectInput placeholder="Placeholder" options={LOCATIONS} value={form.location} onChange={v => setForm(f => ({ ...f, location: v }))} />
+          <Select
+            placeholder="Placeholder"
+            options={LOCATIONS}
+            value={form.location ? LOCATIONS.find(l => l.value === form.location) : null}
+            onChange={v => setForm(f => ({ ...f, location: v?.value || '' }))}
+          />
         </div>
 
         <div style={{ marginBottom: 16 }}>
           <Label required>Doctor Name</Label>
-          <TextInput placeholder="Placeholder" value={form.doctorName} onChange={v => setForm(f => ({ ...f, doctorName: v }))} />
+          <Textfield placeholder="Placeholder" value={form.doctorName} onChange={e => setForm(f => ({ ...f, doctorName: e.target.value }))} />
         </div>
 
         <div style={{ marginBottom: 16 }}>
           <Label required>Doctor's Email</Label>
-          <TextInput placeholder="Placeholder" type="email" value={form.doctorEmail} onChange={v => setForm(f => ({ ...f, doctorEmail: v }))} />
+          <Textfield placeholder="Placeholder" type="email" value={form.doctorEmail} onChange={e => setForm(f => ({ ...f, doctorEmail: e.target.value }))} />
         </div>
 
         <div style={{ marginBottom: 16 }}>
           <Label>Doctor's Phone</Label>
-          <TextInput placeholder="555-555-5555" type="tel" value={form.doctorPhone} onChange={v => setForm(f => ({ ...f, doctorPhone: v }))} />
+          <Textfield placeholder="555-555-5555" type="tel" value={form.doctorPhone} onChange={e => setForm(f => ({ ...f, doctorPhone: e.target.value }))} />
         </div>
 
         <div style={{ marginBottom: 16 }}>
           <Label>Team Members</Label>
-          <SelectInput placeholder="Placeholder" options={['Dr. Smith', 'Dr. Jones', 'Nurse Joy', 'Dr. Kim']} value={form.teamMembers} onChange={v => setForm(f => ({ ...f, teamMembers: v }))} />
+          <Select
+            placeholder="Placeholder"
+            options={TEAM_MEMBERS}
+            value={form.teamMembers ? TEAM_MEMBERS.find(t => t.value === form.teamMembers) : null}
+            onChange={v => setForm(f => ({ ...f, teamMembers: v?.value || '' }))}
+          />
         </div>
 
         <div style={{ marginBottom: 16 }}>
           <Label>Budget</Label>
-          <div style={{ position: 'relative' }}>
-            <span style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', fontSize: 14, color: '#626F86' }}>$</span>
-            <input
-              type="text"
-              value={form.budget}
-              onChange={e => setForm(f => ({ ...f, budget: e.target.value }))}
-              style={{
-                width: '100%', height: 36, paddingLeft: 22, paddingRight: 10,
-                border: '1px solid #d9d9d9', borderRadius: 4,
-                fontSize: 14, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box',
-              }}
-            />
-          </div>
+          <Textfield
+            value={form.budget}
+            onChange={e => setForm(f => ({ ...f, budget: e.target.value }))}
+            elemBeforeInput={
+              <span style={{ paddingLeft: 10, display: 'flex', color: '#626F86', fontSize: 14 }}>$</span>
+            }
+          />
         </div>
 
         <div style={{ marginBottom: 16 }}>
@@ -198,25 +175,19 @@ function Step1({ form, setForm, onCancel, onNext }) {
         padding: '16px 24px', borderTop: '1px solid #e8e8e8',
         display: 'flex', justifyContent: 'space-between', alignItems: 'center',
       }}>
-        <button onClick={onCancel} style={{ height: 36, padding: '0 16px', border: '1px solid #d9d9d9', borderRadius: 4, background: '#fff', cursor: 'pointer', fontSize: 14, fontFamily: 'inherit', color: '#172B4D' }}>
-          Cancel
-        </button>
-        <button
+        <Button appearance="subtle" onClick={onCancel}>Cancel</Button>
+        <Button
+          appearance="primary"
+          isDisabled={!(form.name && form.category && form.doctorName && form.doctorEmail)}
           onClick={onNext}
-          style={{
-            height: 36, padding: '0 16px',
-            border: 'none', borderRadius: 4,
-            background: form.name && form.category && form.doctorName && form.doctorEmail ? '#422670' : '#e8e8e8',
-            color: form.name && form.category && form.doctorName && form.doctorEmail ? '#fff' : '#8590A2',
-            cursor: 'pointer', fontSize: 14, fontFamily: 'inherit',
-            display: 'flex', alignItems: 'center', gap: 6,
-          }}
+          iconAfter={() => (
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M3 7h8M8 4l3 3-3 3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          )}
         >
           Next
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-            <path d="M3 7h8M8 4l3 3-3 3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-        </button>
+        </Button>
       </div>
     </div>
   );
@@ -249,25 +220,19 @@ function Step2({ form, onCancel, onBack, onSkip }) {
         {/* Search */}
         <div style={{ marginBottom: 16 }}>
           <label style={{ display: 'block', fontSize: 13, fontWeight: 500, color: '#172B4D', marginBottom: 4 }}>Search</label>
-          <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-            <span style={{ position: 'absolute', left: 10, color: '#8590A2', display: 'flex' }}>
-              <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-                <circle cx="7" cy="7" r="5" stroke="currentColor" strokeWidth="1.5"/>
-                <path d="M11 11l3 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-              </svg>
-            </span>
-            <input
-              type="text"
-              placeholder="Search"
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              style={{
-                width: '100%', height: 36, paddingLeft: 32, paddingRight: 10,
-                border: '1px solid #d9d9d9', borderRadius: 4,
-                fontSize: 14, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box',
-              }}
-            />
-          </div>
+          <Textfield
+            placeholder="Search"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            elemBeforeInput={
+              <span style={{ paddingLeft: 10, display: 'flex', color: '#8590A2' }}>
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+                  <circle cx="7" cy="7" r="5" stroke="currentColor" strokeWidth="1.5"/>
+                  <path d="M11 11l3 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                </svg>
+              </span>
+            }
+          />
         </div>
 
         {/* Recommended table */}
@@ -291,11 +256,9 @@ function Step2({ form, onCancel, onBack, onSkip }) {
                 backgroundColor: selected[item.id] ? '#F8F6FF' : '#fff',
               }}
             >
-              <input
-                type="checkbox"
-                checked={!!selected[item.id]}
+              <Checkbox
+                isChecked={!!selected[item.id]}
                 onChange={() => toggle(item.id)}
-                style={{ width: 16, height: 16, cursor: 'pointer', accentColor: '#422670' }}
               />
               {item.qty > 0 ? (
                 <span style={{
@@ -324,19 +287,10 @@ function Step2({ form, onCancel, onBack, onSkip }) {
 
       {/* Footer */}
       <div style={{ padding: '16px 24px', borderTop: '1px solid #e8e8e8', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <button onClick={onCancel} style={{ height: 36, padding: '0 16px', border: '1px solid #d9d9d9', borderRadius: 4, background: '#fff', cursor: 'pointer', fontSize: 14, fontFamily: 'inherit' }}>
-          Cancel
-        </button>
+        <Button appearance="subtle" onClick={onCancel}>Cancel</Button>
         <div style={{ display: 'flex', gap: 8 }}>
-          <button onClick={onBack} style={{ height: 36, padding: '0 16px', border: '1px solid #d9d9d9', borderRadius: 4, background: '#fff', cursor: 'pointer', fontSize: 14, fontFamily: 'inherit' }}>
-            Back
-          </button>
-          <button
-            onClick={onSkip}
-            style={{ height: 36, padding: '0 16px', border: 'none', borderRadius: 4, background: '#422670', color: '#fff', cursor: 'pointer', fontSize: 14, fontFamily: 'inherit', fontWeight: 500 }}
-          >
-            Skip
-          </button>
+          <Button appearance="default" onClick={onBack}>Back</Button>
+          <Button appearance="primary" onClick={onSkip}>Skip</Button>
         </div>
       </div>
     </div>
@@ -404,4 +358,3 @@ export default function CreateMissionPanel({ isOpen, onClose }) {
     </>
   );
 }
-

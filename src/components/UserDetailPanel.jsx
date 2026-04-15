@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { token } from '@atlaskit/tokens';
+import Textfield from '@atlaskit/textfield';
 import { supabase } from '../utils/supabase';
 import SlidePanel from './SlidePanel';
 
@@ -89,14 +90,10 @@ export default function UserDetailPanel({ isOpen, onClose, user, onEdit, onSave 
         <div style={{ marginBottom: 20 }}>
           <span style={labelSt}>{label}</span>
           <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-            <input 
+            <Textfield 
               autoFocus
               value={tempVal}
               onChange={e => setTempVal(e.target.value)}
-              style={{
-                flex: 1, padding: '6px 10px', borderRadius: 3, border: '2px solid #2684FF',
-                fontSize: 14, outline: 'none', fontFamily: 'inherit'
-              }}
             />
             <button onClick={commitEdit} style={{ border: 'none', background: '#1F845A', color: '#fff', borderRadius: 3, padding: '4px 8px', cursor: 'pointer' }}>Save</button>
             <button onClick={cancelEdit} style={{ border: 'none', background: '#AE2E24', color: '#fff', borderRadius: 3, padding: '4px 8px', cursor: 'pointer' }}>✕</button>

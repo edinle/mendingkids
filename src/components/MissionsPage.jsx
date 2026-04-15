@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { token } from '@atlaskit/tokens';
+import Textfield from '@atlaskit/textfield';
 import { supabase } from '../utils/supabase';
 import { PageLayout, Content, Main, LeftSidebar, TopNavigation } from '@atlaskit/page-layout';
 import TopNav from './TopNav';
@@ -364,24 +365,19 @@ export default function MissionsPage({ user, onSwitchAccount, onLogout }) {
               </div>
 
               {/* Fixed Search Bar */}
-              <div style={{ position: 'relative', display: 'flex', alignItems: 'center', width: 280, flexShrink: 0 }}>
-                <span style={{ position: 'absolute', left: 10, color: '#626F86', display: 'flex' }}>
-                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-                    <circle cx="7" cy="7" r="5" stroke="currentColor" strokeWidth="1.5" />
-                    <path d="M11 11l3 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                  </svg>
-                </span>
-                <input
-                  type="text"
+              <div style={{ width: 280, flexShrink: 0 }}>
+                <Textfield
                   placeholder="Search missions..."
                   value={search}
                   onChange={e => setSearch(e.target.value)}
-                  style={{
-                    width: '100%', height: 32, paddingLeft: 32, paddingRight: 10,
-                    border: `1px solid ${token('color.border', '#DFE1E6')}`, borderRadius: 3,
-                    fontSize: 14, fontFamily: 'inherit', outline: 'none',
-                    backgroundColor: token('elevation.surface.sunken', '#F4F5F7'),
-                  }}
+                  elemBeforeInput={
+                    <span style={{ paddingLeft: 10, display: 'flex', color: '#626F86' }}>
+                      <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+                        <circle cx="7" cy="7" r="5" stroke="currentColor" strokeWidth="1.5" />
+                        <path d="M11 11l3 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                      </svg>
+                    </span>
+                  }
                 />
               </div>
             </div>

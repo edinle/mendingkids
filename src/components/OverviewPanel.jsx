@@ -3,6 +3,9 @@ import PropTypes from 'prop-types';
 import Button from '@atlaskit/button/new';
 import Lozenge from '@atlaskit/lozenge';
 import { token } from '@atlaskit/tokens';
+import Textfield from '@atlaskit/textfield';
+import Textarea from '@atlaskit/textarea';
+import Select from '@atlaskit/select';
 import { supabase } from '../utils/supabase';
 import SlidePanel from './SlidePanel';
 import ItemStatusModal from './ItemStatusModal';
@@ -447,24 +450,11 @@ function DocumentationTab({ totalQuantity, isEditMode, values, draft, onDraftCha
           <div>
             <p style={{ fontSize: 12, color: token('color.text.subtle', '#505258'), margin: '0 0 3px' }}>Market Value per Unit</p>
             {isEditMode ? (
-              <input
+              <Textfield
                 type="number"
-                min="0"
-                step="0.01"
                 value={draft.marketValue}
                 onChange={(e) => onDraftChange('marketValue', e.target.value)}
-                style={{
-                  width: 140,
-                  boxSizing: 'border-box',
-                  padding: '6px 8px',
-                  borderRadius: 3,
-                  border: '2px solid #2684FF',
-                  fontSize: 14,
-                  fontFamily: 'inherit',
-                  color: token('color.text', '#172B4D'),
-                  backgroundColor: '#fff',
-                  outline: 'none',
-                }}
+                width="medium"
               />
             ) : (
               <p style={{ fontSize: 14, color: token('color.text', '#172B4D'), margin: 0 }}>${marketValue}</p>
@@ -479,22 +469,9 @@ function DocumentationTab({ totalQuantity, isEditMode, values, draft, onDraftCha
         <div>
           <p style={{ fontSize: 12, color: token('color.text.subtle', '#505258'), margin: '0 0 4px' }}>Valuation Source</p>
           {isEditMode ? (
-            <input
-              type="text"
+            <Textfield
               value={draft.valuationSource}
               onChange={(e) => onDraftChange('valuationSource', e.target.value)}
-              style={{
-                width: '100%',
-                boxSizing: 'border-box',
-                padding: '6px 8px',
-                borderRadius: 3,
-                border: '2px solid #2684FF',
-                fontSize: 14,
-                fontFamily: 'inherit',
-                color: token('color.text', '#172B4D'),
-                backgroundColor: '#fff',
-                outline: 'none',
-              }}
             />
           ) : (
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -698,20 +675,17 @@ function DetailsTab({ isFullEdit, onExitFullEdit, item, onSave }) {
       return (
         <div>
           {isTextArea ? (
-            <textarea
+            <Textarea
               value={tempVal}
               onChange={e => setTempVal(e.target.value)}
               autoFocus
-              rows={4}
-              style={{ ...boxBase, resize: 'vertical', lineHeight: '1.5', display: 'block' }}
+              minimumRows={4}
             />
           ) : (
-            <input
-              type="text"
+            <Textfield
               value={tempVal}
               onChange={e => setTempVal(e.target.value)}
               autoFocus
-              style={{ ...boxBase, display: 'block' }}
             />
           )}
           <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end', marginTop: 6 }}>
@@ -768,37 +742,26 @@ function DetailsTab({ isFullEdit, onExitFullEdit, item, onSave }) {
 
     if (isSelect) {
       return (
-        <div style={{ position: 'relative' }}>
-          <select
-            value={draft[field]}
-            onChange={e => setFullDraft(field, e.target.value)}
-            style={{ ...inputSt, appearance: 'none', cursor: 'pointer', paddingRight: 28 }}
-          >
-            {SHELF_LIFE_OPTIONS.map(o => <option key={o}>{o}</option>)}
-          </select>
-          <svg style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}
-            width="14" height="14" viewBox="0 0 14 14" fill="none">
-            <path d="M3 5l4 4 4-4" stroke="#626F86" strokeWidth="1.3" strokeLinecap="round" />
-          </svg>
-        </div>
+        <Select
+          value={{ label: draft[field], value: draft[field] }}
+          onChange={v => setFullDraft(field, v?.value || '')}
+          options={SHELF_LIFE_OPTIONS.map(o => ({ label: o, value: o }))}
+        />
       );
     }
     if (isTextArea) {
       return (
-        <textarea
+        <Textarea
           value={draft[field]}
           onChange={e => setFullDraft(field, e.target.value)}
-          rows={5}
-          style={{ ...inputSt, resize: 'vertical', lineHeight: '1.5' }}
+          minimumRows={5}
         />
       );
     }
     return (
-      <input
-        type="text"
+      <Textfield
         value={draft[field]}
         onChange={e => setFullDraft(field, e.target.value)}
-        style={inputSt}
       />
     );
   };
@@ -809,26 +772,13 @@ function DetailsTab({ isFullEdit, onExitFullEdit, item, onSave }) {
     if (editing === 'shelfLife') {
       return (
         <div>
-          <div style={{ position: 'relative' }}>
-            <select
-              value={tempVal}
-              onChange={e => setTempVal(e.target.value)}
+          <Select
+              value={{ label: tempVal, value: tempVal }}
+              onChange={v => { setTempVal(v?.value || ''); }}
+              options={SHELF_LIFE_OPTIONS.map(o => ({ label: o, value: o }))}
               autoFocus
-              style={{
-                width: '100%', boxSizing: 'border-box',
-                padding: '8px 28px 8px 10px', borderRadius: 3,
-                border: '2px solid #2684FF',
-                fontSize: 14, fontFamily: 'inherit', backgroundColor: '#fff',
-                color: token('color.text', '#172B4D'), outline: 'none', appearance: 'none',
-              }}
-            >
-              {SHELF_LIFE_OPTIONS.map(o => <option key={o}>{o}</option>)}
-            </select>
-            <svg style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}
-              width="14" height="14" viewBox="0 0 14 14" fill="none">
-              <path d="M3 5l4 4 4-4" stroke="#626F86" strokeWidth="1.3" strokeLinecap="round" />
-            </svg>
-          </div>
+              menuPortalTarget={document.body}
+            />
           <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end', marginTop: 6 }}>
             <button onClick={commitEdit} style={iconBtnSt('#1F845A')}>
               <svg width="12" height="12" viewBox="0 0 12 12" fill="none">

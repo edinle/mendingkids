@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { token } from '@atlaskit/tokens';
+import Textfield from '@atlaskit/textfield';
 import { PageLayout, Content, Main, LeftSidebar, TopNavigation } from '@atlaskit/page-layout';
 import { supabase } from '../utils/supabase';
 import TopNav from './TopNav';
@@ -69,10 +70,17 @@ function AddItemsPanel({ category = 'ENT', onClose, onNavigate, inventory = [], 
               <path d="M11 11l3 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
             </svg>
           </span>
-          <input
-            type="text" placeholder="Search"
+          <Textfield
+            placeholder="Search"
             value={search} onChange={e => setSearch(e.target.value)}
-            style={{ width: '100%', height: 36, paddingLeft: 32, paddingRight: 10, border: `1px solid ${token('color.border', '#DFE1E6')}`, borderRadius: 3, fontSize: 14, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box', backgroundColor: token('elevation.surface.sunken', '#F4F5F7') }}
+            elemBeforeInput={
+              <span style={{ paddingLeft: 10, display: 'flex', color: '#626F86' }}>
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+                  <circle cx="7" cy="7" r="5" stroke="currentColor" strokeWidth="1.5"/>
+                  <path d="M11 11l3 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                </svg>
+              </span>
+            }
           />
         </div>
 
@@ -168,15 +176,15 @@ function AddPersonPanel({ onClose, onAdd }) {
       <div style={{ flex: 1, padding: '24px', overflowY: 'auto' }}>
         <div style={{ marginBottom: 20 }}>
           <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#44546F', marginBottom: 4 }}>Full Name</label>
-          <input type="text" value={name} onChange={e => setName(e.target.value)} style={{ width: '100%', height: 36, border: `1px solid ${token('color.border', '#DFE1E6')}`, borderRadius: 3, padding: '0 10px', fontSize: 14, outline: 'none' }} placeholder="e.g. Dr. Meredith Grey" />
+          <Textfield value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Dr. Meredith Grey" />
         </div>
         <div style={{ marginBottom: 20 }}>
           <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#44546F', marginBottom: 4 }}>Role</label>
-          <input type="text" value={role} onChange={e => setRole(e.target.value)} style={{ width: '100%', height: 36, border: `1px solid ${token('color.border', '#DFE1E6')}`, borderRadius: 3, padding: '0 10px', fontSize: 14, outline: 'none' }} placeholder="e.g. Lead Surgeon" />
+          <Textfield value={role} onChange={e => setRole(e.target.value)} placeholder="e.g. Lead Surgeon" />
         </div>
         <div style={{ marginBottom: 20 }}>
           <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#44546F', marginBottom: 4 }}>Email</label>
-          <input type="email" value={email} onChange={e => setEmail(e.target.value)} style={{ width: '100%', height: 36, border: `1px solid ${token('color.border', '#DFE1E6')}`, borderRadius: 3, padding: '0 10px', fontSize: 14, outline: 'none' }} placeholder="email@hospital.org" />
+          <Textfield type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="email@hospital.org" />
         </div>
       </div>
       <div style={{ padding: '16px 24px', borderTop: `1px solid ${token('color.border', 'rgba(9,30,66,0.14)')}`, display: 'flex', justifyContent: 'flex-end', gap: 12, backgroundColor: '#fff' }}>
@@ -296,14 +304,11 @@ export default function MissionDetailPage({ user, onSwitchAccount, onLogout }) {
     if (isEditing) {
       return (
         <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 8 }}>
-          <input 
+          <Textfield 
             autoFocus
             value={tempVal}
             onChange={e => setTempVal(e.target.value)}
-            style={{ 
-              padding: '4px 8px', borderRadius: 3, border: '2px solid #2684FF',
-              fontSize: 14, outline: 'none', fontFamily: 'inherit', width: 240
-            }}
+            width="large"
           />
           <button onClick={commitEdit} style={{ border: 'none', background: '#1F845A', color: '#fff', borderRadius: 3, padding: '4px 8px', cursor: 'pointer' }}>✓</button>
           <button onClick={cancelEdit} style={{ border: 'none', background: '#AE2E24', color: '#fff', borderRadius: 3, padding: '4px 8px', cursor: 'pointer' }}>✕</button>
@@ -531,24 +536,19 @@ export default function MissionDetailPage({ user, onSwitchAccount, onLogout }) {
                       </div>
                       
                       {/* Search bar */}
-                      <div style={{ position: 'relative', width: 280, flexShrink: 0 }}>
-                        <span style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: '#626F86', display: 'flex', pointerEvents: 'none' }}>
-                          <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-                            <circle cx="7" cy="7" r="5" stroke="currentColor" strokeWidth="1.5"/>
-                            <path d="M11 11l3 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-                          </svg>
-                        </span>
-                        <input 
-                          type="text" 
-                          placeholder="Search supplies..." 
-                          value={itemSearch} 
+                      <div style={{ width: 280, flexShrink: 0 }}>
+                        <Textfield
+                          placeholder="Search supplies..."
+                          value={itemSearch}
                           onChange={e => setItemSearch(e.target.value)}
-                          style={{ 
-                            width: '100%', height: 32, paddingLeft: 32, paddingRight: 10,
-                            border: `1px solid ${token('color.border', '#DFE1E6')}`, borderRadius: 3, 
-                            fontSize: 14, fontFamily: 'inherit', outline: 'none',
-                            backgroundColor: token('elevation.surface.sunken', '#F4F5F7'),
-                          }}
+                          elemBeforeInput={
+                            <span style={{ paddingLeft: 10, display: 'flex', color: '#626F86' }}>
+                              <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+                                <circle cx="7" cy="7" r="5" stroke="currentColor" strokeWidth="1.5"/>
+                                <path d="M11 11l3 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                              </svg>
+                            </span>
+                          }
                         />
                       </div>
                     </div>
@@ -564,10 +564,10 @@ export default function MissionDetailPage({ user, onSwitchAccount, onLogout }) {
                         <span style={{ fontSize: 13, color: '#172B4D' }}>{item.description}</span>
                         <span style={{ fontSize: 13, color: '#44546F' }}>{item.company}</span>
                         <span style={{ fontSize: 13, color: '#172B4D' }}>{item.ref}</span>
-                        <input 
-                          type="number" value={item.qty || ''} 
+                        <Textfield
+                          type="number" value={item.qty || ''}
                           onChange={e => handleUpdateItem(item.id, 'qty', parseInt(e.target.value) || 0)}
-                          style={{ width: 50, border: '1px solid transparent', padding: '2px 4px', fontSize: 13, fontWeight: 600 }}
+                          width="xsmall"
                         />
                         <button 
                           onClick={() => handleDeleteItem(item)}
@@ -586,19 +586,15 @@ export default function MissionDetailPage({ user, onSwitchAccount, onLogout }) {
                       <FilterDropdown label="Role" options={['Surgeon', 'Nurse', 'Coordinator', 'Specialist']} selected={null} onSelect={() => {}} />
                     </div>
                     
-                    <div style={{ position: 'relative', width: 280, flexShrink: 0 }}>
-                      <span style={{ position: 'absolute', left: 8, top: '50%', transform: 'translateY(-50%)', color: '#8590A2', display: 'flex' }}>
-                        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="5" stroke="currentColor" strokeWidth="1.5"/><path d="M11 11l3 3" stroke="currentColor" strokeWidth="1.5"/></svg>
-                      </span>
-                      <input 
-                        type="text" placeholder="Search team..." 
+                    <div style={{ width: 280, flexShrink: 0 }}>
+                      <Textfield
+                        placeholder="Search team..."
                         value={peopleSearch} onChange={e => setPeopleSearch(e.target.value)}
-                        style={{ 
-                          width: '100%', height: 32, paddingLeft: 28, 
-                          border: `1px solid ${token('color.border', '#DFE1E6')}`, borderRadius: 3, 
-                          fontSize: 13, outline: 'none',
-                          backgroundColor: token('elevation.surface.sunken', '#F4F5F7'),
-                        }}
+                        elemBeforeInput={
+                          <span style={{ paddingLeft: 8, display: 'flex', color: '#8590A2' }}>
+                            <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="5" stroke="currentColor" strokeWidth="1.5"/><path d="M11 11l3 3" stroke="currentColor" strokeWidth="1.5"/></svg>
+                          </span>
+                        }
                       />
                     </div>
                   </div>
@@ -611,32 +607,21 @@ export default function MissionDetailPage({ user, onSwitchAccount, onLogout }) {
                     </div>
                     {filteredPeople.map(person => (
                       <div key={person.id} style={{ display: 'grid', gridTemplateColumns: '1fr 200px 240px 40px', padding: '12px 14px', gap: 8, alignItems: 'center', borderBottom: '1px solid #f4f4f4' }}>
-                        <input
-                          type="text"
+                        <Textfield
                           value={person.name}
                           onChange={(e) => handleUpdatePersonField(person.id, 'name', e.target.value)}
-                          style={{
-                            width: '100%', border: '1px solid transparent', padding: '4px 6px',
-                            fontSize: 13, fontWeight: 500, color: '#172B4D', borderRadius: 3, outline: 'none',
-                          }}
+                          isCompact
                         />
-                        <input
-                          type="text"
+                        <Textfield
                           value={person.role}
                           onChange={(e) => handleUpdatePersonField(person.id, 'role', e.target.value)}
-                          style={{
-                            width: '100%', border: '1px solid transparent', padding: '4px 6px',
-                            fontSize: 13, color: '#44546F', borderRadius: 3, outline: 'none',
-                          }}
+                          isCompact
                         />
-                        <input
+                        <Textfield
                           type="email"
                           value={person.email}
                           onChange={(e) => handleUpdatePersonField(person.id, 'email', e.target.value)}
-                          style={{
-                            width: '100%', border: '1px solid transparent', padding: '4px 6px',
-                            fontSize: 13, color: '#44546F', borderRadius: 3, outline: 'none',
-                          }}
+                          isCompact
                         />
                         <button 
                           onClick={() => handleDeletePerson(person)}

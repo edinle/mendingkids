@@ -3,6 +3,7 @@ import { token } from '@atlaskit/tokens';
 import { supabase } from '../utils/supabase';
 import Textfield from '@atlaskit/textfield';
 import Select from '@atlaskit/select';
+import Textarea from '@atlaskit/textarea';
 import SlidePanel from './SlidePanel';
 import Modal, { ModalTransition, ModalHeader, ModalTitle, ModalBody, ModalFooter } from '@atlaskit/modal-dialog';
 import Button from '@atlaskit/button';
@@ -70,12 +71,11 @@ export default function RequestFormPanel({ isOpen, onClose, onSave }) {
             </div>
             <div>
               <label style={labelSt}>Items Needed & Quantities</label>
-              <textarea 
+              <Textarea 
                 value={formData.note} 
                 onChange={e => setFormData({...formData, note: e.target.value})} 
                 placeholder="e.g. 5x Pulse Oximeters, 20x Surgical Masks" 
-                rows={5}
-                style={{ width: '100%', boxSizing: 'border-box', padding: '8px', border: '2px solid #DFE1E6', borderRadius: 3, resize: 'vertical', fontFamily: 'inherit', fontSize: 14 }}
+                minimumRows={5}
               />
             </div>
           </div>

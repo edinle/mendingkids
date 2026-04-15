@@ -229,16 +229,16 @@ function GlobalPermissions({ onAdd, onEdit }) {
         <div style={{ display: 'flex', gap: 8 }}>
           {/* Permissions don't need many filters */}
         </div>
-        <div style={{ position: 'relative', display: 'inline-flex', alignItems: 'center' }}>
-          <span style={{ position: 'absolute', left: 10, color: token('color.text.subtlest', '#626F86'), display: 'flex' }}>
-            <SearchIcon label="" size="small" />
-          </span>
-          <input
-            type="text"
+        <div style={{ display: 'inline-flex', alignItems: 'center', width: 220 }}>
+          <TextField
             placeholder="Search permissions"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            style={{ height: 32, width: 220, paddingLeft: 32, paddingRight: 10, border: `1px solid ${token('color.border', 'rgba(9,30,66,0.14)')}`, borderRadius: 4, fontSize: 13, color: token('color.text', '#172B4D'), outline: 'none', fontFamily: 'inherit', backgroundColor: token('elevation.surface.sunken', '#F4F5F7') }}
+            elemBeforeInput={
+              <span style={{ paddingLeft: 10, display: 'flex', color: token('color.text.subtlest', '#626F86') }}>
+                <SearchIcon label="" size="small" />
+              </span>
+            }
           />
         </div>
       </div>
@@ -401,16 +401,16 @@ function Users({ onInvite, onEdit }) {
         <div style={{ display: 'flex', gap: 8 }}>
           <FilterDropdown label="Group" options={allGroups} selected={groupFilter} onSelect={setGroupFilter} />
         </div>
-        <div style={{ position: 'relative', display: 'inline-flex', alignItems: 'center' }}>
-          <span style={{ position: 'absolute', left: 10, color: token('color.text.subtlest', '#626F86'), display: 'flex' }}>
-            <SearchIcon label="" size="small" />
-          </span>
-          <input
-            type="text"
+        <div style={{ display: 'inline-flex', alignItems: 'center', width: 220 }}>
+          <TextField
             placeholder="Search users"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            style={{ height: 32, width: 220, paddingLeft: 32, paddingRight: 10, border: `1px solid ${token('color.border', 'rgba(9,30,66,0.14)')}`, borderRadius: 4, fontSize: 13, color: token('color.text', '#172B4D'), outline: 'none', fontFamily: 'inherit', backgroundColor: token('elevation.surface.sunken', '#F4F5F7') }}
+            elemBeforeInput={
+              <span style={{ paddingLeft: 10, display: 'flex', color: token('color.text.subtlest', '#626F86') }}>
+                <SearchIcon label="" size="small" />
+              </span>
+            }
           />
         </div>
       </div>
@@ -495,16 +495,16 @@ function Groups({ onCreate, onEdit }) {
         <div style={{ display: 'flex', gap: 8 }}>
           {/* Group filters could go here */}
         </div>
-        <div style={{ position: 'relative', display: 'inline-flex', alignItems: 'center' }}>
-          <span style={{ position: 'absolute', left: 10, color: token('color.text.subtlest', '#626F86'), display: 'flex' }}>
-            <SearchIcon label="" size="small" />
-          </span>
-          <input
-            type="text"
+        <div style={{ display: 'inline-flex', alignItems: 'center', width: 220 }}>
+          <TextField
             placeholder="Search groups"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            style={{ height: 32, width: 220, paddingLeft: 32, paddingRight: 10, border: `1px solid ${token('color.border', 'rgba(9,30,66,0.14)')}`, borderRadius: 4, fontSize: 13, color: token('color.text', '#172B4D'), outline: 'none', fontFamily: 'inherit', backgroundColor: token('elevation.surface.sunken', '#F4F5F7') }}
+            elemBeforeInput={
+              <span style={{ paddingLeft: 10, display: 'flex', color: token('color.text.subtlest', '#626F86') }}>
+                <SearchIcon label="" size="small" />
+              </span>
+            }
           />
         </div>
       </div>

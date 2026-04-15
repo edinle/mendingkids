@@ -7,6 +7,7 @@ import EditIcon from '@atlaskit/icon/core/edit';
 import ShowMoreHorizontalIcon from '@atlaskit/icon/core/show-more-horizontal';
 import SearchIcon from '@atlaskit/icon/core/search';
 import { token } from '@atlaskit/tokens';
+import Textfield from '@atlaskit/textfield';
 
 import TopNav from './TopNav';
 import SideNav from './SideNav';
@@ -175,16 +176,16 @@ export default function ItemRequestsPage({ user, onSwitchAccount, onLogout }) {
                 <FilterDropdown label="Status" options={['Pending', 'Approved', 'In Progress', 'Declined']} selected={statusFilter} onSelect={setStatusFilter} />
                 <FilterDropdown label="Priority" options={['High', 'Medium', 'Low']} selected={priorityFilter} onSelect={setPriorityFilter} />
               </div>
-              <div style={{ position: 'relative', display: 'inline-flex', alignItems: 'center' }}>
-                <span style={{ position: 'absolute', left: 10, color: token('color.text.subtlest', '#626F86') }}>
-                  <SearchIcon label="" />
-                </span>
-                <input
-                  type="text"
+              <div style={{ display: 'inline-flex', alignItems: 'center', width: 260 }}>
+                <Textfield
                   placeholder="Search requests"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  style={{ height: 32, width: 260, paddingLeft: 36, paddingRight: 10, border: `1px solid ${token('color.border', 'rgba(9,30,66,0.14)')}`, borderRadius: 4, fontSize: 14, color: token('color.text', '#172B4D'), outline: 'none', fontFamily: 'inherit', backgroundColor: token('elevation.surface.sunken', '#F4F5F7') }}
+                  elemBeforeInput={
+                    <span style={{ paddingLeft: 10, display: 'flex', color: token('color.text.subtlest', '#626F86') }}>
+                      <SearchIcon label="" />
+                    </span>
+                  }
                 />
               </div>
             </div>

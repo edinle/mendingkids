@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { token } from '@atlaskit/tokens';
 import { supabase } from '../utils/supabase';
+import Select from '@atlaskit/select';
 import SlidePanel from './SlidePanel';
 
 export default function RequestDetailPanel({ isOpen, onClose, request, onUpdateStatus, onSave, user }) {
@@ -75,13 +76,14 @@ export default function RequestDetailPanel({ isOpen, onClose, request, onUpdateS
         <div>
           <span style={labelSt}>{label}</span>
           <div style={{ display: 'flex', gap: 6 }}>
-            <select 
-              value={tempVal} 
-              onChange={e => setTempVal(e.target.value)}
-              style={{ flex: 1, padding: '4px 8px', borderRadius: 3, border: '2px solid #2684FF', fontSize: 13 }}
-            >
-              {options.map(o => <option key={o} value={o}>{o}</option>)}
-            </select>
+            <Select
+              value={{ label: tempVal, value: tempVal }}
+              onChange={v => setTempVal(v?.value || '')}
+              options={options.map(o => ({ label: o, value: o }))}
+              menuPortalTarget={document.body}
+              styles={{ container: (base) => ({ ...base, flex: 1 }) }}
+              autoFocus
+            />
             <button onClick={commitEdit} style={{ border: 'none', background: '#1F845A', color: '#fff', borderRadius: 3, padding: '2px 8px', cursor: 'pointer' }}>✓</button>
             <button onClick={cancelEdit} style={{ border: 'none', background: '#AE2E24', color: '#fff', borderRadius: 3, padding: '2px 8px', cursor: 'pointer' }}>✕</button>
           </div>

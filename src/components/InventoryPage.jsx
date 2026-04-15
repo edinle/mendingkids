@@ -16,6 +16,7 @@ import EditIcon from '@atlaskit/icon/core/edit';
 import ShowMoreHorizontalIcon from '@atlaskit/icon/core/show-more-horizontal';
 import SearchIcon from '@atlaskit/icon/core/search';
 import { token } from '@atlaskit/tokens';
+import Textfield from '@atlaskit/textfield';
 
 import TopNav from './TopNav';
 import SideNav from './SideNav';
@@ -714,29 +715,17 @@ export default function InventoryPage({ user, onSwitchAccount, onLogout }) {
                 <FilterDropdown label="Expiration" hasIcon options={EXPIRATION_OPTIONS} selected={expirationFilter} onSelect={setExpirationFilter} />
               </div>
 
-              <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-                <span style={{
-                  position: 'absolute', left: 10, display: 'flex',
-                  color: token('color.text.subtlest', '#626F86'), pointerEvents: 'none',
-                }}>
-                  <SearchIcon label="" />
-                </span>
-                <input
-                  type="text"
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <Textfield
                   placeholder="Search"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  style={{
-                    height: 32, width: 220,
-                    paddingLeft: 32, paddingRight: 10,
-                    border: `1px solid ${token('color.border', 'rgba(9,30,66,0.14)')}`,
-                    borderRadius: 4, fontSize: 14,
-                    color: token('color.text', '#172B4D'),
-                    outline: 'none',
-                    backgroundColor: token('elevation.surface', '#fff'),
-                    fontFamily: 'inherit',
-                  }}
                   aria-label="Search inventory"
+                  elemBeforeInput={
+                    <span style={{ paddingLeft: 10, display: 'flex', color: token('color.text.subtlest', '#626F86') }}>
+                      <SearchIcon label="" />
+                    </span>
+                  }
                 />
               </div>
             </div>
