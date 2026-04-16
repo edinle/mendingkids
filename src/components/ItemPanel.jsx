@@ -590,6 +590,8 @@ export default function ItemPanel({ isOpen, onClose, onSave, isEdit, baseItem, u
 
   // Fetch dynamic options
   useEffect(() => {
+    if (!isOpen) return;
+
     const fetchOptions = async () => {
       const { data: locationRows, error: locationError } = await supabase
         .from('locations')
@@ -627,7 +629,7 @@ export default function ItemPanel({ isOpen, onClose, onSave, isEdit, baseItem, u
     };
 
     fetchOptions();
-  }, []);
+  }, [isOpen]);
 
   // Use effect to handle pre-filling when based on an existing item
   useEffect(() => {
