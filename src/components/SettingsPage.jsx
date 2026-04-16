@@ -41,6 +41,11 @@ const MOCK_GROUPS = [
   { id: '4', name: 'interns', members: '8 users', type: 'Limited access' },
 ];
 
+const FIXED_LOCATIONS = [
+  { id: 'storage-a', name: 'Storage A', type: 'Facility' },
+  { id: 'storage-b', name: 'Storage B', type: 'Facility' },
+];
+
 // Reusable MK Purple Button
 function PrimaryButton({ children, onClick, style }) {
   return (
@@ -699,34 +704,18 @@ function CategoriesTags({ onAdd, onEdit }) {
 }
 
 function Locations({ onAdd, onEdit }) {
-  const [locations, setLocations] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetchLocations();
-  }, []);
-
-  const fetchLocations = async () => {
-    setLoading(true);
-    const { data } = await supabase.from('locations').select('*');
-    if (data) setLocations(data);
-    setLoading(false);
-  };
-
   const head = {
     cells: [
       { key: 'name', content: 'Location name', isSortable: true },
       { key: 'type', content: 'Type', isSortable: true },
-      { key: 'actions', content: '', isSortable: false },
     ],
   };
 
-  const rows = locations.map(l => ({
+  const rows = FIXED_LOCATIONS.map(l => ({
     key: l.id,
     cells: [
       { content: <strong>{l.name}</strong> },
       { content: l.type },
-      { content: <a href="#" onClick={(e) => { e.preventDefault(); onEdit(l); }} style={{color:'var(--ds-link)'}}>Edit</a> }
     ]
   }));
 
@@ -734,11 +723,10 @@ function Locations({ onAdd, onEdit }) {
     <>
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
         <p style={{ color: token('color.text.subtle', '#5E6C84'), fontSize: 14 }}>
-          Manage your physical warehouses and logical sub-locations (cabinets, shelves).
+          Locations are fixed for this workspace and currently limited to Storage A and Storage B.
         </p>
-        <PrimaryButton onClick={onAdd}>Add location</PrimaryButton>
       </div>
-      <DynamicTable head={head} rows={rows} rowsPerPage={10} defaultPage={1} isLoading={loading} />
+      <DynamicTable head={head} rows={rows} rowsPerPage={10} defaultPage={1} isLoading={false} />
     </>
   );
 }
@@ -944,19 +932,6 @@ export default function SettingsPage({ user, onSwitchAccount, onLogout }) {
     else { closeModal(); window.location.reload(); }
   };
 
-  const handleSaveLocation = async () => {
-    const payload = {
-      name: formData.name,
-      type: formData.type
-    };
-    const { error } = editingItem
-      ? await supabase.from('locations').update(payload).eq('id', editingItem.id)
-      : await supabase.from('locations').insert(payload);
-    
-    if (error) alert(error.message);
-    else { closeModal(); window.location.reload(); }
-  };
-
   const closeModal = () => {
     setIsModalOpen(null);
     setEditingItem(null);
@@ -972,7 +947,7 @@ export default function SettingsPage({ user, onSwitchAccount, onLogout }) {
       case 'Groups':                return <Groups onCreate={() => openModal('group')} onEdit={(item) => openModal('group', item)} />;
       case 'Authentication':        return <Authentication />;
       case 'Categories & Tags':     return <CategoriesTags onAdd={() => openModal('category')} onEdit={(item) => openModal('category', item)} />;
-      case 'Locations':             return <Locations onAdd={() => openModal('location')} onEdit={(item) => openModal('location', item)} />;
+      case 'Locations':             return <Locations />;
       case 'Automation rules':      return <AutomationRules onAdd={() => openModal('automation')} onEdit={(item) => openModal('automation', item)} />;
       default: return null;
     }
@@ -1083,7 +1058,6 @@ export default function SettingsPage({ user, onSwitchAccount, onLogout }) {
           <div style={{ padding: '32px 32px 16px', borderBottom: '1px solid #DFE1E6' }}>
             <h2 style={{ margin: 0, fontSize: 24, fontWeight: 600, color: '#172B4D' }}>
               {isModalOpen === 'category' && (editingItem ? 'Edit Category' : 'Add Category')}
-              {isModalOpen === 'location' && (editingItem ? 'Edit Location' : 'Add Location')}
               {isModalOpen === 'automation' && 'Create automation rule'}
               {isModalOpen === 'permission' && (editingItem ? 'Edit Permission' : 'Grant Permission')}
               {isModalOpen === 'invite' && 'Setup New User'}
@@ -1116,27 +1090,6 @@ export default function SettingsPage({ user, onSwitchAccount, onLogout }) {
                     value={formData.description} 
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                     placeholder="What's in this category?" 
-                  />
-                </div>
-              </div>
-            )}
-
-            {isModalOpen === 'location' && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-                <div>
-                  <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#5E6C84', marginBottom: 6 }}>Location Name</label>
-                  <TextField 
-                    value={formData.name} 
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    placeholder="e.g. Warehouse B - Shelf 4" 
-                  />
-                </div>
-                <div>
-                  <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#5E6C84', marginBottom: 6 }}>Location Type</label>
-                  <Select 
-                    options={[{label: 'Facility', value: 'Facility'}, {label: 'Sub-location', value: 'Sub-location'}]} 
-                    value={{ label: formData.type, value: formData.type }}
-                    onChange={(v) => setFormData({ ...formData, type: v.value })}
                   />
                 </div>
               </div>
@@ -1321,7 +1274,6 @@ export default function SettingsPage({ user, onSwitchAccount, onLogout }) {
             <PrimaryButton onClick={
               isModalOpen === 'invite' ? handleSaveUser : 
               isModalOpen === 'category' ? handleSaveCategory :
-              isModalOpen === 'location' ? handleSaveLocation :
               closeModal
             }>
               {editingItem ? 'Save changes' : 'Create'}

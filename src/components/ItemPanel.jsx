@@ -75,6 +75,11 @@ const UNIT_OPTIONS = [
   { label: 'Case',  value: 'case' },
 ];
 
+const LOCATION_OPTIONS = [
+  { label: 'Storage A', value: 'Storage A' },
+  { label: 'Storage B', value: 'Storage B' },
+];
+
 const ACQUISITION_OPTIONS = [
   { label: 'Donation', value: 'donation' },
   { label: 'Purchase', value: 'purchase' },
@@ -581,7 +586,7 @@ export default function ItemPanel({ isOpen, onClose, onSave, isEdit, baseItem, u
   const titles = STEP_TITLES(isEdit);
   const [s1, setS1] = useState(INIT_S1);
   const [s2, setS2] = useState(INIT_S2);
-  const [locations, setLocations] = useState([]);
+  const [locations, setLocations] = useState(LOCATION_OPTIONS);
   const [showStepErrors, setShowStepErrors] = useState({ 1: false, 2: false });
   const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -590,45 +595,7 @@ export default function ItemPanel({ isOpen, onClose, onSave, isEdit, baseItem, u
 
   // Fetch dynamic options
   useEffect(() => {
-    if (!isOpen) return;
-
-    const fetchOptions = async () => {
-      const { data: locationRows, error: locationError } = await supabase
-        .from('locations')
-        .select('name')
-        .order('name');
-
-      if (locationRows?.length) {
-        setLocations(locationRows.map((location) => ({ label: location.name, value: location.name })));
-        return;
-      }
-
-      if (locationError) {
-        console.warn('Falling back to shipment locations for add-item dropdown:', locationError.message);
-      }
-
-      const { data: shipmentRows, error: shipmentError } = await supabase
-        .from('shipments')
-        .select('location')
-        .not('location', 'is', null)
-        .neq('location', '');
-
-      if (shipmentError) {
-        console.error('Failed to load fallback shipment locations:', shipmentError.message);
-        setLocations([]);
-        return;
-      }
-
-      const uniqueLocations = [...new Set(
-        (shipmentRows || [])
-          .map((shipment) => shipment.location?.trim())
-          .filter(Boolean),
-      )].sort((left, right) => left.localeCompare(right));
-
-      setLocations(uniqueLocations.map((location) => ({ label: location, value: location })));
-    };
-
-    fetchOptions();
+    setLocations(LOCATION_OPTIONS);
   }, [isOpen]);
 
   // Use effect to handle pre-filling when based on an existing item
