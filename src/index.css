@@ -46,8 +46,7 @@ body {
   --ds-background-neutral-subtle-pressed: rgba(66, 38, 112, 0.16) !important;
   --ds-border-input: #5137a2 !important;
 
-  /* Navigation */
-  --nav-height: 56px;
+/* Make sure TopNavigation stretches */
   --nav-layout-width: 100vw;
   --sidebar-width: 240px;
 }
