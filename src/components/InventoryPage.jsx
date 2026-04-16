@@ -269,6 +269,7 @@ export default function InventoryPage({ user, onSwitchAccount, onLogout }) {
   const [overview, setOverview] = useState({ isOpen: false, item: null });
   const [assignOpen, setAssignOpen] = useState(false);
   const [deploySuccess, setDeploySuccess] = useState({ isOpen: false, msg: '' });
+  const [assignWarning, setAssignWarning] = useState({ isOpen: false, message: '' });
   const [selectedItem, setSelectedItem] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [confirmModal, setConfirmModal] = useState({ isOpen: false, item: null, action: null });
@@ -387,18 +388,38 @@ export default function InventoryPage({ user, onSwitchAccount, onLogout }) {
   const closePanel = () => setPanel({ ...panel, isOpen: false });
   const openOverview = (item) => setOverview({ isOpen: true, item });
   const closeOverview = () => setOverview((p) => ({ ...p, isOpen: false }));
+
+  const showAssignInUseWarning = (item) => {
+    setAssignWarning({
+      isOpen: true,
+      message: `${item.description} is currently assigned to ${item.mission || 'a mission'}. Remove it from that mission before assigning it to a different one.`,
+    });
+  };
+
+  const tryOpenAssignPanel = (item) => {
+    if (!item) return;
+    setSelectedItem(item);
+    if (item.status === 'in-use') {
+      showAssignInUseWarning(item);
+      return;
+    }
+    setAssignOpen(true);
+  };
   
   const handleItemAction = (item, action) => {
-    setSelectedItem(item);
     if (action === 'assign') {
-      setAssignOpen(true);
+      tryOpenAssignPanel(item);
     } else if (action === 'new-entry' || action === 'add-shipment') {
+      setSelectedItem(item);
       openAdd(item, false);
     } else if (action === 'delete') {
+      setSelectedItem(item);
       setConfirmModal({ isOpen: true, item, action: 'delete' });
     } else if (action === 'archive') {
+      setSelectedItem(item);
       setConfirmModal({ isOpen: true, item, action: 'archive' });
     } else if (action === 'restore') {
+      setSelectedItem(item);
       setConfirmModal({ isOpen: true, item, action: 'restore' });
     }
   };
@@ -444,7 +465,21 @@ export default function InventoryPage({ user, onSwitchAccount, onLogout }) {
     const ids = [...selectedIds];
     if (!ids.length) return;
     if (action === 'delete') { setBulkConfirm({ isOpen: true }); return; }
-    if (action === 'assign') { setBulkAssignOpen(true); return; }
+    if (action === 'assign') {
+      const selectedItems = inventory.filter((item) => ids.includes(item.id));
+      const inUseItem = selectedItems.find((item) => item.status === 'in-use');
+      if (inUseItem || activeTab === 'in-use') {
+        setAssignWarning({
+          isOpen: true,
+          message: inUseItem
+            ? `${inUseItem.description} is currently assigned to ${inUseItem.mission || 'a mission'}. Remove it from that mission before assigning it to a different one.`
+            : 'One or more selected items are already assigned to a mission. Remove them from their current mission before assigning them to a different one.',
+        });
+        return;
+      }
+      setBulkAssignOpen(true);
+      return;
+    }
     if (action === 'archive') {
       await supabase.from('shipments').update({ status: 'archived' }).in('id', ids);
     } else if (action === 'restore') {
@@ -799,7 +834,10 @@ export default function InventoryPage({ user, onSwitchAccount, onLogout }) {
         item={overview.item}
         onSave={handleSave}
         onEdit={handleOverviewEdit}
-        onAssign={() => { setOverview(p => ({ ...p, isOpen: false })); setAssignOpen(true); setSelectedItem(overview.item); }}
+        onAssign={() => {
+          setOverview(p => ({ ...p, isOpen: false }));
+          tryOpenAssignPanel(overview.item);
+        }}
         onNewEntry={() => { setOverview(p => ({ ...p, isOpen: false })); openAdd(overview.item); }}
       />
 
@@ -907,6 +945,24 @@ export default function InventoryPage({ user, onSwitchAccount, onLogout }) {
             <ModalFooter>
               <Button appearance="primary" onClick={() => setDeploySuccess({ ...deploySuccess, isOpen: false })}>
                 Done
+              </Button>
+            </ModalFooter>
+          </Modal>
+        )}
+      </ModalTransition>
+
+      <ModalTransition>
+        {assignWarning.isOpen && (
+          <Modal onClose={() => setAssignWarning({ isOpen: false, message: '' })}>
+            <ModalHeader>
+              <ModalTitle appearance="warning">Item already on mission</ModalTitle>
+            </ModalHeader>
+            <ModalBody>
+              <p>{assignWarning.message}</p>
+            </ModalBody>
+            <ModalFooter>
+              <Button appearance="primary" onClick={() => setAssignWarning({ isOpen: false, message: '' })}>
+                Close
               </Button>
             </ModalFooter>
           </Modal>

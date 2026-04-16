@@ -11,6 +11,7 @@ export default function AssignToMissionPanel({ isOpen, onClose, item, onAssign }
   const [quantity, setQuantity] = useState('');
   const [missions, setMissions] = useState([]);
   const [saving, setSaving] = useState(false);
+  const maxQuantity = Number(item?.quantity || 0);
 
   useEffect(() => {
     if (isOpen) {
@@ -35,23 +36,54 @@ export default function AssignToMissionPanel({ isOpen, onClose, item, onAssign }
 
   const handleAssign = async () => {
     if (!selectedMission || !quantity || !item) return;
+    const quantityToAssign = Number(quantity);
+    if (Number.isNaN(quantityToAssign) || quantityToAssign <= 0 || quantityToAssign > maxQuantity) return;
     setSaving(true);
 
     try {
-      // Update the shipment: set status to 'in-use', assign mission, update location to mission name
-      const { error } = await supabase
-        .from('shipments')
-        .update({
-          status: 'in-use',
-          mission_id: selectedMission.value,
-          quantity: Number(quantity),
-          location: selectedMission.location || selectedMission.label,
-        })
-        .eq('id', item.id);
+      if (quantityToAssign === maxQuantity) {
+        const { error } = await supabase
+          .from('shipments')
+          .update({
+            status: 'in-use',
+            mission_id: selectedMission.value,
+            quantity: quantityToAssign,
+            location: selectedMission.location || selectedMission.label,
+          })
+          .eq('id', item.id);
 
-      if (error) throw error;
+        if (error) throw error;
+      } else {
+        const remainingQuantity = maxQuantity - quantityToAssign;
 
-      onAssign?.(selectedMission, quantity);
+        const { error: updateError } = await supabase
+          .from('shipments')
+          .update({
+            quantity: remainingQuantity,
+          })
+          .eq('id', item.id);
+
+        if (updateError) throw updateError;
+
+        const { error: insertError } = await supabase
+          .from('shipments')
+          .insert({
+            inventory_id: item.inventory_id,
+            quantity: quantityToAssign,
+            status: 'in-use',
+            mission_id: selectedMission.value,
+            location: selectedMission.location || selectedMission.label,
+            expiration_date: item.expiration && item.expiration !== '—' ? item.expiration : null,
+            lot_number: item.lot_number === 'N/A' ? null : item.lot_number,
+            market_value: item.market_value ?? null,
+            valuation_source: item.valuation_source ?? null,
+            acquisition_method: item.acquisition_method ?? null,
+          });
+
+        if (insertError) throw insertError;
+      }
+
+      onAssign?.(selectedMission, quantityToAssign);
     } catch (err) {
       console.error('Assign to mission failed:', err);
     } finally {
@@ -95,9 +127,11 @@ export default function AssignToMissionPanel({ isOpen, onClose, item, onAssign }
             </label>
             <Textfield
               type="number"
-              placeholder={`Available: ${item?.quantity || 0}`}
+              placeholder={`Available: ${maxQuantity}`}
               value={quantity}
               onChange={(e) => setQuantity(e.target.value)}
+              min={1}
+              max={maxQuantity}
               elemBeforeInput={
                 <span style={{ paddingLeft: 10, display: 'flex', color: '#626F86' }}>
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -130,11 +164,11 @@ export default function AssignToMissionPanel({ isOpen, onClose, item, onAssign }
           </button>
           <button
             onClick={handleAssign}
-            disabled={!selectedMission || !quantity || saving}
+            disabled={!selectedMission || !quantity || saving || Number(quantity) <= 0 || Number(quantity) > maxQuantity}
             style={{
               padding: '6px 16px', borderRadius: 4, border: 'none',
-              background: (!selectedMission || !quantity || saving) ? '#F1F2F4' : '#A12654',
-              color: '#fff', cursor: (!selectedMission || !quantity || saving) ? 'not-allowed' : 'pointer',
+              background: (!selectedMission || !quantity || saving || Number(quantity) <= 0 || Number(quantity) > maxQuantity) ? '#F1F2F4' : '#A12654',
+              color: '#fff', cursor: (!selectedMission || !quantity || saving || Number(quantity) <= 0 || Number(quantity) > maxQuantity) ? 'not-allowed' : 'pointer',
               fontSize: 14, fontWeight: 500, fontFamily: 'inherit',
             }}
           >
