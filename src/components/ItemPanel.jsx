@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '../utils/supabase';
 import PropTypes from 'prop-types';
 import Select from '@atlaskit/select';
@@ -30,13 +30,17 @@ const inputSt = {
 };
 
 // Input with a left icon prefix (mirrors Atlaskit's elemBeforeInput)
-function InputWithIcon({ icon, value, onChange, placeholder, autoFocus }) {
+function InputWithIcon({ icon, value, onChange, placeholder, autoFocus, invalid = false, onBlur }) {
   const [focused, setFocused] = useState(false);
   return (
     <div style={{
       display: 'flex', alignItems: 'center',
       height: CTRL_HEIGHT, boxSizing: 'border-box',
-      border: focused ? '2px solid #4C9AFF' : '2px solid #DFE1E6',
+      border: invalid
+        ? '2px solid #AE2E24'
+        : focused
+          ? '2px solid #4C9AFF'
+          : '2px solid #DFE1E6',
       borderRadius: 4, backgroundColor: '#FAFBFC', overflow: 'hidden',
     }}>
       {icon}
@@ -46,7 +50,11 @@ function InputWithIcon({ icon, value, onChange, placeholder, autoFocus }) {
         placeholder={placeholder}
         autoFocus={autoFocus}
         onFocus={() => setFocused(true)}
-        onBlur={() => setFocused(false)}
+        onBlur={(event) => {
+          setFocused(false);
+          onBlur?.(event);
+        }}
+        aria-invalid={invalid}
         style={{
           flex: 1, height: '100%', border: 'none', outline: 'none',
           fontSize: 14, fontFamily: 'inherit',
@@ -65,14 +73,6 @@ const UNIT_OPTIONS = [
   { label: 'Unit',  value: 'unit' },
   { label: 'Pack',  value: 'pack' },
   { label: 'Case',  value: 'case' },
-];
-
-const LOCATION_OPTIONS = [
-  { label: 'Storage A',  value: 'Storage A' },
-  { label: 'Storage B',  value: 'Storage B' },
-  { label: 'Warehouse',  value: 'Warehouse' },
-  { label: 'Cabinet 14 Shelf 2B', value: 'Cabinet 14 Shelf 2B' },
-  { label: 'Cabinet 12 Shelf 1A', value: 'Cabinet 12 Shelf 1A' },
 ];
 
 const ACQUISITION_OPTIONS = [
@@ -105,7 +105,6 @@ const INIT_S2 = {
   marketValue:      '',
   valuationSource:  '',
   acquisitionMethod:null,
-  uploadedFile:     null,
 };
 
 // ─── Shared field label ─────────────────────────────────────────────────────
@@ -124,6 +123,22 @@ function FieldLabel({ text, required }) {
 }
 
 FieldLabel.propTypes = { text: PropTypes.string, required: PropTypes.bool };
+
+function FieldError({ message }) {
+  if (!message) return null;
+
+  return (
+    <p style={{
+      margin: '4px 0 0',
+      fontSize: 12,
+      color: '#AE2E24',
+    }}>
+      {message}
+    </p>
+  );
+}
+
+FieldError.propTypes = { message: PropTypes.string };
 
 // ─── Icon helpers ───────────────────────────────────────────────────────────
 
@@ -175,9 +190,53 @@ function GlobeIcon({ color = 'var(--ds-link)' }) {
 
 GlobeIcon.propTypes = { color: PropTypes.string };
 
+function getSelectStyles(hasError) {
+  if (!hasError) return selectStyles;
+
+  return {
+    ...selectStyles,
+    control: (base, state) => ({
+      ...selectStyles.control(base, state),
+      borderColor: '#AE2E24',
+      boxShadow: 'none',
+      '&:hover': { borderColor: '#AE2E24' },
+    }),
+  };
+}
+
+function getStep1Errors(values) {
+  const errors = {};
+
+  if (!values.description.trim()) errors.description = 'Item description is required.';
+  if (!values.location) errors.location = 'Location is required.';
+  if (!values.unitOfMeasure) errors.unitOfMeasure = 'Unit of measure is required.';
+
+  if (!values.quantity.trim()) {
+    errors.quantity = 'Quantity is required.';
+  } else if (Number.isNaN(Number(values.quantity)) || Number(values.quantity) <= 0) {
+    errors.quantity = 'Quantity must be greater than 0.';
+  }
+
+  return errors;
+}
+
+function getStep2Errors(values) {
+  const errors = {};
+
+  if (!values.marketValue.trim()) {
+    errors.marketValue = 'Market value is required.';
+  } else if (Number.isNaN(Number(values.marketValue)) || Number(values.marketValue) < 0) {
+    errors.marketValue = 'Market value must be 0 or greater.';
+  }
+
+  if (!values.acquisitionMethod) errors.acquisitionMethod = 'Acquisition method is required.';
+
+  return errors;
+}
+
 // ─── Step 1: Item Details ───────────────────────────────────────────────────
 
-function Step1({ values, onChange, locations, categories }) {
+function Step1({ values, onChange, locations, errors }) {
   const set = (field) => (val) => onChange({ ...values, [field]: val });
   const setE = (field) => (e) => onChange({ ...values, [field]: e.target.value });
 
@@ -192,7 +251,9 @@ function Step1({ values, onChange, locations, categories }) {
           onChange={setE('description')}
           placeholder="e.g. Surgical Gown, Size L"
           autoFocus={!values.description}
+          invalid={Boolean(errors.description)}
         />
+        <FieldError message={errors.description} />
       </div>
 
       <div>
@@ -211,8 +272,9 @@ function Step1({ values, onChange, locations, categories }) {
           onChange={set('location')}
           options={locations}
           placeholder="Select Location"
-          styles={selectStyles}
+          styles={getSelectStyles(Boolean(errors.location))}
         />
+        <FieldError message={errors.location} />
       </div>
 
       <div>
@@ -241,8 +303,9 @@ function Step1({ values, onChange, locations, categories }) {
             onChange={set('unitOfMeasure')}
             options={UNIT_OPTIONS}
             placeholder="Select Unit"
-            styles={selectStyles}
+            styles={getSelectStyles(Boolean(errors.unitOfMeasure))}
           />
+          <FieldError message={errors.unitOfMeasure} />
         </div>
         <div style={{ flex: 1 }}>
           <FieldLabel text="Typical Shelf Life" />
@@ -261,7 +324,9 @@ function Step1({ values, onChange, locations, categories }) {
           value={values.quantity}
           onChange={setE('quantity')}
           placeholder="Add quantity"
+          invalid={Boolean(errors.quantity)}
         />
+        <FieldError message={errors.quantity} />
       </div>
 
       <div>
@@ -278,14 +343,18 @@ function Step1({ values, onChange, locations, categories }) {
   );
 }
 
-Step1.propTypes = { values: PropTypes.object, onChange: PropTypes.func };
+Step1.propTypes = {
+  values: PropTypes.object,
+  onChange: PropTypes.func,
+  locations: PropTypes.array,
+  errors: PropTypes.object,
+};
 
 // ─── Step 2: Add Documentation ─────────────────────────────────────────────
 
-function Step2({ values, onChange }) {
+function Step2({ values, onChange, errors }) {
   const [aiVisible, setAiVisible] = useState(true);
   const [hoveredAi, setHoveredAi] = useState(null);
-  const fileInputRef = useRef(null);
 
   const set = (field) => (val) => onChange({ ...values, [field]: val });
   const setE = (field) => (e) => onChange({ ...values, [field]: e.target.value });
@@ -293,45 +362,6 @@ function Step2({ values, onChange }) {
   const handleAiClick = (url) => {
     onChange({ ...values, valuationSource: url });
     setAiVisible(false);
-  };
-
-  const handleFileSelect = (e) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      onChange({
-        ...values,
-        uploadedFile: {
-          name: file.name,
-          size: file.size,
-          type: file.type,
-          url: URL.createObjectURL(file),
-          date: new Date().toLocaleString('en-GB', {
-            day: '2-digit', month: 'short', year: 'numeric',
-            hour: '2-digit', minute: '2-digit',
-          }),
-        },
-      });
-    }
-  };
-
-  const handleDrop = (e) => {
-    e.preventDefault();
-    const file = e.dataTransfer.files?.[0];
-    if (file) {
-      onChange({
-        ...values,
-        uploadedFile: {
-          name: file.name,
-          size: file.size,
-          type: file.type,
-          url: URL.createObjectURL(file),
-          date: new Date().toLocaleString('en-GB', {
-            day: '2-digit', month: 'short', year: 'numeric',
-            hour: '2-digit', minute: '2-digit',
-          }),
-        },
-      });
-    }
   };
 
   return (
@@ -344,7 +374,9 @@ function Step2({ values, onChange }) {
           value={values.marketValue}
           onChange={setE('marketValue')}
           placeholder="Add market value"
+          invalid={Boolean(errors.marketValue)}
         />
+        <FieldError message={errors.marketValue} />
       </div>
 
       <div>
@@ -403,111 +435,16 @@ function Step2({ values, onChange }) {
           onChange={set('acquisitionMethod')}
           options={ACQUISITION_OPTIONS}
           placeholder="Select acquisition method"
-          styles={selectStyles}
+          styles={getSelectStyles(Boolean(errors.acquisitionMethod))}
         />
-      </div>
-
-      {/* Upload Document */}
-      <div>
-        <FieldLabel text="Upload Document" />
-        <div
-          onDragOver={(e) => e.preventDefault()}
-          onDrop={handleDrop}
-          style={{
-            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
-            padding: '16px 12px',
-            border: `2px dashed ${token('color.border', 'rgba(9,30,66,0.2)')}`,
-            borderRadius: 4,
-            backgroundColor: token('elevation.surface', '#fff'),
-          }}
-        >
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-            <path d="M8 11V5M5 8l3-3 3 3" stroke="#626F86" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-            <path d="M3 13h10" stroke="#626F86" strokeWidth="1.3" strokeLinecap="round" />
-          </svg>
-          <span style={{ fontSize: 14, color: token('color.text.subtle', '#505258') }}>
-            Drop files to attach or
-          </span>
-          <button
-            type="button"
-            onClick={() => fileInputRef.current?.click()}
-            style={{
-              display: 'flex', alignItems: 'center', gap: 5,
-              padding: '4px 10px',
-              border: `1px solid ${token('color.border', 'rgba(9,30,66,0.20)')}`,
-              borderRadius: 4,
-              background: token('elevation.surface', '#fff'),
-              cursor: 'pointer', fontSize: 14,
-              color: token('color.text', '#172B4D'), fontFamily: 'inherit',
-            }}
-          >
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-              <path d="M11 8.5l-3.5 3.5L4 8.5M7.5 2v10" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-            Browse
-          </button>
-          <input
-            ref={fileInputRef}
-            type="file"
-            style={{ display: 'none' }}
-            onChange={handleFileSelect}
-          />
-        </div>
-
-        {/* Uploaded file preview */}
-        {values.uploadedFile && (
-          <FilePreview file={values.uploadedFile} />
-        )}
+        <FieldError message={errors.acquisitionMethod} />
       </div>
 
     </div>
   );
 }
 
-Step2.propTypes = { values: PropTypes.object, onChange: PropTypes.func };
-
-// ─── File Preview Card ──────────────────────────────────────────────────────
-
-function FilePreview({ file }) {
-  const isImage = file.type?.startsWith('image/');
-  return (
-    <div style={{
-      display: 'inline-flex', flexDirection: 'column',
-      width: 160, marginTop: 12,
-      border: `1px solid ${token('color.border', 'rgba(9,30,66,0.14)')}`,
-      borderRadius: 4, overflow: 'hidden',
-      backgroundColor: token('elevation.surface', '#fff'),
-    }}>
-      {/* Thumbnail */}
-      <div style={{
-        width: '100%', height: 100,
-        backgroundColor: '#7B61FF',
-        backgroundImage: isImage ? `url(${file.url})` : undefined,
-        backgroundSize: 'cover', backgroundPosition: 'center',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        overflow: 'hidden',
-      }}>
-        {!isImage && (
-          <svg width="36" height="36" viewBox="0 0 36 36" fill="none" aria-hidden="true">
-            <rect x="6" y="4" width="24" height="28" rx="2" fill="rgba(255,255,255,0.25)" stroke="white" strokeWidth="1.5" />
-            <path d="M11 12h14M11 17h14M11 22h9" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
-          </svg>
-        )}
-      </div>
-      {/* Metadata */}
-      <div style={{ padding: '8px 10px' }}>
-        <p style={{ margin: 0, fontSize: 13, fontWeight: 600, color: token('color.text', '#172B4D'), whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-          {file.name}
-        </p>
-        <p style={{ margin: '2px 0 0', fontSize: 11, color: token('color.text.subtle', '#505258') }}>
-          {file.date}
-        </p>
-      </div>
-    </div>
-  );
-}
-
-FilePreview.propTypes = { file: PropTypes.object };
+Step2.propTypes = { values: PropTypes.object, onChange: PropTypes.func, errors: PropTypes.object };
 
 // ─── Step 3: Review Your Inputs ─────────────────────────────────────────────
 
@@ -621,7 +558,6 @@ function Step3({ s1, s2 }) {
       <div style={{ height: 1, backgroundColor: 'rgba(9,30,66,0.08)' }} />
 
       <ReviewField label="Market Value per Unit" required value={s2.marketValue} placeholder="Add market value" />
-      <ReviewField label="Upload Document"               value={s2.uploadedFile?.name} />
       <ReviewField label="Valuation Source"              value={s2.valuationSource} />
 
     </div>
@@ -645,20 +581,51 @@ export default function ItemPanel({ isOpen, onClose, onSave, isEdit, baseItem, u
   const titles = STEP_TITLES(isEdit);
   const [s1, setS1] = useState(INIT_S1);
   const [s2, setS2] = useState(INIT_S2);
-  const [categories, setCategories] = useState([]);
   const [locations, setLocations] = useState([]);
+  const [showStepErrors, setShowStepErrors] = useState({ 1: false, 2: false });
   const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const step1Errors = showStepErrors[1] ? getStep1Errors(s1) : {};
+  const step2Errors = showStepErrors[2] ? getStep2Errors(s2) : {};
 
   // Fetch dynamic options
   useEffect(() => {
     const fetchOptions = async () => {
-      const { data: catData } = await supabase.from('categories').select('*').order('name');
-      const { data: locData } = await supabase.from('locations').select('*').order('name');
-      
-      if (catData) setCategories(catData.map(c => ({ label: c.name, value: c.name })));
-      if (locData) setLocations(locData.map(l => ({ label: l.name, value: l.name })));
+      const { data: locationRows, error: locationError } = await supabase
+        .from('locations')
+        .select('name')
+        .order('name');
+
+      if (locationRows?.length) {
+        setLocations(locationRows.map((location) => ({ label: location.name, value: location.name })));
+        return;
+      }
+
+      if (locationError) {
+        console.warn('Falling back to shipment locations for add-item dropdown:', locationError.message);
+      }
+
+      const { data: shipmentRows, error: shipmentError } = await supabase
+        .from('shipments')
+        .select('location')
+        .not('location', 'is', null)
+        .neq('location', '');
+
+      if (shipmentError) {
+        console.error('Failed to load fallback shipment locations:', shipmentError.message);
+        setLocations([]);
+        return;
+      }
+
+      const uniqueLocations = [...new Set(
+        (shipmentRows || [])
+          .map((shipment) => shipment.location?.trim())
+          .filter(Boolean),
+      )].sort((left, right) => left.localeCompare(right));
+
+      setLocations(uniqueLocations.map((location) => ({ label: location, value: location })));
     };
+
     fetchOptions();
   }, []);
 
@@ -713,6 +680,7 @@ export default function ItemPanel({ isOpen, onClose, onSave, isEdit, baseItem, u
     setStep(1);
     setS1(INIT_S1);
     setS2(INIT_S2);
+    setShowStepErrors({ 1: false, 2: false });
   };
 
   const handleClose = () => {
@@ -721,6 +689,22 @@ export default function ItemPanel({ isOpen, onClose, onSave, isEdit, baseItem, u
   };
 
   const handleNext = () => {
+    if (step === 1) {
+      const errors = getStep1Errors(s1);
+      if (Object.keys(errors).length > 0) {
+        setShowStepErrors((current) => ({ ...current, 1: true }));
+        return;
+      }
+    }
+
+    if (step === 2) {
+      const errors = getStep2Errors(s2);
+      if (Object.keys(errors).length > 0) {
+        setShowStepErrors((current) => ({ ...current, 2: true }));
+        return;
+      }
+    }
+
     if (step < TOTAL_STEPS) setStep(step + 1);
   };
 
@@ -729,6 +713,15 @@ export default function ItemPanel({ isOpen, onClose, onSave, isEdit, baseItem, u
   };
 
   const handleSave = async () => {
+    const nextStep1Errors = getStep1Errors(s1);
+    const nextStep2Errors = getStep2Errors(s2);
+
+    if (Object.keys(nextStep1Errors).length > 0 || Object.keys(nextStep2Errors).length > 0) {
+      setShowStepErrors({ 1: true, 2: true });
+      setStep(Object.keys(nextStep1Errors).length > 0 ? 1 : 2);
+      return;
+    }
+
     try {
       // 1. Ensure inventory item exists (Manual lookup to avoid constraint issues)
       let invId;
@@ -863,8 +856,8 @@ export default function ItemPanel({ isOpen, onClose, onSave, isEdit, baseItem, u
           </p>
         )}
 
-        {step === 1 && <Step1 values={s1} onChange={setS1} locations={locations} categories={categories} />}
-        {step === 2 && <Step2 values={s2} onChange={setS2} categories={categories} />}
+        {step === 1 && <Step1 values={s1} onChange={setS1} locations={locations} errors={step1Errors} />}
+        {step === 2 && <Step2 values={s2} onChange={setS2} errors={step2Errors} />}
         {step === 3 && <Step3 s1={s1} s2={s2} />}
       </div>
 
