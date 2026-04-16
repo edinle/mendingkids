@@ -536,6 +536,7 @@ const DEFAULT_DETAIL_VALUES = {
 };
 
 const SHELF_LIFE_OPTIONS = ['Does Not Expire', '1 Year', '2 Years', '3 Years', '5 Years'];
+const LOCATION_OPTIONS = ['Storage A', 'Storage B'];
 
 function DetailsTab({ isFullEdit, onExitFullEdit, item, onSave }) {
   const [saved, setSaved]         = useState({
@@ -672,6 +673,33 @@ function DetailsTab({ isFullEdit, onExitFullEdit, item, onSave }) {
     };
 
     if (isEditing) {
+      if (field === 'location') {
+        return (
+          <div>
+            <Select
+              value={{ label: tempVal, value: tempVal }}
+              onChange={v => { setTempVal(v?.value || ''); }}
+              options={LOCATION_OPTIONS.map(o => ({ label: o, value: o }))}
+              autoFocus
+              menuPortalTarget={document.body}
+              menuPosition="fixed"
+            />
+            <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end', marginTop: 6 }}>
+              <button onClick={commitEdit} style={iconBtnSt('#1F845A')}>
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                  <path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </button>
+              <button onClick={cancelEdit} style={iconBtnSt('#AE2E24')}>
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                  <path d="M3 3l6 6M9 3l-6 6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        );
+      }
+
       return (
         <div>
           {isTextArea ? (
@@ -741,11 +769,14 @@ function DetailsTab({ isFullEdit, onExitFullEdit, item, onSave }) {
     };
 
     if (isSelect) {
+      const selectOptions = field === 'location' ? LOCATION_OPTIONS : SHELF_LIFE_OPTIONS;
       return (
         <Select
           value={{ label: draft[field], value: draft[field] }}
           onChange={v => setFullDraft(field, v?.value || '')}
-          options={SHELF_LIFE_OPTIONS.map(o => ({ label: o, value: o }))}
+          options={selectOptions.map(o => ({ label: o, value: o }))}
+          menuPortalTarget={document.body}
+          menuPosition="fixed"
         />
       );
     }
@@ -880,7 +911,7 @@ function DetailsTab({ isFullEdit, onExitFullEdit, item, onSave }) {
       {/* Location */}
       <div>
         <span style={labelSt}>Location</span>
-        {isFullEdit ? renderFullEditField('location') : renderField('location')}
+        {isFullEdit ? renderFullEditField('location', false, true) : renderField('location')}
       </div>
 
       <div style={{ height: 1, backgroundColor: 'rgba(9,30,66,0.08)', margin: '2px 0' }} />
