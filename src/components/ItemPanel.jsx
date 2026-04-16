@@ -17,6 +17,7 @@ const selectStyles = {
   control: (base) => ({ ...base, minHeight: CTRL_HEIGHT, height: CTRL_HEIGHT }),
   valueContainer: (base) => ({ ...base, height: CTRL_HEIGHT, padding: '0 8px' }),
   indicatorsContainer: (base) => ({ ...base, height: CTRL_HEIGHT }),
+  menuPortal: (base) => ({ ...base, zIndex: 9999 }),
 };
 
 // Plain <input> style — matches Select's border/radius/font exactly
@@ -244,6 +245,7 @@ function getStep2Errors(values) {
 function Step1({ values, onChange, locations, errors }) {
   const set = (field) => (val) => onChange({ ...values, [field]: val });
   const setE = (field) => (e) => onChange({ ...values, [field]: e.target.value });
+  const menuPortalTarget = typeof document !== 'undefined' ? document.body : null;
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
@@ -278,6 +280,8 @@ function Step1({ values, onChange, locations, errors }) {
           options={locations}
           placeholder="Select Location"
           styles={getSelectStyles(Boolean(errors.location))}
+          menuPortalTarget={menuPortalTarget}
+          menuPosition="fixed"
         />
         <FieldError message={errors.location} />
       </div>
@@ -309,6 +313,8 @@ function Step1({ values, onChange, locations, errors }) {
             options={UNIT_OPTIONS}
             placeholder="Select Unit"
             styles={getSelectStyles(Boolean(errors.unitOfMeasure))}
+            menuPortalTarget={menuPortalTarget}
+            menuPosition="fixed"
           />
           <FieldError message={errors.unitOfMeasure} />
         </div>
@@ -363,6 +369,7 @@ function Step2({ values, onChange, errors }) {
 
   const set = (field) => (val) => onChange({ ...values, [field]: val });
   const setE = (field) => (e) => onChange({ ...values, [field]: e.target.value });
+  const menuPortalTarget = typeof document !== 'undefined' ? document.body : null;
 
   const handleAiClick = (url) => {
     onChange({ ...values, valuationSource: url });
@@ -441,6 +448,8 @@ function Step2({ values, onChange, errors }) {
           options={ACQUISITION_OPTIONS}
           placeholder="Select acquisition method"
           styles={getSelectStyles(Boolean(errors.acquisitionMethod))}
+          menuPortalTarget={menuPortalTarget}
+          menuPosition="fixed"
         />
         <FieldError message={errors.acquisitionMethod} />
       </div>
